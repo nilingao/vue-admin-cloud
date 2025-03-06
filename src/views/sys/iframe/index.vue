@@ -3,6 +3,7 @@
     <Spin :spinning="loading" size="large" :style="getWrapStyle">
       <iframe
         :src="frameSrc"
+        allow="clipboard-write; clipboard-read"
         :class="`${prefixCls}__main`"
         ref="frameRef"
         @load="hideLoading"

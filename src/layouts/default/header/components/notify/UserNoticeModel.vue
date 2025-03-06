@@ -11,6 +11,7 @@
     <Spin size="large" :spinning="loading" :style="getWrapStyle">
       <iframe
         :src="stats.path + stats.data.content"
+        allow="clipboard-write; clipboard-read"
         ref="frameRef"
         class="iframeClass"
         @load="hideLoading"

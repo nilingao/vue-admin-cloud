@@ -12,10 +12,17 @@
       </Row>
     </div>
     <div :class="`${prefixCls}-left bg-black grid row-span-15`">
-      <VideoZlmRtcPlay :videoUrl="stats.zlmVideoRtcUrl" :hasAudio="true" :muted="false"/>
-    </div>
-    <div :class="`${prefixCls}-left bg-black grid row-span-15`">
-      <VideoZlmRtcPlay :videoUrl="stats.zlmAudioRtcUrl" :hasAudio="true" :muted="false"/>
+      <FsRtcPlay 
+        ref="fsRtcPlay"
+        :caller="stats.caller" 
+        :sendSdpApi="handleOk" 
+        :audioEnable ="pushStats.audioEnable" 
+        :videoEnable ="pushStats.videoEnable" 
+        :muted ="false" 
+        :useDtmf ="pushStats.useDtmf" 
+        :useCamera ="pushStats.useCamera" 
+        :recvOnly ="pushStats.recvOnly" 
+      />
     </div>
     <BasicForm @register="register" />
     <Button size="small"   @click="handleOk">拨打</Button>
@@ -26,7 +33,7 @@
   </div>
 </template>
 <script lang="ts" setup>
-  import { reactive, unref,onBeforeMount,onUnmounted } from 'vue';
+  import { reactive, ref,unref ,onBeforeMount,onUnmounted } from 'vue';
   import { BasicForm, FormSchema, useForm } from '@/components/Form/index';
   import rootSocketEmitter from '@/hooks/socket/rootSocketEmitter';
   import {
@@ -38,17 +45,13 @@
   import { Button,Row,Col,Switch } from 'ant-design-vue';
   import { useSocketStore } from '@/store/modules/socket';
   import { useDesign } from '@/hooks/web/useDesign';
-  import VideoZlmRtcPlay from '@/components/Video/src/VideoZlmRtcPlay.vue';
+  import FsRtcPlay from '@/components/Freeswitch/FsRtcPlay.vue';
   import { useFsSocket } from '@/hooks/socket';
   import { useMessage} from '@/hooks/web/useMessage';
-  import { useZlmRtc } from '@/components/Video';
-  import { useUserStore } from '@/store/modules/user';
-  import { setObjToUrlParams } from '@/utils';
-  import { isEmpty } from '@/utils/is';
 
+  const fsRtcPlay = ref();
   const emit = defineEmits(['success', 'register']);
   const useSocket = useSocketStore();
-  const userStore = useUserStore();
   const { createMessage,createConfirm } = useMessage();
   const { prefixCls } = useDesign('video-play');
 
@@ -56,9 +59,6 @@
     caller :'',
     status : 0,//0.未登录 1.已登陆
     timeout : null as any,//超时定时器
-    zlmAudioRtcUrl:'',
-    zlmVideoRtcUrl:'',
-    direction : 1,//呼叫方式 1.呼入 2.呼出
     inCallRingConfirm : {} as any,
   })
 
@@ -80,8 +80,6 @@
     useDtmf:true,
 	  useCamera: true,
   });
-
-  const {success,sendDtmf, destroy } = useZlmRtc(pushStats); //加载 webrtc 语音对讲配置
 
   const schemas: FormSchema[] = [
     {
@@ -109,24 +107,6 @@
     showActionButtonGroup: false,
   });
 
-  const sendMessage = ()=>{
-    if(stats.status == 0){
-        createMessage.error('客服未登录');
-        return;
-    }else if(stats.status == 1){
-        createMessage.info('客服登陆成功');
-        return;
-    }else if(stats.status == 2){
-        createMessage.info('正在获取推流地址，请稍后');
-        return;
-    }else if(stats.status == 3){
-        createMessage.info('正在推流请稍后');
-        return;
-    }else if(stats.status == 4){
-        createMessage.info('拨打电话中请稍后。。。');
-        return;
-    }
-  }
 
   const handleAgentStats = ()=>{
      //登录成功后 请求坐席信息
@@ -136,7 +116,7 @@
   }
 
   const handleDtmf =async()=>{
-    if(!unref(success)){
+    if(!unref(fsRtcPlay).success){
       createMessage.error('webrtp加载失败');
       return;
     }
@@ -145,54 +125,51 @@
       createMessage.error('请输入拨号号码');
       return;
     }
-    sendDtmf(dtmf)
+    unref(fsRtcPlay).sendDtmf(dtmf)
   }
 
-  const handleOk = async ()=>{
-    if(!unref(success)){
-        createMessage.error('webrtp加载失败');
-        return;
-      }
-    const { caller } =await validate();
-    //开始执行流程
-    if(stats.status != 1){
-      sendMessage();
+  const handleOk = async (sdp)=>{
+    if(!unref(fsRtcPlay).success){
+      createMessage.error('webrtp加载失败');
       return;
     }
+    const { caller } =await validate();
     if(!caller){
       createMessage.error('请输入号码');
       return;
-    }else if(isEmpty(agentStats.mediaAddress)){
-      createMessage.error('未获取推流地址');
-      return;
     }
-    stats.direction = 1;
-    stats.caller = caller;
-    stats.status = 2;
-    sendMessage();
-    stats.timeout = setTimeout(()=>{
-      stats.status = 1;
-      destroy();
-      createMessage.error('获取推流地址超时1');
-      stats.timeout && clearInterval(stats.timeout);
-    },15000)
-    //开始推流
-    pushStats.zlmsdpUrl =authUrl(setObjToUrlParams(agentStats.mediaAddress,{app:'RTP_STREAM',stream:(pushStats.videoEnable?'PUSH_VIDEO_RTP_STREAM:':'PUSH_AUDIO_RTP_STREAM:')+agentStats.agentKey,type:'push'})) as string;
-    stats.status = 3;//开始推流中
-    sendMessage();
+    //开始拨号
+    useSocket.sendMessage(SocketNamespace.AGENT_NAMESPACE, SocketInEvent.AGENT_IN_CALL_PHONE, {
+      type:pushStats.videoEnable?'CALL_VIDEO_PHONE':'CALL_AUDIO_PHONE',
+      caller: stats.caller,//拨打号码
+      sdp: sdp,
+    });
+    return new Promise((resolve,reject) => {
+      //客服拨打电话回调
+      rootSocketEmitter.on(SocketOutEvent.AGENT_OUT_CALL_PHONE, (val) => {
+        const { code, message, data } = val as Recordable;
+        if (code != ResultEnum.SUCCESS) {
+          reject(message || '获取消息错误');
+          rootSocketEmitter.off(SocketOutEvent.AGENT_OUT_CALL_PHONE);
+          return;
+        }
+        resolve(data);
+        rootSocketEmitter.off(SocketOutEvent.AGENT_OUT_CALL_PHONE);
+      });
+      stats.timeout = setTimeout(()=>{
+        hangUp();
+        rootSocketEmitter.off(SocketOutEvent.AGENT_OUT_CALL_PHONE);
+        createMessage.error('获取用户sdp超时');
+        stats.timeout && clearInterval(stats.timeout);
+        reject('获取拨打用户sdp超时');
+      },15000)
+    });
   }
-
-  const authUrl = (url) => {
-    return setObjToUrlParams(url, { token: userStore.getToken });
-  };
 
   const hangUp = ()=>{
     //关闭推流
     stats.status = 1;//拨打电话
-    destroy();
-    stats.direction = 1;//默认呼出
-    stats.zlmAudioRtcUrl = '';
-    stats.zlmVideoRtcUrl = '';
+    unref(fsRtcPlay).destroy();
     stats.inCallRingConfirm = {}
   }
   const handleHangUp = () =>{
@@ -208,7 +185,6 @@
     rootSocketEmitter.off(SocketOutEvent.AGENT_OUT_LOGIN);
     rootSocketEmitter.off(SocketOutEvent.AGENT_OUT_PUSH_PATH);
     rootSocketEmitter.off(SocketOutEvent.AGENT_OUT_PUSH_PATH_LOGOUT);
-    rootSocketEmitter.off(SocketOutEvent.AGENT_OUT_CALL_PHONE);
     rootSocketEmitter.off(SocketOutEvent.AGENT_OUT_HANG_UP_PHONE);
     rootSocketEmitter.off(SocketOutEvent.AGENT_OUT_PHONE_NOTIFICATION);
     
@@ -219,12 +195,12 @@
         return;
       }
       stats.status = 1;
-      sendMessage();
       //登录成功后 请求坐席信息
       useSocket.sendMessage(SocketNamespace.AGENT_NAMESPACE, SocketInEvent.AGENT_IN_STATUS, {
         updateStatus: 0,//是否更新信息坐席状态 默认不更新
       });
     });
+
     //客服信息回调
     rootSocketEmitter.on(SocketOutEvent.AGENT_OUT_STATUS, (val) => {
       const { code, message, data } = val as Recordable;
@@ -242,57 +218,7 @@
       createMessage.info(message);
     });
 
-    //客服推流成功回调
-    rootSocketEmitter.on(SocketOutEvent.AGENT_OUT_PUSH_PATH, (val) => {
-      const { code, message } = val as Recordable;
-      if (code != ResultEnum.SUCCESS) {
-        stats.status = 1;
-        createMessage.error(message || '获取消息错误');
-        stats.timeout && clearInterval(stats.timeout);
-        return;
-      }
-      stats.timeout && clearInterval(stats.timeout);
-      stats.status = 4;//拨打电话
-      sendMessage();
-      //判断 是 主动拨号 还是 被动
-      if(stats.direction == 1){//呼出
-         //开始拨号
-        useSocket.sendMessage(SocketNamespace.AGENT_NAMESPACE, SocketInEvent.AGENT_IN_CALL_PHONE, {
-          caller: stats.caller,//拨打号码
-          type:pushStats.videoEnable?'CALL_VIDEO_PHONE':'CALL_AUDIO_PHONE',
-        });
-      }else{//呼入
-        const keys =  Object.keys(stats.inCallRingConfirm);
-        if(!keys || keys.length == 0){
-          createMessage.error('未获取来电 callId 信息');
-          return
-        }
-        //开始拨号
-        useSocket.sendMessage(SocketNamespace.AGENT_NAMESPACE, SocketInEvent.AGENT_IN_PHONE_NOTIFICATION, {
-          type:2,
-          callId: keys[0],//拨打号码
-          onVideo:pushStats.videoEnable?1:0,
-        });
-      }
-    });
-    //客服拨打电话回调
-    rootSocketEmitter.on(SocketOutEvent.AGENT_OUT_CALL_PHONE, (val) => {
-      const { code, message, data } = val as Recordable;
-      if (code != ResultEnum.SUCCESS) {
-        hangUp();
-        createMessage.error(message || '获取消息错误');
-        return;
-      }
-      const tracks = data?.tracks as Array<Recordable>;
-      const trackCount = tracks.filter(o=>o.codecType == 0).length;//查看是否有视频
-      if(trackCount > 0){
-        stats.zlmVideoRtcUrl = authUrl(data?.rtc?.url) as any
-        createMessage.info('视频成功');
-      }else{
-        stats.zlmAudioRtcUrl = authUrl(data?.rtc?.url) as any
-        createMessage.info('音频成功');
-      }
-    });
+   
     //接收挂机回调
     rootSocketEmitter.on(SocketOutEvent.AGENT_OUT_HANG_UP_PHONE, (val) => {
       const { code, message } = val as Recordable;
@@ -319,46 +245,40 @@
     });
   })
   //开始处理回调事件
-  const handleNotification = ({agentState,callId,callType,called,caller,direction,groupId,onVideo}) =>{
-    if('IN_CALL_RING' === agentState && 'INNER_CALL' === callType ){
+  const handleNotification = ({agentState,callId,data}) =>{
+    if('IN_CALL_RING' === agentState){
       //呼入来电振铃
-      handleInCallRing(callId,called,caller,onVideo);
-    }else if('TALKING' === agentState && 'INNER_CALL' === callType ){
-      //对方已接通等待连接
-      createMessage.info('对方已接通等待连接');
+      handleInCallRing(callId,data);
+    }else if('TALKING' === agentState){
+      const {callType} = data
+      if('INNER_CALL' === callType){
+        //对方已接通等待连接
+        createMessage.info('对方已接通等待连接');
+      }
+    }else if('IN_CALL_MES' === agentState){
+      createMessage.info('接通成功');
     }else{
-      console.log("暂不支持此类型事件：",callType);
+      console.log("暂不支持此类型事件：",agentState);
     }
   }
   //呼入来电处理
-  const handleInCallRing = (callId,called,caller,onVideo) =>{
+  const handleInCallRing = (callId,data) =>{
+    const {callType,called,caller,direction,groupId,onVideo} = data
+    if('INNER_CALL' !== callType){
+      return
+    }
     if(stats.inCallRingConfirm[callId]){
       return;
     }
     pushStats.videoEnable = onVideo ===1;
-    stats.direction = 2;
     stats.inCallRingConfirm[callId] = createConfirm({
       iconType: 'warning',
       title: () => '来电呼叫',
       content: () => '号码：'+called,
       okText:'接听',
       onOk: () => {
-        if(isEmpty(agentStats.mediaAddress)){
-          createMessage.error('未获取推流地址');
-          return;
-        }
-        stats.status = 2;
-        sendMessage();
-        stats.timeout = setTimeout(()=>{
-          stats.status = 1;
-          destroy();
-          createMessage.error('获取推流地址超时2');
-          stats.timeout && clearInterval(stats.timeout);
-        },15000)
-        //开始推流
-        pushStats.zlmsdpUrl =authUrl(setObjToUrlParams(agentStats.mediaAddress,{app:'RTP_STREAM',stream:(pushStats.videoEnable?'PUSH_VIDEO_RTP_STREAM:':'PUSH_AUDIO_RTP_STREAM:')+agentStats.agentKey,type:'push'})) as string;
         stats.status = 3;//开始推流中
-        sendMessage();
+        
       },
       cancelText:'拒绝',
       onCancel: ()=>{
