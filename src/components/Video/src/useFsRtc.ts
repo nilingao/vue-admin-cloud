@@ -33,7 +33,7 @@ export function useFsRtc(rtcProps: RtcProps, container?: Ref) {
       return initBoolean;
     }
     try{
-      fsRtcClient.value = new (window as any).fsRtcClient.Endpoint({
+      fsRtcClient.value = new (window as any).FSRTCClient.Endpoint({
         ...deepMerge(
           {
             funApi: undefined as any, //返回 sdp 信息
@@ -52,7 +52,7 @@ export function useFsRtc(rtcProps: RtcProps, container?: Ref) {
       });
       initBoolean = true;
     }catch (error) {
-      console.log('初始化webRTP失败：' + error);
+      console.error('初始化webRTP失败：', error);
       return initBoolean;
     }
     unref(fsRtcClient).on('WEBRTC_INIT_ZLMSDP_URL_ERR', (e) => {
@@ -90,6 +90,7 @@ export function useFsRtc(rtcProps: RtcProps, container?: Ref) {
       localSteam.value = 2;
       eventcallbacK('LOCAL STREAM', '加载流媒体成功');
     });
+    unref(fsRtcClient).start();
     return initBoolean;
   };
   //播放
@@ -160,22 +161,7 @@ export function useFsRtc(rtcProps: RtcProps, container?: Ref) {
     }
     unref(fsRtcClient).close();
     fsRtcClient.value = null;
-    rtcProps.funApi = undefined;
   };
-
-  watch(
-    () => rtcProps,
-    () => {
-      nextTick(() => {
-        console.log("watch rtcProps:",rtcProps);
-        //先注销
-        destroy();
-        //然后播放
-        play();
-      });
-    },
-    { immediate: true, deep: true },
-  );
 
   /**
    * Rtc播放事件

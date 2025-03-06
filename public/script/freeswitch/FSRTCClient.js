@@ -1,4 +1,4 @@
-var ZLMRTCClient = (function (exports) {
+var FSRTCClient = (function (exports) {
 	'use strict';
 
 	const Events$1 = {
@@ -9031,58 +9031,9 @@ var ZLMRTCClient = (function (exports) {
 	      this.datachannel.onmessage = this.e.ondatachannelmsg;
 	      this.datachannel.onopen = this.e.ondatachannelopen;
 	    }
-	    if (!this.options.recvOnly && (this.options.audioEnable || this.options.videoEnable)) this.start();else this.receive();
-	  }
-	  receive() {
-			if(!this.options.funApi){
-				error(this.TAG, 'funApi not implement');
-				return;
-			}
-	    //debug.error(this.TAG,'this not implement');
-	    const AudioTransceiverInit = {
-	      direction: 'recvonly',
-	      sendEncodings: []
-	    };
-	    const VideoTransceiverInit = {
-	      direction: 'recvonly',
-	      sendEncodings: []
-	    };
-	    if (this.options.videoEnable) {
-	      this.pc.addTransceiver('video', VideoTransceiverInit);
-	    }
-	    if (this.options.audioEnable) {
-	      this.pc.addTransceiver('audio', AudioTransceiverInit);
-	    }
-	    this.pc.createOffer().then(desc => {
-	      log(this.TAG, 'offer:', desc.sdp);
-	      this.pc.setLocalDescription(desc).then(() => {
-					this.options.funApi(desc.sdp).then(response => {
-	          let ret = response.data; //JSON.parse(response.data);
-	          if (ret.code != 0) {
-	            // mean failed for offer/anwser exchange 
-	            this.dispatch(Events$1.WEBRTC_OFFER_ANWSER_EXCHANGE_FAILED, ret);
-	            return;
-	          }
-	          let anwser = {};
-	          anwser.sdp = ret.sdp;
-	          anwser.type = 'answer';
-	          log(this.TAG, 'answer:', ret.sdp);
-	          this.pc.setRemoteDescription(anwser).then(() => {
-						this.dispatch(Events$1.WEBRTC_ON_INIT_STAUTS);
-	            log(this.TAG, 'set remote sucess');
-	          }).catch(e => {
-	            error(this.TAG, e);
-	          });
-					}).catch(e => {
-						error(this.TAG, e);
-	        });
-	      });
-	    }).catch(e => {
-	      error(this.TAG, e);
-	    });
 	  }
 	  start() {
-	    let videoConstraints = false;
+			let videoConstraints = false;
 	    let audioConstraints = false;
 			if(!this.options.funApi){
 				error(this.TAG, 'funApi not implement');
@@ -9158,16 +9109,16 @@ var ZLMRTCClient = (function (exports) {
 	          this.pc.addTransceiver('video', VideoTransceiverInit);
 	        }
 	      }
-
-	      /*
-	      stream.getTracks().forEach((track,idx)=>{
-	          debug.log(this.TAG,track);
-	          this.pc.addTrack(track);
-	      });
-	      */
 	      this.pc.createOffer().then(desc => {
-					let descsdp = this.addFmtpForTelephoneEvent(desc.sdp);
-	        log(this.TAG, 'offer:', descsdp);
+					const descsdp = desc.sdp.replace(/a=rtpmap:(110|126) telephone-event\/\d+\r\n/g,'')
+																.replace(/a=fmtp:(110|126) 0-16\/\d+\r\n/g,'')
+																.replace(/m=audio \d+ [\w\/]+ /,match => match + "101 103 ")
+																.concat(
+																		"a=rtpmap:101 telephone-event/8000\r\n",
+																		"a=fmtp:101 0-16\r\n"
+																);
+					log(this.TAG, 'offer:', descsdp);
+					desc.sdp = descsdp
 	        this.pc.setLocalDescription(desc).then(() => {
 						this.options.funApi(desc.sdp).then(response => {
 	            let ret = response.data; //JSON.parse(response.data);
@@ -9200,17 +9151,6 @@ var ZLMRTCClient = (function (exports) {
 	      this.dispatch(Events$1.CAPTURE_STREAM_FAILED);
 	      error(this.TAG, e);
 	    });
-	    //const offerOptions = {};
-	    /*
-	    if (typeof this.pc.addTransceiver === 'function') {
-	        // |direction| seems not working on Safari.
-	        this.pc.addTransceiver('audio', { direction: 'recvonly' });
-	        this.pc.addTransceiver('video', { direction: 'recvonly' });
-	    } else {
-	        offerOptions.offerToReceiveAudio = true;
-	        offerOptions.offerToReceiveVideo = true;
-	    }
-	    */
 	  }
 	  _onIceCandidate(event) {
 	    if (event.candidate) {

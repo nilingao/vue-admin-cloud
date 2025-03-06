@@ -18,11 +18,6 @@
   const containerRef = ref();
   const { prefixCls } = useDesign('fs-rtp-play');
   const props = defineProps({
-    //拨打的号码
-    caller: {
-      type: String,
-      default: null,
-    },
     sendSdpApi: {
       type: Function,
       default: null,
@@ -81,22 +76,18 @@
     });
   };
 
+  const call = () =>{
+    destroy();
+    play();
+  }
+
   const { success,sendDtmf ,play, destroy } = useFsRtc({funApi:funApi,...use}, containerRef);
-  
-  watch(
-    () => [ props.caller|| props.audioEnable|| props.videoEnable|| props.useDtmf|| props.useCamera|| props.recvOnly],
-    () => {
-      destroy();
-      play();
-    },
-    { immediate: true, deep: true },
-  );
 
   onUnmounted(() => {
     destroy();
   });
 
-  defineExpose({ success,sendDtmf ,play, destroy });
+  defineExpose({ success,sendDtmf ,call, destroy });
 </script>
 
 <style lang="less" scoped>

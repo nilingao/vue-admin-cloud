@@ -15,7 +15,7 @@
       <FsRtcPlay 
         ref="fsRtcPlay"
         :caller="stats.caller" 
-        :sendSdpApi="handleOk" 
+        :sendSdpApi="sendSdpApi" 
         :audioEnable ="pushStats.audioEnable" 
         :videoEnable ="pushStats.videoEnable" 
         :muted ="false" 
@@ -45,7 +45,7 @@
   import { Button,Row,Col,Switch } from 'ant-design-vue';
   import { useSocketStore } from '@/store/modules/socket';
   import { useDesign } from '@/hooks/web/useDesign';
-  import FsRtcPlay from '@/components/Freeswitch/FsRtcPlay.vue';
+  import { FsRtcPlay } from '@/components/Video';
   import { useFsSocket } from '@/hooks/socket';
   import { useMessage} from '@/hooks/web/useMessage';
 
@@ -83,7 +83,7 @@
 
   const schemas: FormSchema[] = [
     {
-      field: 'caller',
+      field: 'mobile',
       component: 'Input',
       label: '被叫号码',
       colProps: {
@@ -116,7 +116,7 @@
   }
 
   const handleDtmf =async()=>{
-    if(!unref(fsRtcPlay).success){
+    if(!unref(fsRtcPlay)?.success){
       createMessage.error('webrtp加载失败');
       return;
     }
@@ -125,19 +125,22 @@
       createMessage.error('请输入拨号号码');
       return;
     }
-    unref(fsRtcPlay).sendDtmf(dtmf)
+    unref(fsRtcPlay)?.sendDtmf(dtmf)
   }
-
-  const handleOk = async (sdp)=>{
-    if(!unref(fsRtcPlay).success){
+  const handleOk = async ()=>{
+    if(!unref(fsRtcPlay)?.success){
       createMessage.error('webrtp加载失败');
       return;
     }
-    const { caller } =await validate();
-    if(!caller){
+    const { mobile } =await validate();
+    if(!mobile){
       createMessage.error('请输入号码');
       return;
     }
+    stats.caller = mobile;
+    unref(fsRtcPlay)?.call();
+  }
+  const sendSdpApi = (sdp) => {
     //开始拨号
     useSocket.sendMessage(SocketNamespace.AGENT_NAMESPACE, SocketInEvent.AGENT_IN_CALL_PHONE, {
       type:pushStats.videoEnable?'CALL_VIDEO_PHONE':'CALL_AUDIO_PHONE',
@@ -164,12 +167,12 @@
         reject('获取拨打用户sdp超时');
       },15000)
     });
-  }
+  };
 
   const hangUp = ()=>{
     //关闭推流
     stats.status = 1;//拨打电话
-    unref(fsRtcPlay).destroy();
+    unref(fsRtcPlay)?.destroy();
     stats.inCallRingConfirm = {}
   }
   const handleHangUp = () =>{
