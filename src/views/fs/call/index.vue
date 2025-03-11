@@ -14,14 +14,8 @@
     <div :class="`${prefixCls}-left bg-black grid row-span-15`">
       <FsRtcPlay 
         ref="fsRtcPlay"
-        :caller="stats.caller" 
         :sendSdpApi="sendSdpApi" 
-        :audioEnable ="pushStats.audioEnable" 
-        :videoEnable ="pushStats.videoEnable" 
-        :muted ="false" 
-        :useDtmf ="pushStats.useDtmf" 
-        :useCamera ="pushStats.useCamera" 
-        :recvOnly ="pushStats.recvOnly" 
+        :muted ="false"
       />
     </div>
     <BasicForm @register="register" />
@@ -56,8 +50,10 @@
   const { prefixCls } = useDesign('video-play');
 
   const stats = reactive({
-    caller :'',
-    status : 0,//0.未登录 1.已登陆
+    callId : '',
+    isCall:false,//是否主动接听
+    //主动拨打参数
+    caller : '',
     timeout : null as any,//超时定时器
     inCallRingConfirm : {} as any,
   })
@@ -72,7 +68,7 @@
   });
 
   const pushStats = reactive({
-    zlmsdpUrl: '',
+    recvSdp: "",
     audioEnable: true,
     videoEnable: false,
     recvOnly: false,
@@ -137,47 +133,82 @@
       createMessage.error('请输入号码');
       return;
     }
+    stats.isCall = true;
     stats.caller = mobile;
-    unref(fsRtcPlay)?.call();
+    unref(fsRtcPlay)?.call(pushStats);
   }
   const sendSdpApi = (sdp) => {
-    //开始拨号
-    useSocket.sendMessage(SocketNamespace.AGENT_NAMESPACE, SocketInEvent.AGENT_IN_CALL_PHONE, {
-      type:pushStats.videoEnable?'CALL_VIDEO_PHONE':'CALL_AUDIO_PHONE',
-      caller: stats.caller,//拨打号码
-      sdp: sdp,
-    });
     return new Promise((resolve,reject) => {
-      //客服拨打电话回调
-      rootSocketEmitter.on(SocketOutEvent.AGENT_OUT_CALL_PHONE, (val) => {
-        const { code, message, data } = val as Recordable;
-        if (code != ResultEnum.SUCCESS) {
-          reject(message || '获取消息错误');
+      if(stats.isCall){
+        //客服拨打电话回调
+        rootSocketEmitter.on(SocketOutEvent.AGENT_OUT_CALL_PHONE, (val) => {
+          stats.timeout && clearInterval(stats.timeout);
+          const { code, message, data } = val as Recordable;
+          if (code != ResultEnum.SUCCESS) {
+            hangUp();
+            reject(message || '获取消息错误');
+            rootSocketEmitter.off(SocketOutEvent.AGENT_OUT_CALL_PHONE);
+            return;
+          }
+          stats.callId = data?.callId;
+          resolve(data);
           rootSocketEmitter.off(SocketOutEvent.AGENT_OUT_CALL_PHONE);
-          return;
-        }
-        resolve(data);
-        rootSocketEmitter.off(SocketOutEvent.AGENT_OUT_CALL_PHONE);
-      });
-      stats.timeout = setTimeout(()=>{
-        hangUp();
-        rootSocketEmitter.off(SocketOutEvent.AGENT_OUT_CALL_PHONE);
-        createMessage.error('获取用户sdp超时');
-        stats.timeout && clearInterval(stats.timeout);
-        reject('获取拨打用户sdp超时');
-      },15000)
+        });
+        //开始拨号
+        useSocket.sendMessage(SocketNamespace.AGENT_NAMESPACE, SocketInEvent.AGENT_IN_CALL_PHONE, {
+          type:pushStats.videoEnable?'CALL_VIDEO_PHONE':'CALL_AUDIO_PHONE',
+          caller: stats.caller,//拨打号码
+          sdp: sdp,
+        });
+        stats.timeout = setTimeout(()=>{
+          hangUp();
+          rootSocketEmitter.off(SocketOutEvent.AGENT_OUT_CALL_PHONE);
+          createMessage.error('获取用户sdp超时');
+          stats.timeout && clearInterval(stats.timeout);
+          reject('获取拨打用户sdp超时');
+        },15000)
+      }else{
+        //客服拨打电话回调
+        rootSocketEmitter.on(SocketOutEvent.AGENT_OUT_CALL_NOTIFICATION, (val) => {
+          stats.timeout && clearInterval(stats.timeout);
+          const { code, message} = val as Recordable;
+          if (code != ResultEnum.SUCCESS) {
+            hangUp();
+            reject(message || '获取消息错误');
+            rootSocketEmitter.off(SocketOutEvent.AGENT_OUT_CALL_NOTIFICATION);
+            return;
+          }
+          resolve({sdp:pushStats.recvSdp});
+          rootSocketEmitter.off(SocketOutEvent.AGENT_OUT_CALL_NOTIFICATION);
+        });
+        useSocket.sendMessage(SocketNamespace.AGENT_NAMESPACE, SocketInEvent.AGENT_IN_CALL_NOTIFICATION, {
+          type:2,
+          callId:stats.callId,
+          sdp:sdp,
+        });
+        stats.timeout = setTimeout(()=>{
+          hangUp();
+          rootSocketEmitter.off(SocketOutEvent.AGENT_OUT_CALL_NOTIFICATION);
+          createMessage.error('来电回调失败');
+          stats.timeout && clearInterval(stats.timeout);
+          reject('来电回调失败');
+        },15000)
+      }
     });
   };
 
   const hangUp = ()=>{
     //关闭推流
-    stats.status = 1;//拨打电话
+    stats.callId = '';
+    stats.isCall = false;
+    pushStats.recvSdp = '';
+    pushStats.recvOnly= false;
     unref(fsRtcPlay)?.destroy();
     stats.inCallRingConfirm = {}
   }
   const handleHangUp = () =>{
     //发送挂机命令
-    useSocket.sendMessage(SocketNamespace.AGENT_NAMESPACE, SocketInEvent.AGENT_IN_HANG_UP_PHONE, {});
+    useSocket.sendMessage(SocketNamespace.AGENT_NAMESPACE, SocketInEvent.AGENT_IN_HANG_UP_PHONE, {callId:stats.callId});
   }
 
   onBeforeMount(()=>{
@@ -197,7 +228,6 @@
         createMessage.error(message || '获取消息错误');
         return;
       }
-      stats.status = 1;
       //登录成功后 请求坐席信息
       useSocket.sendMessage(SocketNamespace.AGENT_NAMESPACE, SocketInEvent.AGENT_IN_STATUS, {
         updateStatus: 0,//是否更新信息坐席状态 默认不更新
@@ -258,15 +288,13 @@
         //对方已接通等待连接
         createMessage.info('对方已接通等待连接');
       }
-    }else if('IN_CALL_MES' === agentState){
-      createMessage.info('接通成功');
     }else{
       console.log("暂不支持此类型事件：",agentState);
     }
   }
   //呼入来电处理
   const handleInCallRing = (callId,data) =>{
-    const {callType,called,caller,direction,groupId,onVideo} = data
+    const {callType,called,sdp,onVideo} = data
     if('INNER_CALL' !== callType){
       return
     }
@@ -280,15 +308,16 @@
       content: () => '号码：'+called,
       okText:'接听',
       onOk: () => {
-        stats.status = 3;//开始推流中
-        
+        stats.callId = callId;
+        pushStats.recvOnly= true;
+        pushStats.recvSdp = sdp;
+        unref(fsRtcPlay)?.call(pushStats);
       },
       cancelText:'拒绝',
       onCancel: ()=>{
-        useSocket.sendMessage(SocketNamespace.AGENT_NAMESPACE, SocketInEvent.AGENT_IN_PHONE_NOTIFICATION, {
+        useSocket.sendMessage(SocketNamespace.AGENT_NAMESPACE, SocketInEvent.AGENT_IN_CALL_NOTIFICATION, {
           type:1,
-          callId,
-          onVideo:pushStats.videoEnable?1:0,
+          callId
         });
         hangUp();
         createMessage.success('已拒接');

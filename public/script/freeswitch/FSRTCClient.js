@@ -1287,13 +1287,10 @@ var FSRTCClient = (function (exports) {
 
 	  // shim implicit creation of RTCSessionDescription/RTCIceCandidate
 	  if (browserDetails.version < 53) {
-	    ['setLocalDescription', 'setRemoteDescription', 'addIceCandidate']
-	        .forEach(function(method) {
+	    ['setLocalDescription', 'setRemoteDescription', 'addIceCandidate'].forEach(function(method) {
 	          const nativeMethod = window.RTCPeerConnection.prototype[method];
 	          const methodObj = {[method]() {
-	            arguments[0] = new ((method === 'addIceCandidate') ?
-	                window.RTCIceCandidate :
-	                window.RTCSessionDescription)(arguments[0]);
+	            arguments[0] = new ((method === 'addIceCandidate') ? window.RTCIceCandidate : window.RTCSessionDescription)(arguments[0]);
 	            return nativeMethod.apply(this, arguments);
 	          }};
 	          window.RTCPeerConnection.prototype[method] = methodObj[method];
@@ -4991,8 +4988,7 @@ var FSRTCClient = (function (exports) {
 	function shimRTCIceCandidate(window) {
 	  // foundation is arbitrarily chosen as an indicator for full support for
 	  // https://w3c.github.io/webrtc-pc/#rtcicecandidate-interface
-	  if (!window.RTCIceCandidate || (window.RTCIceCandidate && 'foundation' in
-	      window.RTCIceCandidate.prototype)) {
+	  if (!window.RTCIceCandidate || (window.RTCIceCandidate && 'foundation' in window.RTCIceCandidate.prototype)) {
 	    return;
 	  }
 
@@ -5038,6 +5034,25 @@ var FSRTCClient = (function (exports) {
 	    }
 	    return e;
 	  });
+	}
+
+	function shimRTCIceCandidateRelayProtocol(window) {
+		if (!window.RTCIceCandidate || window.RTCIceCandidate && 'relayProtocol' in window.RTCIceCandidate.prototype) {
+			return;
+		}
+		// Hook up the augmented candidate in onicecandidate and
+		// addEventListener('icecandidate', ...)
+		wrapPeerConnectionEvent(window, 'icecandidate', function (e) {
+			if (e.candidate) {
+				var parsedCandidate = sdp.parseCandidate(e.candidate.candidate);
+				if (parsedCandidate.type === 'relay') {
+					// This is a libwebrtc-specific mapping of local type preference
+					// to relayProtocol.
+					e.candidate.relayProtocol = {0: 'tls',1: 'tcp',2: 'udp'}[parsedCandidate.priority >> 24];
+				}
+			}
+			return e;
+		});
 	}
 
 	function shimMaxMessageSize(window, browserDetails) {
@@ -5334,8 +5349,7 @@ var FSRTCClient = (function (exports) {
 	  if (!(window.RTCPeerConnection && window.RTCPeerConnection.prototype)) {
 	    return;
 	  }
-	  const nativeAddIceCandidate =
-	      window.RTCPeerConnection.prototype.addIceCandidate;
+	  const nativeAddIceCandidate = window.RTCPeerConnection.prototype.addIceCandidate;
 	  if (!nativeAddIceCandidate || nativeAddIceCandidate.length === 0) {
 	    return;
 	  }
@@ -5352,11 +5366,7 @@ var FSRTCClient = (function (exports) {
 	      // Native support for ignoring exists for Chrome M77+.
 	      // Safari ignores as well, exact version unknown but works in the same
 	      // version that also ignores addIceCandidate(null).
-	      if (((browserDetails.browser === 'chrome' && browserDetails.version < 78)
-	           || (browserDetails.browser === 'firefox'
-	               && browserDetails.version < 68)
-	           || (browserDetails.browser === 'safari'))
-	          && arguments[0] && arguments[0].candidate === '') {
+	      if (((browserDetails.browser === 'chrome' && browserDetails.version < 78) || (browserDetails.browser === 'firefox' && browserDetails.version < 68) || (browserDetails.browser === 'safari')) && arguments[0] && arguments[0].candidate === '') {
 	        return Promise.resolve();
 	      }
 	      return nativeAddIceCandidate.apply(this, arguments);
@@ -5403,8 +5413,7 @@ var FSRTCClient = (function (exports) {
 	  // Shim browser if found.
 	  switch (browserDetails.browser) {
 	    case 'chrome':
-	      if (!chromeShim || !shimPeerConnection$2 ||
-	          !options.shimChrome) {
+	      if (!chromeShim || !shimPeerConnection$2 || !options.shimChrome) {
 	        logging('Chrome shim is not included in this adapter release.');
 	        return adapter;
 	      }
@@ -5430,6 +5439,7 @@ var FSRTCClient = (function (exports) {
 	      fixNegotiationNeeded(window, browserDetails);
 
 	      shimRTCIceCandidate(window);
+				shimRTCIceCandidateRelayProtocol(window)
 	      shimConnectionState(window);
 	      shimMaxMessageSize(window, browserDetails);
 	      shimSendThrowTypeError(window);
@@ -5461,6 +5471,7 @@ var FSRTCClient = (function (exports) {
 	      shimCreateAnswer(window);
 
 	      shimRTCIceCandidate(window);
+				shimRTCIceCandidateRelayProtocol(window);
 	      shimConnectionState(window);
 	      shimMaxMessageSize(window, browserDetails);
 	      shimSendThrowTypeError(window);
@@ -5506,6 +5517,7 @@ var FSRTCClient = (function (exports) {
 	      shimAudioContext(window);
 
 	      shimRTCIceCandidate(window);
+				shimRTCIceCandidateRelayProtocol(window);
 	      shimMaxMessageSize(window, browserDetails);
 	      shimSendThrowTypeError(window);
 	      removeExtmapAllowMixed(window, browserDetails);
@@ -9006,9 +9018,9 @@ var FSRTCClient = (function (exports) {
 	    }
 	    this.e = {
 	      onicecandidate: this._onIceCandidate.bind(this),
+				onconnectionstatechange: this._onconnectionstatechange.bind(this),
 	      ontrack: this._onTrack.bind(this),
 	      onicecandidateerror: this._onIceCandidateError.bind(this),
-	      onconnectionstatechange: this._onconnectionstatechange.bind(this),
 	      ondatachannelopen: this._onDataChannelOpen.bind(this),
 	      ondatachannelmsg: this._onDataChannelMsg.bind(this),
 	      ondatachannelerr: this._onDataChannelErr.bind(this),
@@ -9019,10 +9031,10 @@ var FSRTCClient = (function (exports) {
 	    this._tracks = [];
 			this.dtmfSender = null;
 	    this.pc = new RTCPeerConnection(null);
-	    this.pc.onicecandidate = this.e.onicecandidate;
+	    // this.pc.onicecandidate = this.e.onicecandidate;
+			// this.pc.onconnectionstatechange = this.e.onconnectionstatechange;
 	    this.pc.onicecandidateerror = this.e.onicecandidateerror;
 	    this.pc.ontrack = this.e.ontrack;
-	    this.pc.onconnectionstatechange = this.e.onconnectionstatechange;
 	    this.datachannel = null;
 	    if (this.options.usedatachannel) {
 	      this.datachannel = this.pc.createDataChannel('chat');
@@ -9032,6 +9044,106 @@ var FSRTCClient = (function (exports) {
 	      this.datachannel.onopen = this.e.ondatachannelopen;
 	    }
 	  }
+		receive(recvSdp) {
+			let videoConstraints = false;
+	    let audioConstraints = false;
+			if(!this.options.funApi){
+				error(this.TAG, 'funApi not implement');
+				return;
+			}
+	    if (this.options.useCamera) {
+	      if (this.options.videoEnable) videoConstraints = new VideoTrackConstraints(VideoSourceInfo.CAMERA);
+	      if (this.options.audioEnable) audioConstraints = new AudioTrackConstraints(AudioSourceInfo.MIC);
+	      if (typeof videoConstraints == 'object' && this.options.videoId != '') {
+	        videoConstraints.deviceId = this.options.videoId;
+	      }
+	      if (typeof audioConstraints == 'object' && this.options.audioId != '') {
+	        audioConstraints.deviceId = this.options.audioId;
+	      }
+	    } else {
+	      if (this.options.videoEnable) {
+	        videoConstraints = new VideoTrackConstraints(VideoSourceInfo.SCREENCAST);
+	        if (this.options.audioEnable) audioConstraints = new AudioTrackConstraints(AudioSourceInfo.SCREENCAST);
+	      } else {
+	        if (this.options.audioEnable) audioConstraints = new AudioTrackConstraints(AudioSourceInfo.MIC);else {
+	          // error shared display media not only audio
+	          error(this.TAG, 'error paramter');
+	        }
+	        if (typeof audioConstraints == 'object' && this.options.audioId != '') {
+	          audioConstraints.deviceId = this.options.audioId;
+	        }
+	      }
+	    }
+	    if (this.options.resolution.w != 0 && this.options.resolution.h != 0 && typeof videoConstraints == 'object') {
+	      videoConstraints.resolution = new Resolution(this.options.resolution.w, this.options.resolution.h);
+	    }
+	    MediaStreamFactory.createMediaStream(new StreamConstraints(audioConstraints, videoConstraints)).then(stream => {
+	      this._localStream = stream;
+	      this.dispatch(Events$1.WEBRTC_ON_LOCAL_STREAM, stream);
+	      const AudioTransceiverInit = {
+	        direction: 'sendrecv',
+	        sendEncodings: []
+	      };
+	      const VideoTransceiverInit = {
+	        direction: 'sendrecv',
+	        sendEncodings: []
+	      };
+	      if (this.options.simulcast && stream.getVideoTracks().length > 0) {
+	        VideoTransceiverInit.sendEncodings = [{
+	          rid: 'h',
+	          active: true,
+	          maxBitrate: 1000000
+	        }, {
+	          rid: 'm',
+	          active: true,
+	          maxBitrate: 500000,
+	          scaleResolutionDownBy: 2
+	        }, {
+	          rid: 'l',
+	          active: true,
+	          maxBitrate: 200000,
+	          scaleResolutionDownBy: 4
+	        }];
+	      }
+	      if (this.options.audioEnable) {
+	        if (stream.getAudioTracks().length > 0) {
+	          this.pc.addTransceiver(stream.getAudioTracks()[0], AudioTransceiverInit);
+	        } else {
+	          AudioTransceiverInit.direction = 'recvonly';
+	          this.pc.addTransceiver('audio', AudioTransceiverInit);
+	        }
+	      }
+	      if (this.options.videoEnable) {
+	        if (stream.getVideoTracks().length > 0) {
+	          this.pc.addTransceiver(stream.getVideoTracks()[0], VideoTransceiverInit);
+	        } else {
+	          VideoTransceiverInit.direction = 'recvonly';
+	          this.pc.addTransceiver('video', VideoTransceiverInit);
+	        }
+	      }
+				this.pc.onicecandidate = this.e.onicecandidate;
+	      this.pc.onicecandidateerror = this.e.onicecandidateerror;
+				log(this.TAG, 'answer:', recvSdp);
+				this.pc.setRemoteDescription({type:"offer",sdp:recvSdp}).then(()=>{
+					this.dispatch(Events$1.WEBRTC_ON_INIT_STAUTS);
+						if(this.options.useDtmf){
+							this._onRemoteStream(Events$1.WEBRTC_ON_INIT_STAUTS)
+						}
+						log(this.TAG, 'set remote sucess');
+				}).catch(e => {
+					error(this.TAG, e);
+					this.dispatch(Events$1.WEBRTC_OFFER_ANWSER_EXCHANGE_FAILED, ret);
+				});;
+	      this.pc.createAnswer().then(desc => {
+	        this.pc.setLocalDescription(desc);
+	      }).catch(e => {
+	        error(this.TAG, e);
+	      });
+	    }).catch(e => {
+	      this.dispatch(Events$1.CAPTURE_STREAM_FAILED);
+	      error(this.TAG, e);
+	    });
+		}
 	  start() {
 			let videoConstraints = false;
 	    let audioConstraints = false;
@@ -9109,41 +9221,10 @@ var FSRTCClient = (function (exports) {
 	          this.pc.addTransceiver('video', VideoTransceiverInit);
 	        }
 	      }
+				this.pc.onicecandidate = this.e.onicecandidate;
+	      this.pc.onicecandidateerror = this.e.onicecandidateerror;
 	      this.pc.createOffer().then(desc => {
-					const descsdp = desc.sdp.replace(/a=rtpmap:(110|126) telephone-event\/\d+\r\n/g,'')
-																.replace(/a=fmtp:(110|126) 0-16\/\d+\r\n/g,'')
-																.replace(/m=audio \d+ [\w\/]+ /,match => match + "101 103 ")
-																.concat(
-																		"a=rtpmap:101 telephone-event/8000\r\n",
-																		"a=fmtp:101 0-16\r\n"
-																);
-					log(this.TAG, 'offer:', descsdp);
-					desc.sdp = descsdp
-	        this.pc.setLocalDescription(desc).then(() => {
-						this.options.funApi(desc.sdp).then(response => {
-	            let ret = response.data; //JSON.parse(response.data);
-	            if (ret.code != 0) {
-	              // mean failed for offer/anwser exchange 
-	              this.dispatch(Events$1.WEBRTC_OFFER_ANWSER_EXCHANGE_FAILED, ret);
-	              return;
-	            }
-	            let anwser = {};
-	            anwser.sdp = ret.sdp;
-	            anwser.type = 'answer';
-	            log(this.TAG, 'answer:', ret.sdp);
-	            this.pc.setRemoteDescription(anwser).then(() => {
-								this.dispatch(Events$1.WEBRTC_ON_INIT_STAUTS);
-								if(this.options.useDtmf){
-									this._onRemoteStream(Events$1.WEBRTC_ON_INIT_STAUTS)
-								}
-								log(this.TAG, 'set remote sucess');
-	            }).catch(e => {
-	              error(this.TAG, e);
-	            });
-						}).catch(e => {
-							error(this.TAG, e);
-						});
-	        });
+	        this.pc.setLocalDescription(desc);
 	      }).catch(e => {
 	        error(this.TAG, e);
 	      });
@@ -9153,11 +9234,48 @@ var FSRTCClient = (function (exports) {
 	    });
 	  }
 	  _onIceCandidate(event) {
-	    if (event.candidate) {
+			var candidate = event.candidate;
+	    if (candidate) {
 	      log(this.TAG, 'Remote ICE candidate: \n ' + event.candidate.candidate);
-	      // Send the candidate to the remote peer
-	    }
+	    }else{
+				//开始发送sdp
+				this._sendSdp();
+			}
 	  }
+		_onconnectionstatechange(event) {
+	    this.dispatch(Events$1.WEBRTC_ON_CONNECTION_STATE_CHANGE, this.pc.connectionState);
+			if(this.pc.iceGatheringState === 'complete'){
+				//开始发送sdp
+				this._sendSdp();
+			}
+	  }
+		_sendSdp(){
+			var sdp = this.pc.localDescription.sdp
+			log(this.TAG, 'offer1:', sdp);
+			this.pc.onicecandidate = null;
+	    this.pc.onicecandidateerror = null;
+			this.options.funApi(sdp).then(response => {
+				if(!this.options.recvOnly){
+					let anwser = {};
+					anwser.sdp = response?.sdp;
+					anwser.type = 'answer';
+					log(this.TAG, 'answer:', sdp);
+					this.pc.setRemoteDescription(anwser).then(() => {
+						this.dispatch(Events$1.WEBRTC_ON_INIT_STAUTS);
+						if(this.options.useDtmf){
+							this._onRemoteStream(Events$1.WEBRTC_ON_INIT_STAUTS)
+						}
+						log(this.TAG, 'set remote sucess');
+					}).catch(e => {
+						error(this.TAG, e);
+						this.dispatch(Events$1.WEBRTC_OFFER_ANWSER_EXCHANGE_FAILED, ret);
+					});
+				}
+			}).catch(e => {
+				error(this.TAG, e);
+				this.dispatch(Events$1.WEBRTC_OFFER_ANWSER_EXCHANGE_FAILED, ret);
+			});
+		}
 	  _onTrack(event) {
 	    this._tracks.push(event.track);
 	    if (this.options.element && event.streams && event.streams.length > 0) {
@@ -9179,9 +9297,6 @@ var FSRTCClient = (function (exports) {
 	  }
 	  _onIceCandidateError(event) {
 	    this.dispatch(Events$1.WEBRTC_ICE_CANDIDATE_ERROR, event);
-	  }
-	  _onconnectionstatechange(event) {
-	    this.dispatch(Events$1.WEBRTC_ON_CONNECTION_STATE_CHANGE, this.pc.connectionState);
 	  }
 	  _onDataChannelOpen(event) {
 	    log(this.TAG, 'ondatachannel open:', event);
@@ -9228,25 +9343,6 @@ var FSRTCClient = (function (exports) {
 				log(this.TAG, 'ERROR dtmfSender is null ');
 			}
 		}
-		addFmtpForTelephoneEvent(sdp) {
-			// 按行分割 SDP
-			const lines = sdp.split('\n');
-	
-			// 查找 telephone-event 的 PT 并添加 fmtp
-			const modifiedLines = lines.map(line => {
-					// 匹配 telephone-event 的 rtpmap 行
-					const match = line.match(/a=rtpmap:(\d+) telephone-event\/(\d+)/);
-					if (match) {
-							const pt = match[1]; // 提取 Payload Type
-							const fmtpLine = `a=fmtp:${pt} 0-16`; // 生成 fmtp 行
-							return `${line}\n${fmtpLine}`; // 返回原行 + fmtp 行
-					}
-					return line; // 非 telephone-event 行，直接返回
-			});
-	
-			// 将修改后的行重新拼接为 SDP
-			return modifiedLines.join('\n');
-	}
 	  sendMsg(data) {
 	    if (this.datachannel != null) {
 	      this.datachannel.send(data);

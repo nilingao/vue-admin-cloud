@@ -1,4 +1,4 @@
-import { unref, ref, Ref, watch, nextTick } from 'vue';
+import { unref, ref, Ref,watch} from 'vue';
 import { useScript } from '@/hooks/web/useScript';
 import { isFunction } from '@/utils/is';
 import { deepMerge } from '@/utils';
@@ -13,6 +13,7 @@ export interface RtcProps {
   useCamera?: boolean;
   audioEnable?: boolean;
   videoEnable?: boolean;
+  recvSdp?: String;
   recvOnly?: boolean;
   usedatachannel?: boolean;
   useDtmf?: boolean;
@@ -90,7 +91,7 @@ export function useFsRtc(rtcProps: RtcProps, container?: Ref) {
       localSteam.value = 2;
       eventcallbacK('LOCAL STREAM', '加载流媒体成功');
     });
-    unref(fsRtcClient).start();
+    rtcProps.recvOnly?unref(fsRtcClient).receive(rtcProps.recvSdp):unref(fsRtcClient).start();
     return initBoolean;
   };
   //播放
@@ -162,6 +163,17 @@ export function useFsRtc(rtcProps: RtcProps, container?: Ref) {
     unref(fsRtcClient).close();
     fsRtcClient.value = null;
   };
+
+  // watch(
+  //   () => rtcProps,
+  //   () => {
+  //     nextTick(() => {
+  //       //先注销
+  //       destroy();
+  //     });
+  //   },
+  //   { immediate: true, deep: true },
+  // );
 
   /**
    * Rtc播放事件
