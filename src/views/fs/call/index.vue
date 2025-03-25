@@ -142,7 +142,6 @@
       if(stats.isCall){
         //客服拨打电话回调
         rootSocketEmitter.on(SocketOutEvent.AGENT_OUT_CALL_PHONE, (val) => {
-          stats.timeout && clearInterval(stats.timeout);
           const { code, message, data } = val as Recordable;
           if (code != ResultEnum.SUCCESS) {
             hangUp();
@@ -151,8 +150,12 @@
             return;
           }
           stats.callId = data?.callId;
+          const type = data?.type;//  ON_RING_BACK：回铃音  ON_CALL:接听电话
+          if('ON_CALL' === type){
+            stats.timeout && clearInterval(stats.timeout);
+            rootSocketEmitter.off(SocketOutEvent.AGENT_OUT_CALL_PHONE);
+          }
           resolve(data);
-          rootSocketEmitter.off(SocketOutEvent.AGENT_OUT_CALL_PHONE);
         });
         //开始拨号
         useSocket.sendMessage(SocketNamespace.AGENT_NAMESPACE, SocketInEvent.AGENT_IN_CALL_PHONE, {
@@ -200,6 +203,7 @@
   const hangUp = ()=>{
     //关闭推流
     stats.callId = '';
+    stats.timeout && clearInterval(stats.timeout);
     stats.isCall = false;
     pushStats.recvSdp = '';
     pushStats.recvOnly= false;
