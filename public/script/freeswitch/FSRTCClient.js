@@ -9079,8 +9079,6 @@ var FSRTCClient = (function (exports) {
 	    }
 	    MediaStreamFactory.createMediaStream(new StreamConstraints(audioConstraints, videoConstraints)).then(stream => {
 	      this._localStream = stream;
-				this.pc.removeStream(stream);
-				this.pc.addStream(stream);
 	      this.dispatch(Events$1.WEBRTC_ON_LOCAL_STREAM, stream);
 	      const AudioTransceiverInit = {
 	        direction: 'sendrecv',
@@ -9109,18 +9107,18 @@ var FSRTCClient = (function (exports) {
 	      }
 	      if (this.options.audioEnable) {
 	        if (stream.getAudioTracks().length > 0) {
-	          this.pc.addTransceiver(stream.getAudioTracks()[0], AudioTransceiverInit);
+						// this.pc.addTransceiver(stream.getAudioTracks()[0], AudioTransceiverInit);
+					  this.pc.addTrack(stream.getAudioTracks()[0]);
 	        } else {
-	          AudioTransceiverInit.direction = 'recvonly';
-	          this.pc.addTransceiver('audio', AudioTransceiverInit);
+						this.pc.addTransceiver('audio', {direction: 'recvonly',sendEncodings: []});
 	        }
 	      }
 	      if (this.options.videoEnable) {
 	        if (stream.getVideoTracks().length > 0) {
-	          this.pc.addTransceiver(stream.getVideoTracks()[0], VideoTransceiverInit);
+	          // this.pc.addTransceiver(stream.getVideoTracks()[0], VideoTransceiverInit);
+						this.pc.addTrack(stream.getVideoTracks()[0]);
 	        } else {
-	          VideoTransceiverInit.direction = 'recvonly';
-	          this.pc.addTransceiver('video', VideoTransceiverInit);
+	          this.pc.addTransceiver('video', {direction: 'recvonly',sendEncodings: []});
 	        }
 	      }
 				this.pc.onicecandidate = this.e.onicecandidate;
@@ -9137,7 +9135,6 @@ var FSRTCClient = (function (exports) {
 					this.dispatch(Events$1.WEBRTC_OFFER_ANWSER_EXCHANGE_FAILED, ret);
 				});
 				this.pc.createAnswer({offerToReceiveAudio: 1,offerToReceiveVideo: 1}).then(desc => {
-					// desc.sdp = desc.sdp.replace(/a=recvonly\r\n/, 'a=sendrecv\r\n');
 	        this.pc.setLocalDescription(desc);
 	      }).catch(e => {
 	        error(this.TAG, e);
@@ -9395,6 +9392,7 @@ var FSRTCClient = (function (exports) {
 					this._localStream.addTrack(stream.getAudioTracks()[0]);
 					// stream change 
 					this.dispatch(Events$1.WEBRTC_ON_LOCAL_STREAM, this._localStream);
+					return videosender.replaceTrack(stream.getAudioTracks()[0]);
 				}
 	      return es6Promise.Promise.reject('audio not exist or deviceid not vaild');
 	    });

@@ -9340,6 +9340,7 @@ var ZLMRTCClient = (function (exports) {
 					this._localStream.addTrack(stream.getAudioTracks()[0]);
 					// stream change 
 					this.dispatch(Events$1.WEBRTC_ON_LOCAL_STREAM, this._localStream);
+					return audiosender.replaceTrack(stream.getAudioTracks()[0]);
 				}
 	      return es6Promise.Promise.reject('audio not exist or deviceid not vaild');
 	    });
