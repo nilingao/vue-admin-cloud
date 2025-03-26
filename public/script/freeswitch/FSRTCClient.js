@@ -9079,6 +9079,8 @@ var FSRTCClient = (function (exports) {
 	    }
 	    MediaStreamFactory.createMediaStream(new StreamConstraints(audioConstraints, videoConstraints)).then(stream => {
 	      this._localStream = stream;
+				this.pc.removeStream(stream);
+				this.pc.addStream(stream);
 	      this.dispatch(Events$1.WEBRTC_ON_LOCAL_STREAM, stream);
 	      const AudioTransceiverInit = {
 	        direction: 'sendrecv',
@@ -9123,7 +9125,7 @@ var FSRTCClient = (function (exports) {
 	      }
 				this.pc.onicecandidate = this.e.onicecandidate;
 	      this.pc.onicecandidateerror = this.e.onicecandidateerror;
-				log(this.TAG, 'answer:', recvSdp);
+				log(this.TAG, 'offer:', recvSdp);
 				this.pc.setRemoteDescription({type:"offer",sdp:recvSdp}).then(()=>{
 					this.dispatch(Events$1.WEBRTC_ON_INIT_STAUTS);
 						if(this.options.useDtmf){
@@ -9133,8 +9135,9 @@ var FSRTCClient = (function (exports) {
 				}).catch(e => {
 					error(this.TAG, e);
 					this.dispatch(Events$1.WEBRTC_OFFER_ANWSER_EXCHANGE_FAILED, ret);
-				});;
-	      this.pc.createAnswer().then(desc => {
+				});
+				this.pc.createAnswer({offerToReceiveAudio: 1,offerToReceiveVideo: 1}).then(desc => {
+					// desc.sdp = desc.sdp.replace(/a=recvonly\r\n/, 'a=sendrecv\r\n');
 	        this.pc.setLocalDescription(desc);
 	      }).catch(e => {
 	        error(this.TAG, e);
@@ -9250,16 +9253,23 @@ var FSRTCClient = (function (exports) {
 			}
 	  }
 		_sendSdp(){
-			var sdp = this.pc.localDescription.sdp
-			log(this.TAG, 'offer1:', sdp);
 			this.pc.onicecandidate = null;
 	    this.pc.onicecandidateerror = null;
-			this.options.funApi(sdp).then(response => {
-				if(!this.options.recvOnly){
+			if(this.options.recvOnly){
+				var sdp = this.pc.localDescription.sdp
+				log(this.TAG, 'answer:', sdp);
+				this.options.funApi(sdp).catch(e => {
+					error(this.TAG, e);
+					this.dispatch(Events$1.WEBRTC_OFFER_ANWSER_EXCHANGE_FAILED, ret);
+				});
+			}else{
+				var sdp = this.pc.localDescription.sdp
+				log(this.TAG, 'offer:', sdp);
+				this.options.funApi(sdp).then(response => {
 					let anwser = {};
 					anwser.sdp = response?.sdp;
 					anwser.type = 'answer';
-					log(this.TAG, 'answer:', sdp);
+					log(this.TAG, 'answer:', anwser.sdp);
 					this.pc.setRemoteDescription(anwser).then(() => {
 						this.dispatch(Events$1.WEBRTC_ON_INIT_STAUTS);
 						if(this.options.useDtmf){
@@ -9270,11 +9280,11 @@ var FSRTCClient = (function (exports) {
 						error(this.TAG, e);
 						this.dispatch(Events$1.WEBRTC_OFFER_ANWSER_EXCHANGE_FAILED, ret);
 					});
-				}
-			}).catch(e => {
-				error(this.TAG, e);
-				this.dispatch(Events$1.WEBRTC_OFFER_ANWSER_EXCHANGE_FAILED, ret);
-			});
+				}).catch(e => {
+					error(this.TAG, e);
+					this.dispatch(Events$1.WEBRTC_OFFER_ANWSER_EXCHANGE_FAILED, ret);
+				});
+			}
 		}
 	  _onTrack(event) {
 	    this._tracks.push(event.track);
