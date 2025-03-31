@@ -9115,8 +9115,8 @@ var FSRTCClient = (function (exports) {
 	      }
 	      if (this.options.videoEnable) {
 	        if (stream.getVideoTracks().length > 0) {
-	          // this.pc.addTransceiver(stream.getVideoTracks()[0], VideoTransceiverInit);
-						this.pc.addTrack(stream.getVideoTracks()[0]);
+	          this.pc.addTransceiver(stream.getVideoTracks()[0], VideoTransceiverInit);
+						// this.pc.addTrack(stream.getVideoTracks()[0]);
 	        } else {
 	          this.pc.addTransceiver('video', {direction: 'recvonly',sendEncodings: []});
 	        }
