@@ -15,6 +15,7 @@
   import { isDevMode } from '@/utils/env';
   import { useFsRtc } from './useFsRtc';
   import { isFunction } from '@/utils/is';
+
   const containerRef = ref();
   const { prefixCls } = useDesign('fs-rtp-play');
   const props = defineProps({
@@ -26,32 +27,35 @@
     muted: {
       type: Boolean,
       default: true,
-    }
+    },
   });
 
   const use = reactive({
-    debug:isDevMode(),
-    funApi:(sdp) => {
-    return new Promise((resolve,reject) => {
-        if(!isFunction(props.sendSdpApi)){
-          reject('sendSdpApi is not a function')
+    debug: isDevMode(),
+    funApi: (sdp) => {
+      return new Promise((resolve, reject) => {
+        if (!isFunction(props.sendSdpApi)) {
+          reject('sendSdpApi is not a function');
         }
-        props.sendSdpApi(sdp).then((res) => {
-          resolve(res);
-        }).catch((err) => {
-          reject(err);
-        });
+        props
+          .sendSdpApi(sdp)
+          .then((res) => {
+            resolve(res);
+          })
+          .catch((err) => {
+            reject(err);
+          });
       });
     },
     audioEnable: true,
     videoEnable: false,
     useDtmf: false,
-    useCamera:false,
-    recvSdp: "",
+    useCamera: false,
+    recvSdp: '',
     recvOnly: true,
   });
-  const { success,sendDtmf ,play, destroy } = useFsRtc(use, containerRef);
-  const call = (pushStats) =>{
+  const { success, sendDtmf, play, destroy } = useFsRtc(use, containerRef);
+  const call = (pushStats) => {
     use.audioEnable = pushStats.audioEnable;
     use.videoEnable = pushStats.videoEnable;
     use.useDtmf = pushStats.useDtmf;
@@ -59,19 +63,18 @@
     use.recvSdp = pushStats.recvSdp;
     use.recvOnly = pushStats.recvOnly;
     start();
-  }
+  };
 
-  const start =()=>{
+  const start = () => {
     destroy();
     play();
-  }
+  };
 
   onUnmounted(() => {
     destroy();
   });
 
-  defineExpose({ success,sendDtmf ,call, destroy });
+  defineExpose({ success, sendDtmf, call, destroy });
 </script>
 
-<style lang="less" scoped>
-</style>
+<style lang="less" scoped></style>
