@@ -298,7 +298,7 @@
   }
   //呼入来电处理
   const handleInCallRing = (callId,data) =>{
-    const {callType,called,sdp,onVideo} = data
+    const {callType,caller,sdp,onVideo} = data
     if(!['INNER_CALL','INBOUND_CALL'].includes(callType)){
       return
     }
@@ -309,7 +309,7 @@
     stats.inCallRingConfirm[callId] = createConfirm({
       iconType: 'warning',
       title: () => 'INNER_CALL'===callType?'内部呼叫':'外部呼叫',
-      content: () => '号码：'+called,
+      content: () => '号码：'+caller,
       okText:'接听',
       onOk: () => {
         stats.callId = callId;
