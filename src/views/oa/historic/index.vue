@@ -17,10 +17,10 @@
 </template>
 <script lang="ts" setup>
   import { BasicTable, useTable, BasicColumn, FormProps, TableAction } from '@/components/Table';
-  import { doFindAlreadyList } from '@/api/oa/activiti';
+  import { doFindAlreadyList, OAIndex } from '@/api/oa/activiti';
   import { usePermission } from '@/hooks/web/usePermission';
   import { useGo } from '@/hooks/web/usePage';
-  import { OAIndex } from '@/api/oa/activiti';
+
   const go = useGo();
   const { hasPermission } = usePermission();
 

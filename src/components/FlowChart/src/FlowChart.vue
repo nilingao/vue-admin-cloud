@@ -9,7 +9,7 @@
 </template>
 <script lang="ts" setup>
   import type { Ref } from 'vue';
-  import type { Definition } from '@logicflow/core';
+  import type { Options } from '@logicflow/core';
   import { ref, onMounted, unref, nextTick, computed, watch } from 'vue';
   import FlowChartToolbar from './FlowChartToolbar.vue';
   import LogicFlow from '@logicflow/core';
@@ -21,14 +21,14 @@
   import { useModal, BasicModal } from '@/components/Modal';
   import { JsonPreview } from '@/components/CodeEditor';
   import { configDefaultDndPanel } from './config';
-  import '@logicflow/core/dist/style/index.css';
+  import '@logicflow/core/lib/style/index.css';
   import '@logicflow/extension/lib/style/index.css';
 
   defineOptions({ name: 'FlowChart' });
 
   const props = defineProps({
     flowOptions: {
-      type: Object as PropType<Definition>,
+      type: Object as PropType<Options.Common>,
       default: () => ({}),
     },
 
@@ -47,7 +47,7 @@
   });
 
   const lfElRef = ref(null);
-  const graphData = ref({});
+  const graphData = ref();
 
   const lfInstance = ref(null) as Ref<LogicFlow | null>;
 
@@ -61,7 +61,7 @@
   const getFlowOptions = computed(() => {
     const { flowOptions } = props;
 
-    const defaultOptions: Partial<Definition> = {
+    const defaultOptions: Partial<Options.Common> = {
       grid: true,
       background: {
         color: appStore.getDarkMode === 'light' ? '#f7f9ff' : '#151515',
@@ -71,7 +71,7 @@
       },
       ...flowOptions,
     };
-    return defaultOptions as Definition;
+    return defaultOptions as Options.Common;
   });
 
   watch(

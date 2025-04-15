@@ -51,6 +51,7 @@
   import { Tag } from 'ant-design-vue';
   import { h } from 'vue';
   import { useGo } from '@/hooks/web/usePage';
+
   const go = useGo();
 
   const { hasPermission } = usePermission();
