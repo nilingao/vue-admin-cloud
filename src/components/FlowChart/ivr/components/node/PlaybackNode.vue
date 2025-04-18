@@ -2,8 +2,9 @@
   <DefaultNode
     :nodeId="props.id"
     :nodeLabel="data.label"
-    nodeIcon="hugeicons:start-up-02"
-    iconBackground="rgb(209 54 209)"
+    :isOperate="true"
+    nodeIcon="hugeicons:audio-wave-01"
+    iconBackground="rgb(34, 157, 255)"
   >
     <NodeContext :isTitle="false">
       <div class="flex flex-col">
@@ -47,7 +48,8 @@
 <script setup lang="ts">
   import NodeContext from './components/NodeContext.vue';
   import DefaultNode from './components/DefaultNode.vue';
-  import { reactive, watch } from 'vue';
+  import { cloneDeep } from 'lodash-es';
+  import { reactive, watch, onBeforeMount } from 'vue';
   import { playTypeOptions, type PlaybackNodeData } from '../../hooks/common';
   import { Select, Textarea } from 'ant-design-vue';
   import { useVueFlow } from '@vue-flow/core';
@@ -93,4 +95,15 @@
     },
     { immediate: true, deep: true },
   );
+
+  const initData = () => {
+    const data = cloneDeep(props.data);
+    stats.playType = data.nodeData.playType;
+    stats.playback = data.nodeData.playback;
+    stats.content = data.nodeData.content;
+  };
+
+  onBeforeMount(() => {
+    initData();
+  });
 </script>

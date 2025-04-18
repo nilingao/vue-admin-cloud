@@ -136,12 +136,10 @@ export const nodes = ref<Node[]>([
       ],
     },
   },
-
-  // An output node, specified by using `type: 'output'`
   {
     id: '3',
     type: 'playback_node',
-    position: { x: 1342, y: 350 },
+    position: { x: 1544, y: -26 },
     data: {
       label: '放音',
       config: {
@@ -151,6 +149,17 @@ export const nodes = ref<Node[]>([
         playType: 1,
         playback: '1',
         content: '1',
+      },
+    },
+  },
+  {
+    id: '4',
+    type: 'hangup_node',
+    position: { x: 1546, y: 122 },
+    data: {
+      label: '结束',
+      config: {
+        fields: [],
       },
     },
   },
@@ -172,6 +181,13 @@ export const edges = ref<Edge[]>([
     source: '2',
     target: '3',
     sourceHandle: 'right_1',
+    targetHandle: '',
+  },
+  {
+    id: '2->4',
+    source: '2',
+    target: '4',
+    sourceHandle: 'right_2',
     targetHandle: '',
   },
 ]);
