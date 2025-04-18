@@ -3,6 +3,7 @@ import ConditionNode from './ConditionNode.vue';
 import PlaybackNode from './PlaybackNode.vue';
 import HangupNode from './HangupNode.vue';
 import DigitsNode from './DigitsNode.vue';
+import TransferNode from './TransferNode.vue';
 
 export enum NodeTypeEnum {
   START_NODE = 'start_node',
@@ -10,6 +11,7 @@ export enum NodeTypeEnum {
   PLAYBACK_NODE = 'playback_node',
   HANGUP_NODE = 'hangup_node',
   DIGITS_NODE = 'digits_node',
+  TRANSFER_NODE = 'transfer_node',
 }
 export const NodeInstanceMap = {
   [NodeTypeEnum.START_NODE]: StartNode,
@@ -17,4 +19,5 @@ export const NodeInstanceMap = {
   [NodeTypeEnum.PLAYBACK_NODE]: PlaybackNode,
   [NodeTypeEnum.HANGUP_NODE]: HangupNode,
   [NodeTypeEnum.DIGITS_NODE]: DigitsNode,
+  [NodeTypeEnum.TRANSFER_NODE]: TransferNode,
 };

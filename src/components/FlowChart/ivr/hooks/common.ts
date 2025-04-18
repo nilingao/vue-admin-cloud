@@ -92,8 +92,8 @@ export interface PlaybackNodeData {
 }
 export interface PlaybackData {
   playType: number; //播放类型 1.语音文件播放 2.tts播放
-  playback: '';
-  content: '';
+  playback: string;
+  content: string;
 }
 export const playTypeOptions = [
   { label: '使用语音文件', value: 1 },
@@ -107,15 +107,37 @@ export interface DigitsNodeData {
 }
 export interface PlaybackData {
   playType: number; //播放类型 1.语音文件播放 2.tts播放
-  playback: '';
-  content: '';
-  retry: 1;
-  dtmfMax: 1;
-  dtmfMin: 1;
-  dtmfEnd: '*';
-  dtmfTimeout: 5000;
-  dtmfDigitTimeout: 5000;
-  dtmfErrorType: 1;
-  dtmfErrorPlayback: '';
-  dtmfErrorContext: '';
+  playback: string;
+  content: string;
+  retry: number;
+  dtmfMax: number;
+  dtmfMin: number;
+  dtmfEnd: string;
+  dtmfTimeout: number;
+  dtmfDigitTimeout: number;
+  dtmfErrorType: number;
+  dtmfErrorPlayback: string;
+  dtmfErrorContext: string;
 }
+// 转接节点
+export interface TransferNodeData {
+  label: string;
+  config?: NodeConfig; //配置
+  nodeData: TransferNodeData; //配置
+}
+export interface TransferNodeData {
+  routeType: number;
+  skillId: number;
+  agentId: number;
+  outPhone: string;
+  sipTrunkId: number;
+  vdnId: number;
+  ivrId: number;
+}
+export const transferTypeOptions = [
+  { label: '转技能组', value: 1 },
+  { label: '转坐席', value: 2 },
+  { label: '转外线', value: 3 },
+  { label: '转VDN', value: 4 },
+  { label: '转IVR', value: 5 },
+];

@@ -195,6 +195,32 @@ export const nodes = ref<Node[]>([
       },
     },
   },
+  {
+    id: '6',
+    type: 'transfer_node',
+    position: { x: 2098, y: -26 },
+    data: {
+      label: '转接',
+      config: {
+        fields: [
+          {
+            label: '内容',
+            value: 'DTMF',
+            globeLabel: '{{收号.DTMF}}',
+          },
+        ],
+      },
+      nodeData: {
+        routeType: 1,
+        skillId: 1,
+        agentId: 1,
+        outPhone: '18789432816',
+        sipTrunkId: 1,
+        vdnId: 1,
+        ivrId: 1,
+      },
+    },
+  },
 ]);
 
 // these are our edges
@@ -228,6 +254,13 @@ export const edges = ref<Edge[]>([
     id: '3->5',
     source: '3',
     target: '5',
+    sourceHandle: '',
+    targetHandle: '',
+  },
+  {
+    id: '5->6',
+    source: '5',
+    target: '6',
     sourceHandle: '',
     targetHandle: '',
   },

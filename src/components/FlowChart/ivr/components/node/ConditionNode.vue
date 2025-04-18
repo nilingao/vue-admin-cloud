@@ -2,7 +2,7 @@
   <DefaultNode
     :nodeId="props.id"
     :nodeLabel="data.label"
-    :nodeWidth="600"
+    :nodeWidth="500"
     :isOperate="true"
     :isSource="false"
     nodeIcon="gravity-ui:branches-down"
