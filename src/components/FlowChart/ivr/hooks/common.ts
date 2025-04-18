@@ -99,3 +99,23 @@ export const playTypeOptions = [
   { label: '使用语音文件', value: 1 },
   { label: '文本转语音', value: 2 },
 ];
+//收号节点
+export interface DigitsNodeData {
+  label: string;
+  config?: NodeConfig; //配置
+  nodeData: PlaybackData; //配置
+}
+export interface PlaybackData {
+  playType: number; //播放类型 1.语音文件播放 2.tts播放
+  playback: '';
+  content: '';
+  retry: 1;
+  dtmfMax: 1;
+  dtmfMin: 1;
+  dtmfEnd: '*';
+  dtmfTimeout: 5000;
+  dtmfDigitTimeout: 5000;
+  dtmfErrorType: 1;
+  dtmfErrorPlayback: '';
+  dtmfErrorContext: '';
+}

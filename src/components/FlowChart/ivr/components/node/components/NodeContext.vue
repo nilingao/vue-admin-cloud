@@ -20,7 +20,7 @@
         @click="headerMore"
       >
         <template #icon>
-          <Icon :class="`${prefixCls}-label-button-icon`" icon="ri:more-fill" :size="20" />
+          <Icon :class="`${prefixCls}-label-button-icon`" :icon="moreIcon" :size="20" />
         </template>
       </Button>
     </div>
@@ -67,6 +67,11 @@
     isMore: {
       type: Boolean,
       default: false,
+    },
+    // 是否需要更多按钮
+    moreIcon: {
+      type: String,
+      default: 'ri:more-fill',
     },
   });
   const headerMore = () => {

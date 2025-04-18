@@ -77,6 +77,7 @@
   import { useSystemStore } from '@/store/modules/system';
   import { TRANSPORT_TYPE_ENUM, STREAM_MODE_TYPE_ENUM, TREE_TYPE_ENUM } from '@/enums/commonEnum';
   import { useGo } from '@/hooks/web/usePage';
+
   const go = useGo();
 
   const systemStore = useSystemStore();
@@ -104,8 +105,8 @@
     },
   });
   const handleRefresh = async (record: Recordable) => {
-    if(record.online==0){
-      createMessage.error("设备离线");
+    if (record.online == 0) {
+      createMessage.error('设备离线');
       return;
     }
     await doSyncDeviceChannel({ deviceId: record.deviceId });

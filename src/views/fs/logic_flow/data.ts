@@ -16,37 +16,37 @@ export const nodes = ref<Node[]>([
           {
             label: '通话唯一标识',
             value: 'callId',
-            globeLabel: '{{全局变量.callId}}',
+            globeLabel: '{{GLOBAL_VARIABLE.CALL_ID}}',
           },
           {
             label: '主叫',
             value: 'caller',
-            globeLabel: '{{$全局变量.caller}}',
+            globeLabel: '{{$GLOBAL_VARIABLE.CALLER}}',
           },
           {
             label: '被叫',
             value: 'callee',
-            globeLabel: '{{全局变量.callee}}',
+            globeLabel: '{{GLOBAL_VARIABLE.CALLED}}',
           },
           {
             label: '月份',
             value: 'month',
-            globeLabel: '{{全局变量.month}}',
+            globeLabel: '{{GLOBAL_VARIABLE.MONTH}}',
           },
           {
             label: '日期',
             value: 'day',
-            globeLabel: '{{全局变量.day}}',
+            globeLabel: '{{GLOBAL_VARIABLE.WEEK}}',
           },
           {
             label: '当前时间',
             value: 'time',
-            globeLabel: '{{全局变量.time}}',
+            globeLabel: '{{GLOBAL_VARIABLE.DATE}}',
           },
           {
             label: '星期',
             value: 'week',
-            globeLabel: '{{全局变量.week}}',
+            globeLabel: '{{GLOBAL_VARIABLE.TIME}}',
           },
         ],
       },
@@ -55,16 +55,11 @@ export const nodes = ref<Node[]>([
   {
     id: '2',
     type: 'condition_node',
-    position: { x: 514, y: -52 },
+    position: { x: 350, y: -32 },
     data: {
       label: '判断器1',
       config: {
-        fields: [
-          {
-            label: '分支名称',
-            value: 'branch_name',
-          },
-        ],
+        fields: [],
       },
       nodeData: {
         branch: [
@@ -139,11 +134,17 @@ export const nodes = ref<Node[]>([
   {
     id: '3',
     type: 'playback_node',
-    position: { x: 1544, y: -26 },
+    position: { x: 1022, y: -4 },
     data: {
       label: '放音',
       config: {
-        fields: [],
+        fields: [
+          {
+            label: '内容',
+            value: 'TEXT',
+            globeLabel: '{{放音.TEXT}}',
+          },
+        ],
       },
       nodeData: {
         playType: 1,
@@ -155,11 +156,42 @@ export const nodes = ref<Node[]>([
   {
     id: '4',
     type: 'hangup_node',
-    position: { x: 1546, y: 122 },
+    position: { x: 1022, y: 136 },
     data: {
       label: '结束',
       config: {
         fields: [],
+      },
+    },
+  },
+  {
+    id: '5',
+    type: 'digits_node',
+    position: { x: 1598, y: -26 },
+    data: {
+      label: '收号',
+      config: {
+        fields: [
+          {
+            label: '内容',
+            value: 'DTMF',
+            globeLabel: '{{收号.DTMF}}',
+          },
+        ],
+      },
+      nodeData: {
+        playType: 1,
+        playback: '1',
+        content: '1',
+        retry: '1',
+        dtmfMax: '1',
+        dtmfMin: '1',
+        dtmfEnd: '*',
+        dtmfTimeout: '5000',
+        dtmfDigitTimeout: '5000',
+        dtmfErrorType: 1,
+        dtmfErrorPlayback: '1',
+        dtmfErrorContext: '1',
       },
     },
   },
@@ -173,6 +205,8 @@ export const edges = ref<Edge[]>([
     id: '1->2',
     source: '1',
     target: '2',
+    sourceHandle: '',
+    targetHandle: '',
   },
 
   // set `animated: true` to create an animated edge path
@@ -188,6 +222,13 @@ export const edges = ref<Edge[]>([
     source: '2',
     target: '4',
     sourceHandle: 'right_2',
+    targetHandle: '',
+  },
+  {
+    id: '3->5',
+    source: '3',
+    target: '5',
+    sourceHandle: '',
     targetHandle: '',
   },
 ]);

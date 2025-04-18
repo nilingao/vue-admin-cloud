@@ -1,5 +1,6 @@
 <template>
   <NodeContext
+    :class="isPt ? 'pt-2' : ''"
     :isContext="false"
     :isTitle="true"
     :titleName="titleName"
@@ -46,6 +47,10 @@
     isTip: {
       type: Boolean,
       default: false,
+    },
+    isPt: {
+      type: Boolean,
+      default: true,
     },
     // 是否展示内容注解
     tipContext: {

@@ -42,15 +42,21 @@
         </div>
       </div>
     </NodeContext>
+    <NodeVariable
+      v-if="stats.fieldList && stats.fieldList.length > 0"
+      titleName="参数输出"
+      :fieldList="stats.fieldList"
+    />
   </DefaultNode>
 </template>
 
 <script setup lang="ts">
   import NodeContext from './components/NodeContext.vue';
   import DefaultNode from './components/DefaultNode.vue';
+  import NodeVariable from './components/NodeVariable.vue';
   import { cloneDeep } from 'lodash-es';
   import { reactive, watch, onBeforeMount } from 'vue';
-  import { playTypeOptions, type PlaybackNodeData } from '../../hooks/common';
+  import { playTypeOptions, type PlaybackNodeData, type NodeFields } from '../../hooks/common';
   import { Select, Textarea } from 'ant-design-vue';
   import { useVueFlow } from '@vue-flow/core';
 
@@ -72,6 +78,7 @@
     playType: 1,
     playback: '',
     content: '',
+    fieldList: [] as NodeFields[],
   });
 
   watch(
@@ -79,16 +86,16 @@
     () => {
       // 触发父组件的更新
       const { label, config, nodeData } = props.data;
+      const { fieldList, ...val } = stats;
       const data = {
         label,
         config: {
           ...config,
+          fields: fieldList,
         },
         nodeData: {
           ...nodeData,
-          playType: stats.playType,
-          playback: stats.playback,
-          content: stats.content,
+          ...val,
         },
       };
       updateNode(props.id, { data });
@@ -101,6 +108,7 @@
     stats.playType = data.nodeData.playType;
     stats.playback = data.nodeData.playback;
     stats.content = data.nodeData.content;
+    stats.fieldList = data.config?.fields || [];
   };
 
   onBeforeMount(() => {

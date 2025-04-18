@@ -6,7 +6,7 @@
     nodeIcon="hugeicons:start-up-02"
     iconBackground="rgb(209 54 209)"
   >
-    <NodeVariable titleName="全局变量" :fieldList="stats.fieldList" />
+    <NodeVariable :isPt="false" titleName="全局变量" :fieldList="stats.fieldList" />
   </DefaultNode>
 </template>
 

@@ -86,7 +86,11 @@
       </NodeContext>
     </div>
     <Button class="px-0! py-1!" type="link" size="small" @click="addBranch">+ 添加分支</Button>
-    <NodeVariable titleName="参数输出" :fieldList="stats.fieldList" />
+    <NodeVariable
+      v-if="stats.fieldList && stats.fieldList.length > 0"
+      titleName="参数输出"
+      :fieldList="stats.fieldList"
+    />
   </DefaultNode>
 </template>
 

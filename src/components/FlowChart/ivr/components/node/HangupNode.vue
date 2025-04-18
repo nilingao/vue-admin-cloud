@@ -7,7 +7,7 @@
     nodeIcon="icomoon-free:phone-hang-up"
     iconBackground="rgb(149, 153, 163)"
   >
-    <NodeContext :isTitle="false" :isContext="false" />
+    <NodeContext :isContext="false" />
   </DefaultNode>
 </template>
 
