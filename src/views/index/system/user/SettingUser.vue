@@ -24,11 +24,16 @@
 </template>
 
 <script lang="ts" setup>
-  import { ref, computed } from 'vue';
+  import { ref, computed, defineComponent } from 'vue';
   import { Tabs } from 'ant-design-vue';
   import { ScrollContainer } from '@/components/Container/index';
   import { BasicModal, useModalInner } from '@/components/Modal';
   import { settingUpdateList, settingInsertList } from './data';
+</script>
+
+<script lang="ts">
+  import BaseSetting from './BaseSetting.vue';
+  import SecureSetting from './SecureSetting.vue';
 
   const props = defineProps({
     isUpdate: {
@@ -46,12 +51,6 @@
   const [registerModal, { setModalProps, closeModal }] = useModalInner(() => {
     setModalProps({ confirmLoading: false });
   });
-</script>
-
-<script lang="ts">
-  import { defineComponent } from 'vue';
-  import BaseSetting from './BaseSetting.vue';
-  import SecureSetting from './SecureSetting.vue';
 
   export default defineComponent({
     components: {
@@ -66,9 +65,11 @@
   .account-setting {
     margin: 12px;
     background-color: @component-background;
+
     .base-title {
       padding-left: 0;
     }
+
     .ant-tabs-tab-active {
       background-color: @app-content-background;
     }

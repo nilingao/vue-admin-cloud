@@ -1,6 +1,6 @@
 <template>
   <div class="h-full" :class="prefixCls">
-    <FlowChartToolbar :prefixCls="prefixCls" v-if="toolbar" @view-data="handlePreview" />
+    <BpmnFlowChartToolbar :prefixCls="prefixCls" v-if="toolbar" @view-data="handlePreview" />
     <div ref="lfElRef" class="h-full"></div>
     <BasicModal @register="register" title="流程数据" width="50%">
       <JsonPreview :data="graphData" />
@@ -11,7 +11,7 @@
   import type { Ref } from 'vue';
   import type { Options } from '@logicflow/core';
   import { ref, onMounted, unref, nextTick, computed, watch } from 'vue';
-  import FlowChartToolbar from './FlowChartToolbar.vue';
+  import BpmnFlowChartToolbar from './BpmnFlowChartToolbar.vue';
   import LogicFlow from '@logicflow/core';
   import { Snapshot, BpmnElement, Menu, DndPanel, SelectionSelect } from '@logicflow/extension';
   import { useDesign } from '@/hooks/web/useDesign';
@@ -24,7 +24,7 @@
   import '@logicflow/core/lib/style/index.css';
   import '@logicflow/extension/lib/style/index.css';
 
-  defineOptions({ name: 'FlowChart' });
+  defineOptions({ name: 'BpmnFlowChart' });
 
   const props = defineProps({
     flowOptions: {

@@ -52,6 +52,7 @@
     GetUserPosition,
     SaveUserPosition,
   } from '@/api/sys/user';
+
   defineEmits(['register', 'success']);
 
   const [registerTreeModal, { openModal: onTreeModel }] = useModal();
@@ -153,11 +154,11 @@
 
 <style lang="less" scoped>
   .extra {
-    float: right;
     margin-top: 10px;
     margin-right: 30px;
-    font-weight: normal;
+    float: right;
     color: #1890ff;
+    font-weight: normal;
     cursor: pointer;
   }
 </style>

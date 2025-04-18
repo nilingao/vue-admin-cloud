@@ -168,6 +168,7 @@
   import { debounce } from 'lodash-es';
   import { usePermission } from '@/hooks/web/usePermission';
   import { useUserStoreWithOut } from '@/store/modules/user';
+
   const userStore = useUserStoreWithOut();
 
   const { hasPermission } = usePermission();
@@ -411,41 +412,48 @@
       .ant-picker {
         width: 100%;
       }
+
       &-date-picker {
         .ant-picker-input input {
           text-align: center;
         }
       }
+
       &-list {
         .ant-tag {
-          padding: 0 0;
           margin-right: 0;
+          padding: 0;
         }
       }
     }
+
     &-right {
       &-bom {
         &-slide {
-          width: 100%;
           position: absolute;
+          width: 100%;
+
           .ant-slider-step {
             z-index: 2;
           }
+
           .ant-slider-handle.ant-tooltip-open {
             z-index: 2;
           }
         }
+
         &-slider-box {
-          width: 100%;
-          top: 29px;
-          margin: 0 6px;
-          box-sizing: border-box;
           position: absolute;
+          top: 29px;
+          box-sizing: border-box;
+          width: 100%;
+          margin: 0 6px;
+
           &-val {
+            position: absolute;
             z-index: 1;
             height: 4px;
             background-color: #007cff;
-            position: absolute;
           }
         }
       }

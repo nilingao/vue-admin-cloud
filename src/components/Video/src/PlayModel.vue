@@ -75,11 +75,23 @@
       <Divider v-if="props.control" style="height: inherit" type="vertical" />
       <div v-if="props.control" :class="`${prefixCls}-right basis-4/20 row-span-3 flex flex-col `">
         <!-- 方向控制 -->
-        <PlayDirection :deviceId="stats.deviceId" :channelId="stats.channelId" :auth="auth" :audioPushApi="audioPushApi" :broadcastApi="broadcastApi" :stopPushApi="stopPushApi" @options-controSpeed="handleControSpeed"/>
+        <PlayDirection
+          :deviceId="stats.deviceId"
+          :channelId="stats.channelId"
+          :auth="auth"
+          :audioPushApi="audioPushApi"
+          :broadcastApi="broadcastApi"
+          :stopPushApi="stopPushApi"
+          @options-contro-speed="handleControSpeed"
+        />
         <!-- 云台控制 -->
-        <PlayPTZ :deviceId="stats.deviceId" :channelId="stats.channelId" :controSpeed="stats.controSpeed"/>
+        <PlayPTZ
+          :deviceId="stats.deviceId"
+          :channelId="stats.channelId"
+          :controSpeed="stats.controSpeed"
+        />
         <!-- 流信息 -->
-        <PlayStream :app="stats.app" :stream="stats.stream" :mediaServerId="stats.mediaServerId"/>
+        <PlayStream :app="stats.app" :stream="stats.stream" :mediaServerId="stats.mediaServerId" />
       </div>
     </div>
   </BasicModal>
@@ -97,14 +109,7 @@
   import { setObjToUrlParams } from '@/utils';
   import { useMessage } from '@/hooks/web/useMessage';
   import { copyText } from '@/utils/copyTextToClipboard';
-  import {
-    Input,
-    Button,
-    Divider,
-    Dropdown,
-    Menu,
-    MenuItem,
-  } from 'ant-design-vue';
+  import { Input, Button, Divider, Dropdown, Menu, MenuItem } from 'ant-design-vue';
 
   const VideoJessibucaPlay = defineAsyncComponent(() => import('./VideoJessibucaPlay.vue'));
   const VideoZlmRtcPlay = defineAsyncComponent(() => import('./VideoZlmRtcPlay.vue'));
@@ -114,7 +119,7 @@
   const payComponent: any = computed(() => {
     if (stats.selectPlay == 'Stream') {
       return VideoJessibucaPlay;
-    }  else if (stats.selectPlay == 'ZlmRtc') {
+    } else if (stats.selectPlay == 'ZlmRtc') {
       return VideoZlmRtcPlay;
     }
   });
@@ -184,7 +189,7 @@
     return url;
   });
   const handleSelectPlay = (item) => {
-    if( typeof item !== 'string'){
+    if (typeof item !== 'string') {
       return;
     }
     stats.selectPlay = item;
@@ -273,41 +278,51 @@
   });
 </script>
 <style lang="less">
-  .ant-modal div[aria-hidden="true"] {
-      display: none !important
+  .ant-modal div[aria-hidden='true'] {
+    display: none !important;
   }
   @prefix-cls: ~'@{namespace}-video-play-model';
   .@{prefix-cls} {
     min-height: 680px;
+
     &-left {
       min-width: 600px;
+
       &-bot {
         &-cope {
-          border: none;
           height: 30px;
+          border: none;
         }
+
         .ant-input-group-addon {
-          padding: 0 0;
+          padding: 0;
         }
       }
+
       &-dropdown {
         width: 853px;
+
         .ant-dropdown-menu-item {
           padding: 4px 1px;
         }
+
         .ant-input-group-addon {
-          padding: 0 0;
+          padding: 0;
         }
+
         .ant-input-group-addon:nth-of-type(1) {
           width: 108px;
         }
+
         .ant-input-group-addon:nth-of-type(2) {
           width: 63px;
         }
       }
     }
+
     &-right {
       min-width: 300px;
+
       .ant-divider-with-text-center {
         margin: 5px 0;
       }

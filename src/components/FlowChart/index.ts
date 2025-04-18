@@ -1,4 +1,7 @@
 import { withInstall } from '@/utils';
-import flowChart from './src/FlowChart.vue';
+import bpmnFlowChart from './bpmn/BpmnFlowChart.vue';
+import ivrFlowChart from './ivr/IvrFlowChart.vue';
 
-export const FlowChart = withInstall(flowChart);
+const BpmnFlowChart = withInstall(bpmnFlowChart);
+const IvrFlowChart = withInstall(ivrFlowChart);
+export { BpmnFlowChart, IvrFlowChart };

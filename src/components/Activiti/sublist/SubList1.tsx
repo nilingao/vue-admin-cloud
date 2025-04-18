@@ -1,9 +1,17 @@
-import { defineComponent, PropType, reactive, watch, ref, onMounted, toRaw } from 'vue';
+import {
+  defineComponent,
+  PropType,
+  reactive,
+  watch,
+  ref,
+  onMounted,
+  toRaw,
+  SetupContext,
+} from 'vue';
 import { ElInput, ElTable, ElTableColumn, ElForm, ElFormItem } from 'element-plus';
 import { TableProps } from 'element-plus/lib/el-table/src/table/defaults';
 import { TableColumn, SubListState } from './type';
 import './sublist.css';
-import { SetupContext } from '@vue/runtime-core';
 
 /**
  * 深拷贝

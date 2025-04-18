@@ -2,7 +2,7 @@ import type LogicFlow from '@logicflow/core';
 
 import { provide, inject } from 'vue';
 
-const key = Symbol('flow-chart');
+const key = Symbol('bpmn-flow-chart');
 
 type Instance = {
   logicFlow: LogicFlow;

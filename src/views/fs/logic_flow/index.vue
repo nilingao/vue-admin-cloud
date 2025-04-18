@@ -5,12 +5,12 @@
     contentFullHeight
     fixedHeight
   >
-    <FlowChart :data="demoData" />
+    <IvrFlowChart :data="{ nodes, edges }" />
   </PageWrapper>
 </template>
 
 <script lang="ts" setup>
-  import { FlowChart } from '@/components/FlowChart';
+  import { IvrFlowChart } from '@/components/FlowChart';
   import { PageWrapper } from '@/components/Page';
-  import demoData from './dataTurbo.json';
+  import { nodes, edges } from './data';
 </script>
