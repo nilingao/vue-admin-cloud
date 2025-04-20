@@ -23,11 +23,11 @@
           <span class="text-sm text-gray-500 ml-2">边数: {{ graphData.edges.length }}</span>
         </div>
       </Panel>
-      <template #[`node-${item}`]="props" :key="item" v-for="item in Object.keys(NodeInstanceMap)">
-        <component :is="NodeInstanceMap[item]" :id="props.id" :data="props.data" />
+      <template #[`node-${item}`]="prop" :key="item" v-for="item in Object.keys(NodeInstanceMap)">
+        <component :is="NodeInstanceMap[item]" :id="prop.id" :data="prop.data" />
       </template>
-      <template #[`edge-${item}`]="props" :key="item" v-for="item in Object.keys(EdgeInstanceMap)">
-        <component :is="EdgeInstanceMap[item]" v-bind="props" />
+      <template #[`edge-${item}`]="prop" :key="item" v-for="item in Object.keys(EdgeInstanceMap)">
+        <component :is="EdgeInstanceMap[item]" v-bind="prop" />
       </template>
     </VueFlow>
     <BasicModal @register="register" title="流程数据" width="50%">
@@ -93,6 +93,10 @@
     graphData.viewport = viewport;
     openModal();
   };
+  //初始化视图
+  onInit((vueFlowInstance) => {
+    vueFlowInstance.fitView();
+  });
   /**
    * deleteKeyCode 删除快捷键
    * 当创建新连接时，会调用onConnect。
@@ -138,39 +142,4 @@
   onNodeDragStop(({ event, nodes, node }) => {
     console.log('Node Drag Stop', { event, nodes, node });
   });
-  //初始化视图
-  onInit((vueFlowInstance) => {
-    vueFlowInstance.fitView();
-  });
-  // 计算节点的坐标
-  // const calculateNodePositions = (edges, nodes) => {
-  //   const positionMap = {}; // 用于存储每个节点的位置
-  //   const processedNodes = new Set(); // 用于标记已经计算过位置的节点
-  //   let yPosition = 100; // 初始的 Y 坐标设置
-  //   // 遍历 edges 数组中的每个边来设置起始节点的位置
-  //   edges.forEach((edge) => {
-  //     // 1. 给源节点分配位置
-  //     if (!processedNodes.has(edge.source)) {
-  //       positionMap[edge.source] = { x: 100, y: yPosition }; // 初始位置
-  //       yPosition += 100; // 增加 y 值，避免节点重叠
-  //       processedNodes.add(edge.source);
-  //     }
-  //     // 2. 根据源节点的位置来计算目标节点的位置
-  //     const sourcePosition = positionMap[edge.source];
-  //     if (sourcePosition && !processedNodes.has(edge.target)) {
-  //       // 给目标节点分配位置
-  //       positionMap[edge.target] = {
-  //         x: sourcePosition.x + 200, // 横向偏移
-  //         y: sourcePosition.y + 50, // 纵向偏移
-  //       };
-  //       processedNodes.add(edge.target);
-  //     }
-  //   });
-  //   // 更新节点位置
-  //   nodes.forEach((node) => {
-  //     if (positionMap[node.id]) {
-  //       node.position = positionMap[node.id];
-  //     }
-  //   });
-  // };
 </script>
