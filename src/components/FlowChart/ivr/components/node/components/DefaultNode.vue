@@ -1,7 +1,7 @@
 <template>
   <div v-if="isTarget">
     <slot name="target">
-      <Handle style="z-index: 9999" type="target" :position="Position.Left" />
+      <Handle :id="`${nodeId}-target`" type="target" :position="Position.Left" />
     </slot>
   </div>
   <Card :class="prefixCls" hoverable size="small" :style="`width: ${nodeWidth}px`">
@@ -43,7 +43,7 @@
   </Card>
   <div v-if="isSource">
     <slot name="source">
-      <Handle style="z-index: 9999" type="source" :position="Position.Right" />
+      <Handle :id="`${nodeId}-source`" type="source" :position="Position.Right" />
     </slot>
   </div>
 </template>

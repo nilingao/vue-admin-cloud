@@ -77,8 +77,7 @@
           </div>
         </div>
         <Handle
-          style="z-index: 9999"
-          :id="'right_' + (index + 1)"
+          :id="`${id}-source-${item?.id}`"
           type="source"
           :position="Position.Right"
           :style="`top:${getHandleStyle(index, item)}px`"

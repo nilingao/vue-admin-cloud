@@ -25,6 +25,9 @@
       <template #[`node-${item}`]="props" :key="item" v-for="item in Object.keys(NodeInstanceMap)">
         <component :is="NodeInstanceMap[item]" :id="props.id" :data="props.data" />
       </template>
+      <template #[`edge-${item}`]="props" :key="item" v-for="item in Object.keys(EdgeInstanceMap)">
+        <component :is="EdgeInstanceMap[item]" v-bind="props" />
+      </template>
     </VueFlow>
     <BasicModal @register="register" title="流程数据" width="50%">
       <JsonPreview :data="graphData" />
@@ -39,13 +42,15 @@
   import '@vue-flow/core/dist/theme-default.css';
   import './style/controls.css';
   import './style/minimap.css';
+  import './style/public.less';
   //编写业务
   import { useAppStore } from '@/store/modules/app';
   import IvrFlowChartToolbar from './components/toolbar/IvrFlowChartToolbar.vue';
   import { JsonPreview } from '@/components/CodeEditor';
   import { useModal, BasicModal } from '@/components/Modal';
   import { useDesign } from '@/hooks/web/useDesign';
-  import { NodeInstanceMap } from './components/node/NodeList';
+  import { NodeInstanceMap } from './components/node';
+  import { EdgeInstanceMap } from './components/edge';
 
   const appStore = useAppStore();
   const { prefixCls } = useDesign('ivr-chart');
@@ -74,7 +79,9 @@
     edges: props.data.edges,
     viewport: {},
   });
-  const { onInit, onNodeDragStop, onConnect, addEdges, toObject } = useVueFlow(props.vueFlowId);
+  const { onInit, onNodeDragStop, onConnect, findNode, addEdges, toObject } = useVueFlow(
+    props.vueFlowId,
+  );
 
   const [register, { openModal }] = useModal();
 
@@ -89,8 +96,34 @@
    * 当创建新连接时，会调用onConnect。
    * 您可以向新边添加其他属性（如类型或标签），也可以通过不调用`addEdges来完全阻止创建`
    */
-  onConnect((connection) => {
-    addEdges(connection);
+  onConnect((params) => {
+    const newEdge = {
+      ...params,
+      type: 'button_edge',
+      id: `${params.source}-${params.sourceHandle}-${params.target}-${params.targetHandle}`,
+    };
+
+    const targetList = params.targetHandle?.split('-') || [];
+    const sourceList = params.sourceHandle?.split('-') || [];
+    if (targetList[0] === sourceList[0]) {
+      console.log('不能连接到同一节点');
+      return;
+    } else if (targetList[1] === sourceList[1]) {
+      console.log('连接方向不能一致');
+      return;
+    }
+    // 这里可以添加一些逻辑来处理连接的节点
+    console.log('onConnect', newEdge);
+    const { edges } = toObject();
+    const sourceLength = edges.filter((edge) => edge.sourceHandle === newEdge.sourceHandle).length;
+    if (sourceLength > 0) {
+      console.log('源节点已经连接');
+      return;
+    }
+
+    const sourceNode = findNode(newEdge.source);
+    console.log('sourceNode', sourceNode);
+    addEdges(newEdge);
   });
   /**
    * 当节点拖动完毕时，会调用onNodeDragStop

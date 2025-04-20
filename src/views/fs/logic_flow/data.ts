@@ -225,43 +225,46 @@ export const nodes = ref<Node[]>([
 
 // these are our edges
 export const edges = ref<Edge[]>([
-  // default bezier edge
-  // consists of an edge id, source node id and target node id
   {
-    id: '1->2',
+    id: '1-1-source-2-2-target',
+    type: 'button_edge',
     source: '1',
     target: '2',
-    sourceHandle: '',
-    targetHandle: '',
+    sourceHandle: '1-source',
+    targetHandle: '2-target',
   },
 
   // set `animated: true` to create an animated edge path
   {
-    id: '2->3',
+    id: '2-2-source-4328-3-target',
+    type: 'button_edge',
     source: '2',
     target: '3',
-    sourceHandle: 'right_1',
-    targetHandle: '',
+    sourceHandle: '2-source-4328',
+    targetHandle: '3-target',
   },
   {
-    id: '2->4',
+    id: '2-2-source-2373-4-target',
+    type: 'button_edge',
     source: '2',
     target: '4',
-    sourceHandle: 'right_2',
-    targetHandle: '',
+    sourceHandle: '2-source-2373',
+    targetHandle: '4-target',
   },
   {
-    id: '3->5',
+    id: '3-source-5-target',
+    type: 'button_edge',
     source: '3',
     target: '5',
-    sourceHandle: '',
-    targetHandle: '',
+    sourceHandle: '3-source',
+    targetHandle: '5-target',
   },
   {
-    id: '5->6',
+    id: '5-source-6-target',
+    type: 'button_edge',
     source: '5',
     target: '6',
-    sourceHandle: '',
-    targetHandle: '',
+    sourceHandle: '5-source',
+    targetHandle: '6-target',
   },
 ]);
