@@ -76,8 +76,8 @@
     position: PanelPosition.TopLeft,
   });
   const graphData = reactive({
-    nodes: props.data.nodes,
-    edges: props.data.edges,
+    nodes: [] as Node[],
+    edges: [] as Edge[],
     viewport: {},
   });
   const { onInit, onNodeDragStop, onConnect, findNode, addEdges, toObject } = useVueFlow(
@@ -95,6 +95,16 @@
   };
   //初始化视图
   onInit((vueFlowInstance) => {
+    const nodes = props.data.nodes || [];
+    nodes.map((item: Node) => {
+      //开始节点不允许删除
+      if (item.type === 'start_node') {
+        item.deletable = false;
+      }
+    });
+    graphData.nodes = nodes;
+    graphData.edges = props.data.edges;
+
     vueFlowInstance.fitView();
   });
   /**
