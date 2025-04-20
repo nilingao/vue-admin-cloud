@@ -13,6 +13,7 @@
       :edges="graphData.edges"
       :minZoom="0.5"
       :default-viewport="{ zoom: 0.5 }"
+      deleteKeyCode="Delete"
       fit-view-on-init
     >
       <Background color="#aaa" :gap="16" />
@@ -93,6 +94,7 @@
     openModal();
   };
   /**
+   * deleteKeyCode 删除快捷键
    * 当创建新连接时，会调用onConnect。
    * 您可以向新边添加其他属性（如类型或标签），也可以通过不调用`addEdges来完全阻止创建`
    */
