@@ -19,6 +19,12 @@ export interface ToolbarConfig {
 }
 
 //通用节点参数
+export interface NodeData {
+  nodeId: number; //1.IF 2.ELSE IF 3.ELSE
+  type: string;
+  label: string;
+  config?: NodeConfig; //配置
+}
 export interface NodeConfig {
   fields?: NodeFields[];
 }
@@ -30,29 +36,26 @@ export interface NodeFields {
 }
 
 //开始节点
-export interface StartNodeData {
-  label: string;
-  config?: NodeConfig; //配置
-}
+export interface StartNodeData extends NodeData {}
 
 //条件节点
-export interface ConditionNodeData {
-  label: string;
-  config?: NodeConfig; //配置
+export interface ConditionNodeData extends NodeData {
   nodeData: BranchNodeData; //配置
-  branchConditionList: BranchCondition[];
 }
 export interface BranchNodeData {
   branch: Branch[];
+  branchConditionList: BranchCondition[];
 }
 export interface Branch {
-  conditions: Condition[];
   id: string;
-  type: string;
+  checkId?: string;
+  type: number; //1.IF 2.ELSE IF 3.ELSE
   condition: number;
+  conditions: Condition[];
 }
 export interface Condition {
-  field: Array<string>;
+  checkId?: string;
+  field: string;
   compare: number;
   value: string;
 }
@@ -85,48 +88,39 @@ export const conditionOptions = [
   { label: '任意', value: 2 },
 ];
 // 语音节点
-export interface PlaybackNodeData {
-  label: string;
-  config?: NodeConfig; //配置
+export interface PlaybackNodeData extends NodeData {
   nodeData: PlaybackData; //配置
 }
 export interface PlaybackData {
+  playId?: number;
   playType: number; //播放类型 1.语音文件播放 2.tts播放
-  playback: string;
+  playback: number;
   content: string;
+  retry?: number;
+  dtmfMax?: number;
+  dtmfMin?: number;
+  dtmfEnd?: string;
+  dtmfTimeout?: number;
+  dtmfDigitTimeout?: number;
+  dtmfErrorType?: number;
+  dtmfErrorPlayback?: number;
+  dtmfErrorContext?: string;
 }
 export const playTypeOptions = [
   { label: '使用语音文件', value: 1 },
   { label: '文本转语音', value: 2 },
 ];
 //收号节点
-export interface DigitsNodeData {
-  label: string;
-  config?: NodeConfig; //配置
+export interface DigitsNodeData extends NodeData {
   nodeData: PlaybackData; //配置
 }
-export interface PlaybackData {
-  playType: number; //播放类型 1.语音文件播放 2.tts播放
-  playback: string;
-  content: string;
-  retry: number;
-  dtmfMax: number;
-  dtmfMin: number;
-  dtmfEnd: string;
-  dtmfTimeout: number;
-  dtmfDigitTimeout: number;
-  dtmfErrorType: number;
-  dtmfErrorPlayback: string;
-  dtmfErrorContext: string;
-}
+
 // 转接节点
-export interface TransferNodeData {
-  label: string;
-  config?: NodeConfig; //配置
+export interface TransferNodeData extends NodeData {
   nodeData: TransferNodeData; //配置
 }
 export interface TransferNodeData {
-  routeType: number;
+  routeType: string;
   skillId: number;
   agentId: number;
   outPhone: string;
@@ -135,9 +129,12 @@ export interface TransferNodeData {
   ivrId: number;
 }
 export const transferTypeOptions = [
-  { label: '转技能组', value: 1 },
-  { label: '转坐席', value: 2 },
-  { label: '转外线', value: 3 },
-  { label: '转VDN', value: 4 },
-  { label: '转IVR', value: 5 },
+  { label: '转技能组', value: 'TRANSFER_GROUP' },
+  { label: '转坐席', value: 'TRANSFER_AGENT' },
+  { label: '转外线', value: 'TRANSFER_EXTERNAL' },
+  { label: '转VDN', value: 'TRANSFER_VDN' },
+  { label: '转IVR', value: 'TRANSFER_IVR' },
 ];
+
+// 挂机节点
+export interface HangupNodeData extends NodeData {}

@@ -5,6 +5,7 @@
     :isOperate="true"
     nodeIcon="fluent:number-symbol-16-filled"
     iconBackground="rgb(247, 89, 171)"
+    @cope="handleCope"
   >
     <NodeContext isMore isTitle titleName="语音播放" @more="headerMore" moreIcon="ep:setting">
       <div class="flex flex-col">
@@ -100,7 +101,7 @@
   import { useModal } from '@/components/Modal';
 
   defineOptions({ name: 'DigitsNode' });
-  const { updateNode } = useVueFlow();
+  const { findNode, addNodes, updateNode } = useVueFlow();
   const [registerModel, { openModal }] = useModal();
   const props = defineProps({
     id: {
@@ -116,8 +117,9 @@
   const stats = reactive({
     fieldList: [] as NodeFields[],
     // 1.语音文件播放 2.tts播放
+    playId: undefined as number | undefined,
     playType: 1,
-    playback: '',
+    playback: undefined as number | undefined,
     content: '',
     retry: 1,
     dtmfMax: 1,
@@ -126,7 +128,7 @@
     dtmfTimeout: 5000,
     dtmfDigitTimeout: 5000,
     dtmfErrorType: 1,
-    dtmfErrorPlayback: '',
+    dtmfErrorPlayback: undefined as number | undefined,
     dtmfErrorContext: '',
   });
 
@@ -174,19 +176,31 @@
 
   const initData = () => {
     const data = cloneDeep(props.data);
+    stats.playId = data.nodeData.playId || undefined;
     stats.playType = data.nodeData.playType;
-    stats.playback = data.nodeData.playback;
-    stats.content = data.nodeData.content;
-    stats.retry = data.nodeData.retry;
-    stats.dtmfMax = data.nodeData.dtmfMax;
-    stats.dtmfMin = data.nodeData.dtmfMin;
-    stats.dtmfEnd = data.nodeData.dtmfEnd;
-    stats.dtmfTimeout = data.nodeData.dtmfTimeout;
-    stats.dtmfDigitTimeout = data.nodeData.dtmfDigitTimeout;
-    stats.dtmfErrorType = data.nodeData.dtmfErrorType;
-    stats.dtmfErrorPlayback = data.nodeData.dtmfErrorPlayback;
-    stats.dtmfErrorContext = data.nodeData.dtmfErrorContext;
+    stats.playback = data.nodeData.playback || undefined;
+    stats.content = data.nodeData.content || '';
+    stats.retry = data.nodeData?.retry || 0;
+    stats.dtmfMax = data.nodeData?.dtmfMax || 1;
+    stats.dtmfMin = data.nodeData?.dtmfMin || 1;
+    stats.dtmfEnd = data.nodeData?.dtmfEnd || '#';
+    stats.dtmfTimeout = data.nodeData?.dtmfTimeout || 0;
+    stats.dtmfDigitTimeout = data.nodeData?.dtmfDigitTimeout || 0;
+    stats.dtmfErrorType = data.nodeData?.dtmfErrorType || 0;
+    stats.dtmfErrorPlayback = data.nodeData?.dtmfErrorPlayback || undefined;
+    stats.dtmfErrorContext = data.nodeData?.dtmfErrorContext || '';
     stats.fieldList = data.config?.fields || [];
+  };
+
+  const handleCope = (newNodeId) => {
+    const { position, data, type } = cloneDeep(findNode(props.id)) as any;
+    const { fieldList: _fieldList, playId: _playId, ...val } = stats;
+    addNodes({
+      id: newNodeId,
+      position: { x: position.x + 20, y: position.y + 20 },
+      type,
+      data: { ...data, nodeData: { ...val } },
+    });
   };
 
   onBeforeMount(() => {

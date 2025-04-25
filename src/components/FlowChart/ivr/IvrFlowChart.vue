@@ -116,7 +116,7 @@
     const newEdge = {
       ...params,
       type: 'button_edge',
-      id: `${params.source}-${params.sourceHandle}-${params.target}-${params.targetHandle}`,
+      id: `${params.sourceHandle}-${params.targetHandle}`,
     };
 
     const targetList = params.targetHandle?.split('-') || [];

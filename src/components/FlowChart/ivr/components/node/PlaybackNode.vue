@@ -5,6 +5,7 @@
     :isOperate="true"
     nodeIcon="hugeicons:audio-wave-01"
     iconBackground="rgb(34, 157, 255)"
+    @cope="handleCope"
   >
     <NodeContext :isTitle="false">
       <div class="flex flex-col">
@@ -61,7 +62,7 @@
   import { useVueFlow } from '@vue-flow/core';
 
   defineOptions({ name: 'PlaybackNode' });
-  const { updateNode } = useVueFlow();
+  const { findNode, addNodes, updateNode } = useVueFlow();
   const props = defineProps({
     id: {
       type: String,
@@ -75,8 +76,9 @@
 
   const stats = reactive({
     // 1.语音文件播放 2.tts播放
+    playId: undefined as number | undefined,
     playType: 1,
-    playback: '',
+    playback: undefined as number | undefined,
     content: '',
     fieldList: [] as NodeFields[],
   });
@@ -105,10 +107,22 @@
 
   const initData = () => {
     const data = cloneDeep(props.data);
+    stats.playId = data.nodeData.playId || undefined;
     stats.playType = data.nodeData.playType;
     stats.playback = data.nodeData.playback;
     stats.content = data.nodeData.content;
     stats.fieldList = data.config?.fields || [];
+  };
+
+  const handleCope = (newNodeId) => {
+    const { position, data, type } = cloneDeep(findNode(props.id)) as any;
+    const { fieldList: _fieldList, playId: _playId, ...val } = stats;
+    addNodes({
+      id: newNodeId,
+      position: { x: position.x + 20, y: position.y + 20 },
+      type,
+      data: { ...data, nodeData: { ...val } },
+    });
   };
 
   onBeforeMount(() => {

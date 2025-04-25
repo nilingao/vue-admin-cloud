@@ -12,5 +12,5 @@
 <script lang="ts" setup>
   import { IvrFlowChart } from '@/components/FlowChart';
   import { PageWrapper } from '@/components/Page';
-  import { nodes, edges } from './data';
+  import { nodes, edges } from './data1';
 </script>

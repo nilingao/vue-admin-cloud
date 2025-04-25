@@ -16,7 +16,7 @@
       >
         <div class="flex flex-col justify-start">
           <div class="flex justify-start items-center h-6">
-            <div class="flex-grow"> {{ item.type }} </div>
+            <div class="flex-grow"> {{ getTypeName(item) }} </div>
             <div
               v-if="item.conditions && item.conditions.length > 1"
               class="flex-none flex justify-start"
@@ -33,7 +33,7 @@
               <div style="color: #909399">条件</div>
             </div>
           </div>
-          <div v-if="item.type !== 'ELSE'" class="pt-2 grid gap-2">
+          <div v-if="item.type !== 3" class="pt-2 grid gap-2">
             <Row class="h-6" v-for="(item1, index) in item.conditions" :key="index" :gutter="8">
               <Col span="11">
                 <Select v-model:value="item1.field" size="small" class="w-full">
@@ -58,9 +58,7 @@
                   size="small"
                   @click="removeCondition(item, index)"
                   :disabled="
-                    item.type === 'IF' &&
-                    stats.branchList.length <= 2 &&
-                    item.conditions.length <= 1
+                    item.type === 1 && stats.branchList.length <= 2 && item.conditions.length <= 1
                   "
                 >
                   <template #icon>
@@ -70,7 +68,7 @@
               </Col>
             </Row>
           </div>
-          <div class="h-6" v-if="item.type !== 'ELSE'">
+          <div class="h-6" v-if="item.type !== 3">
             <Button class="px-0! py-1!" type="link" size="small" @click="addCondition(item)"
               >+ 添加条件</Button
             >
@@ -151,25 +149,38 @@
     const conditionsCount = item?.conditions.length || 1;
     // 计算公式
     let height = 24 + 8 * 2; //默认为ELSE高度
-    if (item.type !== 'ELSE') {
+    if (item.type !== 3) {
       //除Else外的高度
       //24 * 2 + 24 * conditionsCount + (conditionsCount > 1 ? (conditionsCount - 1) * 8 : 0) + 8 * 3
       height = 24 * (conditionsCount + 2) + 8 * (conditionsCount + 2);
     }
     return height;
   };
+  const getTypeName = (node) => {
+    let typeName = '';
+    switch (node.type) {
+      case 1:
+        typeName = 'IF';
+        break;
+      case 2:
+        const condition = stats.branchConditionList.findLast((item) => item.id == node.id);
+        typeName = 'ELSE IF ' + ((condition?.index || 2) - 1);
+        break;
+      case 3:
+        typeName = 'ELSE';
+        break;
+    }
+    return typeName;
+  };
   const addBranch = () => {
     // 计算当前 ELSE IF 分支的数量
-    const elseIfCount = stats.branchList.filter((branch) =>
-      branch.type.startsWith('ELSE IF'),
-    ).length;
     const newBranch = {
       id: Date.now().toString(), // 使用时间戳作为唯一 ID
       condition: 1,
-      type: `ELSE IF ${elseIfCount + 1}`, // 确保 ELSE IF 的序号递增
+      type: 2, // 确保 ELSE IF 的序号递增
       conditions: [
         {
-          field: [],
+          field: '',
           compare: 5,
           value: '',
         },
@@ -177,7 +188,7 @@
     };
 
     // 在 ELSE 分支前插入新分支
-    const elseIndex = stats.branchList.findIndex((branch) => branch.type === 'ELSE');
+    const elseIndex = stats.branchList.findIndex((branch) => branch.type === 3);
     stats.branchList.splice(elseIndex, 0, newBranch);
 
     // 添加到 branchConditionList 并更新索引
@@ -238,33 +249,26 @@
         });
       }
       // 如果删除的是 IF 类型的分支，确保下一个分支变为 IF
-      if (branch.type === 'IF' && stats.branchList.length > 0) {
-        stats.branchList[0].type = 'IF';
+      if (branch.type === 1 && stats.branchList.length > 0) {
+        stats.branchList[0].type = 1;
       }
-      // 重新排序 ELSE IF 类型的分支
-      let elseIfCounter = 1;
-      stats.branchList.forEach((b) => {
-        if (b.type.startsWith('ELSE IF')) {
-          b.type = `ELSE IF ${elseIfCounter++}`;
-        }
-      });
     }
   };
 
   // 初始化时确保有 'IF' 和 'ELSE'
-  if (!stats.branchList.some((b) => b.type === 'IF')) {
+  if (!stats.branchList.some((b) => b.type === 1)) {
     stats.branchList.unshift({
       id: Date.now().toString(),
       condition: 1,
-      type: 'IF',
+      type: 1,
       conditions: [],
     });
   }
-  if (!stats.branchList.some((b) => b.type === 'ELSE')) {
+  if (!stats.branchList.some((b) => b.type === 3)) {
     stats.branchList.push({
       id: Date.now().toString(),
       condition: 1,
-      type: 'ELSE',
+      type: 3,
       conditions: [],
     });
   }
@@ -283,8 +287,8 @@
         nodeData: {
           ...nodeData,
           branch: stats.branchList,
+          branchConditionList: stats.branchConditionList,
         },
-        branchConditionList: stats.branchConditionList,
       };
       updateNode(props.id, { data });
     },
@@ -294,16 +298,23 @@
   const initData = () => {
     const data = cloneDeep(props.data);
     stats.fieldList = data.config?.fields || [];
-    const branchConditionList = data?.branchConditionList || [];
+    const branchList = data.nodeData?.branch || [];
+    const branchConditionList = data?.nodeData?.branchConditionList || [];
+    branchList.forEach((branch) => {
+      const branchHeight = getHandleHeight(branch);
+      branchConditionList.map((item) => {
+        if (item.id === branch.id) {
+          item.height = branchHeight;
+        }
+      });
+    });
+
     branchConditionList.sort((a, b) => a.index - b.index);
     stats.branchConditionList = branchConditionList;
-    const branchList = data.nodeData?.branch || [];
 
-    const ifBranch = branchList.filter((branch) => branch.type === 'IF');
-    const elseBranch = branchList.filter((branch) => branch.type === 'ELSE');
-    const otherBranches = branchList.filter(
-      (branch) => branch.type !== 'IF' && branch.type !== 'ELSE',
-    );
+    const ifBranch = branchList.filter((branch) => branch.type === 1);
+    const elseBranch = branchList.filter((branch) => branch.type === 3);
+    const otherBranches = branchList.filter((branch) => branch.type !== 1 && branch.type !== 3);
 
     // 按 branchConditionList 的索引排序非 ELSE 分支
     otherBranches.sort((a, b) => {

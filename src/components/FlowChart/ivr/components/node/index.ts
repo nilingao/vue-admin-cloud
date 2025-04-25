@@ -6,12 +6,12 @@ import DigitsNode from './DigitsNode.vue';
 import TransferNode from './TransferNode.vue';
 
 export enum NodeTypeEnum {
-  START_NODE = 'start_node',
-  CONDITION_NODE = 'condition_node',
-  PLAYBACK_NODE = 'playback_node',
-  HANGUP_NODE = 'hangup_node',
-  DIGITS_NODE = 'digits_node',
-  TRANSFER_NODE = 'transfer_node',
+  START_NODE = 'START_NODE',
+  CONDITION_NODE = 'CONDITION_NODE',
+  PLAYBACK_NODE = 'PLAYBACK_NODE',
+  HANGUP_NODE = 'HANGUP_NODE',
+  DIGITS_NODE = 'DIGITS_NODE',
+  TRANSFER_NODE = 'TRANSFER_NODE',
 }
 export const NodeInstanceMap = {
   [NodeTypeEnum.START_NODE]: StartNode,

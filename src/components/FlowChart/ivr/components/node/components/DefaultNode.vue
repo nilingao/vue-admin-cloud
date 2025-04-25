@@ -55,6 +55,7 @@
   import { Handle, Position, useVueFlow } from '@vue-flow/core';
 
   const { prefixCls } = useDesign('default-node');
+  const emit = defineEmits(['cope']);
   defineOptions({ name: 'DefaultNode' });
   const props = defineProps({
     // 节点编号
@@ -96,23 +97,13 @@
       default: false,
     },
   });
-
-  const { removeNodes, findNode, addNodes, toObject } = useVueFlow();
+  const { removeNodes } = useVueFlow();
 
   const handleTitleClick = ({ key }) => {
     if (key === 'del') {
       removeNodes([props.nodeId]);
     } else if (key === 'cope') {
-      const { nodes } = toObject();
-      const maxId = nodes.reduce((max, item) => {
-        const id = parseInt(item.id); // 将 id 转换为数字
-        return isNaN(id) ? max : Math.max(max, id);
-      }, 0);
-      const { type, position, data } = findNode(props.nodeId) as any;
-
-      // 为新节点分配一个更大的 id
-      const newNodeId = (maxId + 1).toString();
-      addNodes({ id: newNodeId, position: { x: position.x + 20, y: position.y + 20 }, type, data });
+      emit('cope', new Date().getTime() + '');
     }
   };
 </script>
