@@ -13,9 +13,12 @@ export async function useInitSocket() {
   const notTokenNamespaceMap: Record<SocketNamespace, Namespace> | {} = {},
     tokenNamespaceMap: Record<SocketNamespace, Namespace> | {} = {};
   //获取namespace 下所有空间
-  const namespaceFiles: Record<SocketNamespace, any> = import.meta.glob('./namespace/init/**/*.ts', {
-    eager: true,
-  });
+  const namespaceFiles: Record<SocketNamespace, any> = import.meta.glob(
+    './namespace/init/**/*.ts',
+    {
+      eager: true,
+    },
+  );
   Object.keys(namespaceFiles).forEach((key: string | SocketNamespace) => {
     const namespace: Namespace = new namespaceFiles[key].default();
     const param = namespace.getParam();
@@ -29,7 +32,7 @@ export async function useInitSocket() {
     () => {
       Object.keys(tokenNamespaceMap).forEach(async (key: string | SocketNamespace) => {
         let nameSpace: Namespace = useSocket.getNamespace(key as SocketNamespace);
-        if(!nameSpace){
+        if (!nameSpace) {
           nameSpace = tokenNamespaceMap[key] as Namespace;
         }
         const socket = nameSpace.getSocket();
@@ -40,7 +43,7 @@ export async function useInitSocket() {
       if (userStore.getToken) {
         Object.keys(tokenNamespaceMap).forEach(async (key: string | SocketNamespace) => {
           let nameSpace: Namespace = useSocket.getNamespace(key as SocketNamespace);
-          if(!nameSpace){
+          if (!nameSpace) {
             nameSpace = tokenNamespaceMap[key] as Namespace;
           }
           useSocket.setSocketMap(nameSpace, userStore.getToken);
@@ -48,7 +51,7 @@ export async function useInitSocket() {
       } else {
         Object.keys(notTokenNamespaceMap).forEach(async (key) => {
           let nameSpace: Namespace = useSocket.getNamespace(key as SocketNamespace);
-          if(!nameSpace){
+          if (!nameSpace) {
             nameSpace = notTokenNamespaceMap[key] as Namespace;
           }
           useSocket.setSocketMap(nameSpace);
@@ -59,21 +62,21 @@ export async function useInitSocket() {
   );
 }
 //Fs通话模块加载的
-export async function useFsSocket(socketUrl: string,path: string){
+export async function useFsSocket(socketUrl: string, path: string) {
   const userStore = useUserStore();
   const useSocket = useSocketStore();
   watch(
     () => userStore.getToken,
     async () => {
       let nameSpace: Namespace = useSocket.getNamespace(SocketNamespace.AGENT_NAMESPACE);
-      if(!nameSpace){
+      if (!nameSpace) {
         nameSpace = new FsCallNamespace() as Namespace;
       }
-      if(!userStore.getToken){
+      if (!userStore.getToken) {
         return;
       }
       //创建Socket监听
-      useSocket.setSocketMap(nameSpace, userStore.getToken,socketUrl,path);
+      useSocket.setSocketMap(nameSpace, userStore.getToken, socketUrl, path);
     },
     { immediate: true },
   );

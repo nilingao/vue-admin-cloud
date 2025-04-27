@@ -24,10 +24,15 @@ export const useSocketStore = defineStore({
      * @param token 是否添加token
      * @returns
      */
-     setSocketMap(namespace: Namespace, token?: string,socketUrl?: string,path: string='/sms-socket/socket.io'):void {
-      let nameSpace:Namespace = this.getNamespace(namespace.getParam().namespace);
-      if(!nameSpace){
-        nameSpace =namespace;
+    setSocketMap(
+      namespace: Namespace,
+      token?: string,
+      socketUrl?: string,
+      path: string = '/sms-socket/socket.io',
+    ): void {
+      let nameSpace: Namespace = this.getNamespace(namespace.getParam().namespace);
+      if (!nameSpace) {
+        nameSpace = namespace;
       }
       let socket: Socket = nameSpace.getSocket();
       if (socket) {
@@ -38,7 +43,8 @@ export const useSocketStore = defineStore({
             Authorization: 'Bearer ' + token,
           }
         : {};
-      const url = (socketUrl?socketUrl:import.meta.env.VITE_SOCKET_URL) + nameSpace.getParam().namespace;
+      const url =
+        (socketUrl ? socketUrl : import.meta.env.VITE_SOCKET_URL) + nameSpace.getParam().namespace;
       socket = io(url, {
         //自动链接
         autoConnect: false,
@@ -65,15 +71,15 @@ export const useSocketStore = defineStore({
     getNamespace(namespace: SocketNamespace): Namespace {
       return this.socketMap[namespace];
     },
-    delNamespace(namespace: SocketNamespace): void{
-      const nameSpace:Namespace = this.socketMap[namespace];
+    delNamespace(namespace: SocketNamespace): void {
+      const nameSpace: Namespace = this.socketMap[namespace];
       if (nameSpace) {
         nameSpace.getSocket()?.disconnect();
         delete this.socketMap[namespace];
       }
     },
     sendMessage(namespace: SocketNamespace, event: SocketInEvent, message: any) {
-      const nameSpace:Namespace = this.socketMap[namespace];
+      const nameSpace: Namespace = this.socketMap[namespace];
       if (!nameSpace) {
         new Error('socket is null! namespace:' + namespace);
       }

@@ -329,6 +329,7 @@
   };
   onUnmounted(() => {
     hangUp();
+    useSocket.delNamespace(SocketNamespace.AGENT_NAMESPACE);
   });
 </script>
 <style lang="less">
