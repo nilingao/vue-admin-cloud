@@ -199,7 +199,7 @@
       id: newNodeId,
       position: { x: position.x + 20, y: position.y + 20 },
       type,
-      data: { ...data, nodeData: { ...val } },
+      data: { ...data, nodeId: '', nodeData: { ...val } },
     });
   };
 

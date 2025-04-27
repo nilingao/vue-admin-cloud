@@ -7,6 +7,7 @@
     :isSource="false"
     nodeIcon="gravity-ui:branches-down"
     iconBackground="rgb(20, 192, 255)"
+    @cope="handleCope"
   >
     <div class="grid gap-2">
       <NodeContext
@@ -121,7 +122,7 @@
       required: true,
     },
   });
-  const { updateNode } = useVueFlow();
+  const { findNode, addNodes, updateNode } = useVueFlow();
   const stats = reactive({
     fieldList: [] as NodeFields[],
     branchList: [] as Branch[],
@@ -164,7 +165,7 @@
         break;
       case 2:
         const condition = stats.branchConditionList.findLast((item) => item.id == node.id);
-        typeName = 'ELSE IF ' + ((condition?.index || 2) - 1);
+        typeName = 'ELSE IF ' + (condition?.index || 1);
         break;
       case 3:
         typeName = 'ELSE';
@@ -272,7 +273,7 @@
       conditions: [],
     });
   }
-
+  // 监听 stats 变化并更新父组件的 data
   watch(
     () => [stats.fieldList, stats.branchList, stats.branchConditionList],
     () => {
@@ -294,6 +295,39 @@
     },
     { immediate: true, deep: true },
   );
+  // 复制节点
+  const handleCope = (newNodeId: string) => {
+    const { position, data, type } = cloneDeep(findNode(props.id)) as any;
+    const { fieldList: _fieldList, branchList, branchConditionList } = cloneDeep(stats);
+    let branchId = Number(newNodeId) + 1;
+    const branchConditionMap = {};
+    branchConditionList.forEach((item) => {
+      branchConditionMap[item.id] = item;
+    });
+    branchList.forEach((branch) => {
+      branchConditionMap[branch.id] = {
+        ...branchConditionMap[branch.id],
+        nextNodeId: undefined,
+        id: branchId.toString(),
+      };
+      branch.id = branchId.toString();
+      branchId++;
+      branch.conditions.forEach((condition) => {
+        condition.checkId = '';
+      });
+    });
+    const updatedBranchConditionList = Object.values(branchConditionMap);
+    addNodes({
+      id: newNodeId,
+      position: { x: position.x + 20, y: position.y + 20 },
+      type,
+      data: {
+        ...data,
+        nodeId: '',
+        nodeData: { branch: branchList, branchConditionList: updatedBranchConditionList },
+      },
+    });
+  };
 
   const initData = () => {
     const data = cloneDeep(props.data);

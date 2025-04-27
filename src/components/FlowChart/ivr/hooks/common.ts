@@ -20,7 +20,7 @@ export interface ToolbarConfig {
 
 //通用节点参数
 export interface NodeData {
-  nodeId: number; //1.IF 2.ELSE IF 3.ELSE
+  nodeId: number;
   type: string;
   label: string;
   config?: NodeConfig; //配置
@@ -63,6 +63,7 @@ export interface BranchCondition {
   id: string;
   index: number;
   height: number;
+  nextNodeId?: number;
 }
 //条件节点枚举
 export const branchConditionOptions = [
