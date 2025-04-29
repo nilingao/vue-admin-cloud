@@ -19,5 +19,9 @@ export interface SocketModel {
   //空间名
   namespace: SocketNamespace;
   //值
+  init: Boolean;
+  //值
   token: Boolean;
+  //请求socket地址
+  path: String;
 }

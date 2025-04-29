@@ -23,7 +23,7 @@
   </div>
 </template>
 <script lang="ts" setup>
-  import { reactive, ref, unref, onBeforeMount, onUnmounted } from 'vue';
+  import { reactive, ref, unref, onMounted, onUnmounted } from 'vue';
   import { BasicForm, FormSchema, useForm } from '@/components/Form/index';
   import rootSocketEmitter from '@/hooks/socket/rootSocketEmitter';
   import { SocketNamespace, SocketInEvent, SocketOutEvent, ResultEnum } from '@/enums/SocketEnum';
@@ -210,9 +210,10 @@
     });
   };
 
-  onBeforeMount(() => {
+  onMounted(() => {
     //进入页面加载客服socket
-    useFsSocket('ws://192.168.1.20:9092/', '/socket.io');
+    //useFsSocket('ws://192.168.1.20:9092/');
+    useFsSocket(SocketNamespace.AGENT_NAMESPACE);
     //登陆成功回调
     rootSocketEmitter.off(SocketOutEvent.AGENT_OUT_STATUS);
     rootSocketEmitter.off(SocketOutEvent.AGENT_OUT_LOGIN);

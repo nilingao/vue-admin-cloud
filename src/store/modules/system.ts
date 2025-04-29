@@ -6,6 +6,7 @@ import { defineStore } from 'pinia';
 import { store } from '@/store';
 import { AreaEntity } from '@/api/sys/model/systemModel';
 import { DictionaryItemEntity } from '@/api/sys/model/dictionaryModel';
+
 interface SystemState {
   systemConfigMap: Recordable | undefined;
   areaList: Array<AreaEntity> | undefined;

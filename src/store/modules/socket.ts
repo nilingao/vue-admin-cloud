@@ -1,35 +1,38 @@
 import { defineStore } from 'pinia';
 import { store } from '@/store';
 import { SocketNamespace, SocketInEvent } from '../../enums/SocketEnum';
-import io, { Socket } from 'socket.io-client';
+import VueSocketIO, { Socket } from 'socket.io-client';
 import { Namespace } from '@/hooks/socket/common';
 
 interface SocketState {
+  namespaceMap: Recordable<Namespace> | {};
   socketMap: Recordable<Socket> | {};
 }
 export const useSocketStore = defineStore({
   id: 'app-socket',
   state: (): SocketState => ({
+    namespaceMap: {},
     socketMap: {},
   }),
   getters: {
+    getNamespaceMap(): Recordable<Namespace> | {} {
+      return this.namespaceMap;
+    },
     getSocketMap(): Recordable<Socket> | {} {
       return this.socketMap;
     },
   },
   actions: {
+    setNamespaceMap(namespace: Namespace): void {
+      this.namespaceMap[namespace.getParam().namespace] = namespace;
+    },
     /**
      * 创建socket
      * @param namespace 空间名
      * @param token 是否添加token
      * @returns
      */
-    setSocketMap(
-      namespace: Namespace,
-      token?: string,
-      socketUrl?: string,
-      path: string = '/sms-socket/socket.io',
-    ): void {
+    async setSocketMap(namespace: Namespace, token?: string, socketUrl?: string): Promise<void> {
       let nameSpace: Namespace = this.getNamespace(namespace.getParam().namespace);
       if (!nameSpace) {
         nameSpace = namespace;
@@ -45,15 +48,17 @@ export const useSocketStore = defineStore({
         : {};
       const url =
         (socketUrl ? socketUrl : import.meta.env.VITE_SOCKET_URL) + nameSpace.getParam().namespace;
-      socket = io(url, {
+      socket = new VueSocketIO(url, {
         //自动链接
         autoConnect: false,
         //重新链接
         reconnection: true,
+        //创建新的客户端
+        forceNew: true,
         //重新链接的最大延迟（毫秒）
         reconnectionDelayMax: 5000,
         //链接地址
-        path: path,
+        path: namespace.getParam().path || '/socket.io',
         //请求附加参数
         query: query,
         transports: ['websocket', 'polling'],
