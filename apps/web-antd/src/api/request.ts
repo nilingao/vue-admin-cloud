@@ -33,6 +33,8 @@ function createRequestClient(baseURL: string, options?: RequestClientOptions) {
   async function doReAuthenticate() {
     const accessStore = useAccessStore();
     const authStore = useAuthStore();
+    accessStore.setAccessToken(null);
+    accessStore.setRefreshToken(null);
     if (
       preferences.app.loginExpiredMode === 'modal' &&
       accessStore.isAccessChecked
@@ -41,8 +43,6 @@ function createRequestClient(baseURL: string, options?: RequestClientOptions) {
     } else {
       await authStore.logout();
     }
-    accessStore.setAccessToken(null);
-    accessStore.setRefreshToken(null);
   }
 
   /**
