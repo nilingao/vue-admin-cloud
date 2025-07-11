@@ -2,11 +2,11 @@
   "name": "@vben/commitlint-config",
   "version": "5.5.7",
   "private": true,
-  "homepage": "https://github.com/vbenjs/vue-vben-admin",
-  "bugs": "https://github.com/vbenjs/vue-vben-admin/issues",
+  "homepage": "https://github.com/NiLongAo/vue-admin-cloud",
+  "bugs": "https://github.com/NiLongAo/vue-admin-cloud/issues",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/vbenjs/vue-vben-admin.git",
+    "url": "git+https://github.com/NiLongAo/vue-admin-cloud.git",
     "directory": "internal/lint-configs/commitlint-config"
   },
   "license": "MIT",
