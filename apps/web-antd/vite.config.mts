@@ -10,7 +10,7 @@ export default defineConfig(async () => {
             changeOrigin: true,
             rewrite: (path) => path.replace(/^\/basic-api/, ''),
             // mock代理目标地址
-            target: 'https://www.nilongao.cn/basic-api',
+            target: 'http://127.0.0.1:9190',
             ws: true,
           },
         },
