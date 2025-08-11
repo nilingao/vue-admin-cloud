@@ -153,7 +153,7 @@ export function doMenuAll() {
 }
 // 保存菜单
 export function doMenuSave(params: Recordable<any>) {
-  return requestClient.post(Api.menuSave, { params });
+  return requestClient.post(Api.menuSave, params);
 }
 // 删除菜单
 export function doMenuRemove(params: Recordable<any>) {
@@ -165,14 +165,14 @@ export function doMenuDetail(params: Recordable<any>) {
 }
 // 菜单树
 export function doMenuTree(params: Recordable<any>) {
-  return requestClient.post<Recordable<any>>(Api.menuTree, { params });
+  return requestClient.post<Recordable<any>>(Api.menuTree, params);
 }
 /**
  * @description: 权限协议
  */
 // 保存权限
 export function doPrivilegeSave(params: Recordable<any>) {
-  return requestClient.post(Api.privilegeSave, { params });
+  return requestClient.post(Api.privilegeSave, params);
 }
 // 删除权限
 export function doPrivilegeRemove(params: Recordable<any>) {

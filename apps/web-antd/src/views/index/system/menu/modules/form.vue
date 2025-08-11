@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import type { ChangeEvent } from 'ant-design-vue/es/_util/EventInterface';
+// import type { ChangeEvent } from 'ant-design-vue/es/_util/EventInterface';
 
 import type { Recordable } from '@vben/types';
 
@@ -9,7 +9,7 @@ import { computed, h, ref } from 'vue';
 
 import { useVbenDrawer } from '@vben/common-ui';
 import { IconifyIcon } from '@vben/icons';
-import { $te } from '@vben/locales';
+// import { $te } from '@vben/locales';
 import { getPopupContainer } from '@vben/utils';
 
 import { breakpointsTailwind, useBreakpoints } from '@vueuse/core';
@@ -84,21 +84,21 @@ const schema: VbenFormSchema[] = [
       };
     },
   },
-  {
-    component: 'Input',
-    componentProps() {
-      // 不需要处理多语言时就无需这么做
-      return {
-        addonAfter: titleSuffix.value,
-        onChange({ target: { value } }: ChangeEvent) {
-          titleSuffix.value = value && $te(value) ? $t(value) : undefined;
-        },
-      };
-    },
-    fieldName: 'meta.title',
-    label: $t('system.menu.menuTitle'),
-    rules: 'required',
-  },
+  // {
+  //   component: 'Input',
+  //   componentProps() {
+  //     // 不需要处理多语言时就无需这么做
+  //     return {
+  //       addonAfter: titleSuffix.value,
+  //       onChange({ target: { value } }: ChangeEvent) {
+  //         titleSuffix.value = value && $te(value) ? $t(value) : undefined;
+  //       },
+  //     };
+  //   },
+  //   fieldName: 'meta.title',
+  //   label: $t('system.menu.menuTitle'),
+  //   rules: 'required',
+  // },
   {
     component: 'Input',
     dependencies: {
@@ -124,9 +124,11 @@ const schema: VbenFormSchema[] = [
     component: 'Input',
     dependencies: {
       show: (values) => {
-        return ['embedded', 'menu'].includes(values.type);
+        return (
+          ['embedded', 'menu'].includes(values.type) && values.meta.hideInMenu
+        );
       },
-      triggerFields: ['type'],
+      triggerFields: ['meta', 'type'],
     },
     fieldName: 'activePath',
     help: $t('system.menu.activePathHelp'),
