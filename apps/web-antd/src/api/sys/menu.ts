@@ -127,9 +127,13 @@ enum Api {
  */
 // 获取用户路由菜单
 export const getMenuList = () => {
-  return requestClient.post<Array<SystemMenuApi.SystemMenu>>(Api.GetMenuList, {
-    dataHeaderTenant: false,
-  });
+  return requestClient.post<Array<SystemMenuApi.SystemMenu>>(
+    Api.GetMenuList,
+    null,
+    {
+      dataHeaderTenant: false,
+    },
+  );
 };
 // 获取菜单分页
 export function doMenuPage(params: Recordable<any>) {

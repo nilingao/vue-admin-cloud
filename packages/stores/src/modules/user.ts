@@ -26,6 +26,10 @@ interface BasicUserInfo {
 
 interface AccessState {
   /**
+   * 租户编号
+   */
+  searchTenant?: number | string | undefined;
+  /**
    * 用户信息
    */
   userInfo: BasicUserInfo | null;
@@ -50,8 +54,12 @@ export const useUserStore = defineStore('core-user', {
     setUserRoles(roles: string[]) {
       this.userRoles = roles;
     },
+    setSearchTenant(searchTenant?: number | string | undefined) {
+      this.searchTenant = searchTenant;
+    },
   },
   state: (): AccessState => ({
+    searchTenant: undefined,
     userInfo: null,
     userRoles: [],
   }),

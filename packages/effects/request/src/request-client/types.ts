@@ -6,6 +6,8 @@ import type {
 } from 'axios';
 
 type ExtendOptions<T = any> = {
+  // 是否从参数中找租户添加至header(自定义)
+  dataHeaderTenant?: boolean | string;
   /**
    * 参数序列化方式。预置的有
    * - brackets: ids[]=1&ids[]=2&ids[]=3

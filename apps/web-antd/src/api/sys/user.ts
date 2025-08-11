@@ -238,7 +238,9 @@ enum Api {
  * @description: getUserInfo
  */
 export function getUserInfo() {
-  return requestClient.get<GetUserInfoModel>(Api.GetUserInfo);
+  return requestClient.get<GetUserInfoModel>(Api.GetUserInfo, {
+    dataHeaderTenant: false,
+  });
 }
 
 export function UserInfoApi(params: Recordable<any>) {

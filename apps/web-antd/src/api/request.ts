@@ -11,7 +11,7 @@ import {
   errorMessageResponseInterceptor,
   RequestClient,
 } from '@vben/request';
-import { useAccessStore } from '@vben/stores';
+import { useAccessStore, useUserStore } from '@vben/stores';
 
 import { message } from 'ant-design-vue';
 
@@ -65,7 +65,15 @@ function createRequestClient(baseURL: string, options?: RequestClientOptions) {
   client.addRequestInterceptor({
     fulfilled: async (config) => {
       const accessStore = useAccessStore();
+      const userStore = useUserStore();
       config.headers.Authorization = formatToken(accessStore.accessToken);
+      if (
+        userStore.searchTenant &&
+        config.dataHeaderTenant &&
+        typeof config.dataHeaderTenant === 'string'
+      ) {
+        config.headers[config.dataHeaderTenant] = userStore.searchTenant;
+      }
       config.headers['Accept-Language'] = preferences.app.locale;
       return config;
     },
