@@ -7,7 +7,7 @@ import { LOGIN_PATH } from '@vben/constants';
 import { preferences } from '@vben/preferences';
 import { resetAllStores, useAccessStore, useUserStore } from '@vben/stores';
 
-import { notification } from 'ant-design-vue';
+import { message, notification } from 'ant-design-vue';
 import { defineStore } from 'pinia';
 
 import { getUserInfoApi, loginApi, logoutApi } from '#/api';
@@ -35,7 +35,12 @@ export const useAuthStore = defineStore('auth', () => {
     try {
       loginLoading.value = true;
       const { data } = await loginApi(params);
-      const { access_token, refresh_token } = data.data;
+      const { code, data: userData, message: errorMessage } = data;
+      if (code !== 0) {
+        message.error(errorMessage);
+        return;
+      }
+      const { access_token, refresh_token } = userData;
 
       // 如果成功获取到 accessToken
       if (access_token) {

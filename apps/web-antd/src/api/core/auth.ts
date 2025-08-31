@@ -13,7 +13,9 @@ export namespace AuthApi {
   }
 
   export interface DataResult {
+    code: number;
     data: Result;
+    message: string;
   }
 
   /** 登录接口返回值 */
