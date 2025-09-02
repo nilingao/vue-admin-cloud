@@ -38,6 +38,10 @@ export type DepartmentPageResultModel = Recordable<DepartmentEntity>;
 enum Api {
   // 查询所有部门
   all = '/webapi/bean/department/all',
+  // 部门权限信息
+  departmentPrivilegeList = '/webapi/bean/department/department_privilege_list',
+  // 部门权限保存
+  departmentPrivilegeSave = '/webapi/bean/department/department_privilege_save',
   // 保存部门
   detail = '/webapi/bean/department/detail',
   // 获取部门分页
@@ -78,4 +82,11 @@ export function doDepartmentDetail(params: Recordable<any>) {
 
 export function doDepartmentTree(params: Recordable<any>) {
   return requestClient.post<DepartmentTree>(Api.tree, params);
+}
+export function doDepartmentPrivilegeList(params: Recordable<any>) {
+  return requestClient.get(Api.departmentPrivilegeList, { params });
+}
+
+export function doDepartmentPrivilegeSave(params: Recordable<any>) {
+  return requestClient.post(Api.departmentPrivilegeSave, params);
 }

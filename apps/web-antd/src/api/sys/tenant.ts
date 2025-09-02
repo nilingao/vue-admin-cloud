@@ -41,6 +41,10 @@ enum Api {
   remove = '/webapi/config/tenant/remove',
   // 租户信息下拉展示(动态搜索数据源)
   select = '/webapi/config/tenant/select',
+  // 租户权限信息
+  tenantPrivilegeList = '/webapi/config/tenant/tenant_privilege_list',
+  // 租户权限保存
+  tenantPrivilegeSave = '/webapi/config/tenant/tenant_privilege_save',
   // 编辑租户
   update = '/webapi/config/tenant/update',
 }
@@ -67,4 +71,11 @@ export function doTenantRemove(params: Recordable<any>) {
 
 export function doTenantDetail(params: Recordable<any>) {
   return requestClient.get<TenantModel>(Api.detail, { params });
+}
+export function doTenantPrivilegeList(params: Recordable<any>) {
+  return requestClient.get(Api.tenantPrivilegeList, { params });
+}
+
+export function doTenantPrivilegeSave(params: Recordable<any>) {
+  return requestClient.post(Api.tenantPrivilegeSave, params);
 }
