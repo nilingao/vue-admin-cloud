@@ -300,10 +300,55 @@ export function useFormSchema(
       },
     },
     {
+      component: 'Switch',
+      fieldName: 'isAdmin',
+      label: '系统管理员',
+      defaultValue: 1,
+      componentProps: {
+        class: 'w-auto',
+        checkedValue: 1,
+        unCheckedValue: 0,
+      },
+    },
+    {
+      component: 'Switch',
+      fieldName: 'isEnabled',
+      label: '启用状态',
+      componentProps: {
+        class: 'w-auto',
+        checkedValue: 1,
+        unCheckedValue: 0,
+      },
+    },
+    {
       component: 'Textarea',
       fieldName: 'memo',
       formItemClass: 'col-span-1 lg:col-span-2 items-baseline',
       label: '备注',
+      componentProps: {
+        placeholder: '请输入备注',
+      },
+    },
+    {
+      component: 'Divider',
+      fieldName: 'divider3',
+      formItemClass: 'col-span-1 lg:col-span-2 pb-0',
+      hideLabel: true,
+      componentProps: {
+        orientation: 'left',
+      },
+      renderComponentContent() {
+        return {
+          default: () => '权限分配',
+        };
+      },
+    },
+    {
+      component: 'Input',
+      fieldName: 'privilegeList',
+      formItemClass: 'col-span-1 lg:col-span-2',
+      label: '权限',
+      modelPropName: 'modelValue',
       componentProps: {
         placeholder: '请输入备注',
       },

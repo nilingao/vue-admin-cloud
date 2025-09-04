@@ -32,6 +32,7 @@ const props = withDefaults(defineProps<TreeProps>(), {
   transition: true,
   valueField: 'value',
   childrenField: 'children',
+  parentField: 'parentId',
 });
 
 const emits = defineEmits<{
@@ -113,7 +114,6 @@ function updateTreeValue() {
       }
 
       treeValue.value = filteredValues.map((v) => getItemByValue(v));
-
       if (filteredValues.length !== val.length) {
         modelValue.value = filteredValues;
       }
@@ -132,8 +132,19 @@ function processParentSelection(
   selectedValues: Array<number | string>,
 ): Array<number | string> {
   if (props.checkStrictly) return selectedValues;
-
-  const result = [...selectedValues];
+  // 第一步：添加父节点逻辑
+  const withParents = [...selectedValues];
+  for (const value of selectedValues) {
+    const item = getItemByValue(value);
+    if (!item) continue;
+    const parentId = get(item, props.parentField);
+    // 如果父节点未被选中，则添加父节点
+    if (parentId && !withParents.includes(parentId)) {
+      withParents.push(parentId);
+    }
+  }
+  // 第二步：清理无效父节点（保留原有逻辑）
+  const result = [...withParents];
 
   for (let i = result.length - 1; i >= 0; i--) {
     const currentValue = result[i];
