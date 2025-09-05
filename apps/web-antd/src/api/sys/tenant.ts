@@ -8,7 +8,7 @@ export const sysTenantId = 1;
 /**
  * @description: 租户信息
  */
-export interface TenantModel {
+export interface TenantModel extends Recordable<any> {
   // 键
   id: number | undefined;
   // 租户名

@@ -83,7 +83,7 @@ const treeValue = ref();
 onMounted(() => {
   watchEffect(() => {
     flattenData.value = flatten(props.treeData, props.childrenField);
-    updateTreeValue();
+    updateTreeValue(true);
     if (
       props.defaultExpandedLevel !== undefined &&
       props.defaultExpandedLevel > 0
@@ -98,7 +98,7 @@ function getItemByValue(value: number | string) {
   )?.value;
 }
 
-function updateTreeValue() {
+function updateTreeValue(oniInit: boolean) {
   const val = modelValue.value;
   if (val === undefined) {
     treeValue.value = undefined;
@@ -109,8 +109,8 @@ function updateTreeValue() {
         return item && !get(item, props.disabledField);
       });
 
-      if (!props.checkStrictly && props.autoCheckParent) {
-        filteredValues = processParentSelection(filteredValues);
+      if (props.autoCheckParent) {
+        filteredValues = processParentSelection(filteredValues, oniInit);
       }
 
       treeValue.value = filteredValues.map((v) => getItemByValue(v));
@@ -130,22 +130,25 @@ function updateTreeValue() {
 }
 function processParentSelection(
   selectedValues: Array<number | string>,
+  oniInit: boolean,
 ): Array<number | string> {
-  if (props.checkStrictly) return selectedValues;
   // 第一步：添加父节点逻辑
   const withParents = [...selectedValues];
-  for (const value of selectedValues) {
-    const item = getItemByValue(value);
-    if (!item) continue;
-    const parentId = get(item, props.parentField);
-    // 如果父节点未被选中，则添加父节点
-    if (parentId && !withParents.includes(parentId)) {
-      withParents.push(parentId);
+  if (oniInit) {
+    for (const value of selectedValues) {
+      const item = getItemByValue(value);
+      if (!item) continue;
+      const parentId = get(item, props.parentField);
+      // 如果父节点未被选中，则添加父节点
+      if (parentId && !withParents.includes(parentId)) {
+        withParents.push(parentId);
+      }
     }
   }
-  // 第二步：清理无效父节点（保留原有逻辑）
-  const result = [...withParents];
 
+  // 第二步：清理无效父节点（保留原有逻辑）
+  if (props.checkStrictly) return withParents;
+  const result = [...withParents];
   for (let i = result.length - 1; i >= 0; i--) {
     const currentValue = result[i];
     if (currentValue === undefined) continue;
@@ -227,12 +230,7 @@ function onSelect(item: FlattenedItem<Recordable<any>>, isSelected: boolean) {
     return;
   }
 
-  if (
-    !props.checkStrictly &&
-    props.multiple &&
-    props.autoCheckParent &&
-    isSelected
-  ) {
+  if (props.multiple && props.autoCheckParent && isSelected) {
     flattenData.value
       .find((i) => {
         return (
@@ -245,7 +243,7 @@ function onSelect(item: FlattenedItem<Recordable<any>>, isSelected: boolean) {
         }
       });
   }
-  updateTreeValue();
+  updateTreeValue(false);
   emits('select', item);
 }
 

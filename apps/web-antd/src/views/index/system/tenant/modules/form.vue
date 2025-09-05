@@ -34,6 +34,7 @@ const headerImageChange = async ({ file }: any) => {
         {
           status: 'done',
           url: file.response.fullPath,
+          path: file.response.path,
         },
       ],
     });
@@ -58,14 +59,35 @@ const [Modal, modalApi] = useVbenModal({
       modalApi.lock();
       const data = await formApi.getValues();
       try {
-        if (formData.value?.id) {
-          await doTenantInsert(data);
-        } else {
+        if (data?.id) {
           const { privilegeList, ...val } = data;
-          await doTenantUpdate({ id: formData.value.id, ...val });
+          await doTenantUpdate({ id: data?.id, ...val });
           await doTenantPrivilegeSave({
-            tenantId: formData.value.id,
+            tenantId: data?.id,
             privilegeList: getPrivilegeList(privilegeList),
+          });
+        } else {
+          const {
+            tenantName,
+            accountCount,
+            status,
+            areaList,
+            imageUrl,
+            ...val
+          } = data;
+          await doTenantInsert({
+            tenant: {
+              tenantName,
+              accountCount,
+              status,
+            },
+            user: {
+              provinceId: areaList[0],
+              cityId: areaList[1],
+              areaId: areaList[2],
+              imageUrl: imageUrl[0].path,
+              ...val,
+            },
           });
         }
         modalApi.close();
@@ -80,6 +102,7 @@ const [Modal, modalApi] = useVbenModal({
     if (isOpen) {
       const data = modalApi.getData<TenantModel>();
       if (data && data.id) {
+        formApi.setValues({ id: data.id });
         privilegeList.value = await doMenuPrivilegeTree();
         formData.value = await doTenantDetail({ id: data.id });
         const selectedKeys = ((await doTenantPrivilegeList({
@@ -113,6 +136,7 @@ function getNodeClass(node: Recordable<any>) {
       <template #privilegeList="slotProps">
         <VbenTree
           :tree-data="privilegeList"
+          check-strictly
           multiple
           bordered
           :get-node-class="getNodeClass"

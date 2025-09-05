@@ -94,7 +94,7 @@ export function useFormSchema(
   return [
     {
       component: 'Divider',
-      fieldName: 'divider1',
+      fieldName: 'id',
       formItemClass: 'col-span-1 lg:col-span-2 pb-0',
       hideLabel: true,
       componentProps: {
@@ -152,6 +152,12 @@ export function useFormSchema(
       componentProps: {
         orientation: 'left',
       },
+      dependencies: {
+        triggerFields: ['id'],
+        if: ({ id }) => {
+          return !id;
+        },
+      },
       renderComponentContent() {
         return {
           default: () => '用户设置',
@@ -189,12 +195,24 @@ export function useFormSchema(
         listType: 'picture-card',
         onChange: headerImageChange,
       },
+      dependencies: {
+        triggerFields: ['id'],
+        if: ({ id }) => {
+          return !id;
+        },
+      },
     },
     {
       component: 'Input',
       fieldName: 'loginAccount',
       label: '账户',
       rules: 'required',
+      dependencies: {
+        triggerFields: ['id'],
+        if: ({ id }) => {
+          return !id;
+        },
+      },
       componentProps: {
         placeholder: '请输入账户',
       },
@@ -204,6 +222,12 @@ export function useFormSchema(
       fieldName: 'password',
       label: '密码',
       rules: 'required',
+      dependencies: {
+        triggerFields: ['id'],
+        if: ({ id }) => {
+          return !id;
+        },
+      },
       componentProps: {
         placeholder: '请输入密码',
       },
@@ -213,6 +237,12 @@ export function useFormSchema(
       fieldName: 'userName',
       label: '用户名',
       rules: 'required',
+      dependencies: {
+        triggerFields: ['id'],
+        if: ({ id }) => {
+          return !id;
+        },
+      },
       componentProps: {
         placeholder: '请输入用户名',
       },
@@ -222,6 +252,12 @@ export function useFormSchema(
       fieldName: 'nickName',
       label: '昵称',
       rules: 'required',
+      dependencies: {
+        triggerFields: ['id'],
+        if: ({ id }) => {
+          return !id;
+        },
+      },
       componentProps: {
         placeholder: '请输入昵称',
       },
@@ -231,6 +267,13 @@ export function useFormSchema(
       fieldName: 'gender',
       label: '性别',
       rules: 'required',
+      defaultValue: 1,
+      dependencies: {
+        triggerFields: ['id'],
+        if: ({ id }) => {
+          return !id;
+        },
+      },
       componentProps: {
         placeholder: '请选择性别',
         options: [
@@ -253,6 +296,15 @@ export function useFormSchema(
       component: 'Input',
       fieldName: 'phone',
       label: '手机号',
+      componentProps: {
+        placeholder: '请输入手机号',
+      },
+      dependencies: {
+        triggerFields: ['id'],
+        if: ({ id }) => {
+          return !id;
+        },
+      },
       rules: z
         .string()
         .refine((v) => v !== '', {
@@ -261,9 +313,6 @@ export function useFormSchema(
         .refine((v) => v?.match(/^1[3-9]\d{9}$/), {
           message: '号码格式不正确',
         }),
-      componentProps: {
-        placeholder: '请输入手机号',
-      },
     },
     {
       component: 'Input',
@@ -271,6 +320,12 @@ export function useFormSchema(
       label: '身份证',
       componentProps: {
         placeholder: '请输入身份证号码',
+      },
+      dependencies: {
+        triggerFields: ['id'],
+        if: ({ id }) => {
+          return !id;
+        },
       },
       rules: z
         .string()
@@ -293,10 +348,17 @@ export function useFormSchema(
       label: '地址',
       rules: 'required',
       controlClass: 'w-full',
+      modelPropName: 'value',
       componentProps: {
         placeholder: '请选择地址',
         options: systemStore.getAreaList,
         showSearch: true,
+      },
+      dependencies: {
+        triggerFields: ['id'],
+        if: ({ id }) => {
+          return !id;
+        },
       },
     },
     {
@@ -309,6 +371,12 @@ export function useFormSchema(
         checkedValue: 1,
         unCheckedValue: 0,
       },
+      dependencies: {
+        triggerFields: ['id'],
+        if: ({ id }) => {
+          return !id;
+        },
+      },
     },
     {
       component: 'Switch',
@@ -319,6 +387,12 @@ export function useFormSchema(
         checkedValue: 1,
         unCheckedValue: 0,
       },
+      dependencies: {
+        triggerFields: ['id'],
+        if: ({ id }) => {
+          return !id;
+        },
+      },
     },
     {
       component: 'Textarea',
@@ -328,6 +402,12 @@ export function useFormSchema(
       componentProps: {
         placeholder: '请输入备注',
       },
+      dependencies: {
+        triggerFields: ['id'],
+        if: ({ id }) => {
+          return !id;
+        },
+      },
     },
     {
       component: 'Divider',
@@ -336,6 +416,12 @@ export function useFormSchema(
       hideLabel: true,
       componentProps: {
         orientation: 'left',
+      },
+      dependencies: {
+        triggerFields: ['id'],
+        if: ({ id }) => {
+          return !!id;
+        },
       },
       renderComponentContent() {
         return {
@@ -351,6 +437,12 @@ export function useFormSchema(
       modelPropName: 'modelValue',
       componentProps: {
         placeholder: '请输入备注',
+      },
+      dependencies: {
+        triggerFields: ['id'],
+        if: ({ id }) => {
+          return !!id;
+        },
       },
     },
   ];
