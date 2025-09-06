@@ -11,10 +11,10 @@ import { Plus } from '@vben/icons';
 import { Button, message } from 'ant-design-vue';
 
 import { useVbenVxeGrid } from '#/adapter/vxe-table';
-import { doTenantRemove, getTenantPage } from '#/api/sys/tenant';
+import { doDelete, getUserPage } from '#/api/sys/user';
 
-import { useColumns, useGridFormSchema } from './data';
-import Form from './modules/form.vue';
+import { useColumns, useGridFormSchema } from './component/model';
+import Form from './component/SettingUserModel.vue';
 
 const [FormModal, formModalApi] = useVbenModal({
   connectedComponent: Form,
@@ -22,7 +22,7 @@ const [FormModal, formModalApi] = useVbenModal({
 });
 
 /**
- * 编辑租户
+ * 编辑用户
  * @param row
  */
 function onEdit(row: TenantModel) {
@@ -30,21 +30,25 @@ function onEdit(row: TenantModel) {
 }
 
 /**
- * 创建租户
+ * 创建用户
  */
 function onCreate() {
   formModalApi.setData(null).open();
 }
 /**
- * 删除租户
+ * 导出用户
+ */
+function onExport() {}
+/**
+ * 删除用户
  */
 function onDelete(row: TenantModel) {
   const hideLoading = message.loading({
-    content: `正在删除 租户名为：${row.tenantName}`,
+    content: `正在删除 用户名为：${row.tenantName}`,
     duration: 0,
     key: 'action_process_msg',
   });
-  doTenantRemove({ id: row.id })
+  doDelete({ id: row.id })
     .then(() => {
       message.success({
         content: '删除成功',
@@ -86,7 +90,7 @@ const [Grid, gridApi] = useVbenVxeGrid({
     proxyConfig: {
       ajax: {
         query: async ({ page }, formValues) => {
-          return await getTenantPage({
+          return await getUserPage({
             pageNumber: page.currentPage,
             pageSize: page.pageSize,
             ...formValues,
@@ -117,15 +121,24 @@ function refreshGrid() {
 <template>
   <Page auto-content-height>
     <FormModal @success="refreshGrid" />
-    <Grid table-title="租户列表">
+    <Grid table-title="用户列表">
       <template #toolbar-tools>
         <Button
           type="primary"
-          v-access:code="'system.tenant:add'"
+          class="mr-2"
+          v-access:code="'system.user:add'"
           @click="onCreate"
         >
           <Plus class="size-5" />
-          新增租户
+          添加
+        </Button>
+        <Button
+          type="primary"
+          v-access:code="'system.user:export'"
+          @click="onExport"
+        >
+          <Plus class="size-5" />
+          导出
         </Button>
       </template>
     </Grid>

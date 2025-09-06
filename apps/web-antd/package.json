@@ -26,7 +26,14 @@
     "#/*": "./src/*"
   },
   "dependencies": {
+    "@vben-core/composables": "workspace:*",
+    "@vben-core/form-ui": "workspace:*",
+    "@vben-core/layout-ui": "workspace:*",
     "@vben-core/menu-ui": "workspace:*",
+    "@vben-core/popup-ui": "workspace:*",
+    "@vben-core/shadcn-ui": "workspace:*",
+    "@vben-core/shared": "workspace:*",
+    "@vben-core/tabs-ui": "workspace:*",
     "@vben/access": "workspace:*",
     "@vben/common-ui": "workspace:*",
     "@vben/constants": "workspace:*",

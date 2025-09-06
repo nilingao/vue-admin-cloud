@@ -15,19 +15,11 @@ import { useSystemStore } from '#/store';
 const { hasAccessByCodes } = useAccess();
 const systemStore = useSystemStore();
 export function useGridFormSchema(): VbenFormSchema[] {
-  return [
-    {
-      component: 'Input',
-      fieldName: 'tenantName',
-      label: '租户名',
-    },
-    { component: 'Input', fieldName: 'tenantUserName', label: '联系人名称' },
-  ];
+  return [{ component: 'Input', fieldName: 'userName', label: '人员名称' }];
 }
 
 export function useColumns<T = TenantModel>(
   onActionClick: OnActionClickFn<T>,
-  onStatusChange?: (newStatus: any, row: T) => PromiseLike<boolean | undefined>,
 ): VxeTableGridOptions['columns'] {
   return [
     {
@@ -36,32 +28,42 @@ export function useColumns<T = TenantModel>(
     },
     {
       field: 'id',
-      title: '租户编号',
+      title: '用户编号',
       width: 200,
     },
     {
-      field: 'tenantName',
-      showOverflow: true,
-      title: '租户名',
+      field: 'userName',
+      title: '人员名称',
       minWidth: 200,
     },
     {
-      field: 'tenantUserName',
+      field: 'loginAccount',
       minWidth: 200,
-      title: '联系人',
+      title: '账号',
     },
     {
-      cellRender: {
-        attrs: { beforeChange: onStatusChange },
-        name: onStatusChange ? 'CellSwitch' : 'CellTag',
-      },
-      field: 'status',
-      title: '状态',
+      field: 'nickName',
+      title: '昵称',
       width: 200,
     },
     {
-      field: 'accountCount',
-      title: '账号数量',
+      field: 'idCard',
+      title: '身份证号',
+      width: 200,
+    },
+    {
+      field: 'phone',
+      title: '电话',
+      width: 200,
+    },
+    {
+      field: 'address',
+      title: '居住地址',
+      width: 200,
+    },
+    {
+      field: 'loginLastTime',
+      title: '登录时间',
       width: 200,
     },
     {
@@ -69,21 +71,35 @@ export function useColumns<T = TenantModel>(
       cellRender: {
         attrs: {
           nameField: 'name',
-          nameTitle: '租户',
+          nameTitle: '用户',
           onClick: onActionClick,
         },
         name: 'CellOperation',
         options: [
           {
-            code: 'edit', // 默认编辑按钮
+            code: 'detail',
+            text: '详情',
             show: () => {
-              return hasAccessByCodes(['system.tenant:update']);
+              return hasAccessByCodes(['system.user:detail']);
             },
           },
           {
-            code: 'delete', // 默认的删除按钮
+            code: 'print',
+            text: '打印',
             show: () => {
-              return hasAccessByCodes(['system.tenant:delete']);
+              return hasAccessByCodes(['system.user:print']);
+            },
+          },
+          {
+            code: 'edit',
+            show: () => {
+              return hasAccessByCodes(['system.user:update']);
+            },
+          },
+          {
+            code: 'delete',
+            show: () => {
+              return hasAccessByCodes(['system.user:delete']);
             },
           },
         ],
@@ -91,7 +107,7 @@ export function useColumns<T = TenantModel>(
       field: 'operation',
       fixed: 'right',
       title: '操作',
-      width: 130,
+      width: 180,
     },
   ];
 }
@@ -110,17 +126,17 @@ export function useFormSchema(
       },
       renderComponentContent() {
         return {
-          default: () => '租户设置',
+          default: () => '用户设置',
         };
       },
     },
     {
       component: 'Input',
       fieldName: 'tenantName',
-      label: '租户名称',
+      label: '用户名称',
       rules: 'required',
       componentProps: {
-        placeholder: '请输入租户名称',
+        placeholder: '请输入用户名称',
         min: 0,
         max: 1000,
       },
@@ -455,3 +471,35 @@ export function useFormSchema(
     },
   ];
 }
+
+// tab的list
+export const settingUpdateList = [
+  {
+    key: '1',
+    name: '基本设置',
+    component: 'BaseSetting',
+  },
+  {
+    key: '2',
+    name: '身份设置',
+    component: 'SecureSetting',
+  },
+  {
+    key: '3',
+    name: '账号绑定',
+    component: 'AccountBind',
+  },
+  {
+    key: '4',
+    name: '新消息通知',
+    component: 'MsgNotify',
+  },
+];
+
+export const settingInsertList = [
+  {
+    key: '1',
+    name: '基本设置',
+    component: 'BaseSetting',
+  },
+];
