@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import type { TenantModel } from '#/api/sys/tenant';
 
-import { computed, defineAsyncComponent, reactive, ref, unref } from 'vue';
+import { computed, defineAsyncComponent, reactive } from 'vue';
 
 import { useVbenModal } from '@vben/common-ui';
 
@@ -25,11 +25,10 @@ const MsgNotify = defineAsyncComponent(() => import('./msgNotify/index.vue'));
 
 const modelData = reactive({
   isUpdate: false,
+  formApi: undefined as any,
   userId: '' as any,
   selectTab: 'BaseSetting',
 });
-
-const formApi = ref<any>();
 
 const componentContext = computed(() => {
   switch (modelData.selectTab) {
@@ -98,17 +97,22 @@ const settingList = computed(() =>
 
 const [Modal, modalApi] = useVbenModal({
   async onConfirm() {
-    const { valid } = await unref(formApi).validate();
-    if (valid) {
-      modalApi.lock();
-      const data = await unref(formApi).getValues();
-      try {
-        await headerSave(data);
-        modalApi.close();
-        emit('success');
-      } finally {
-        modalApi.lock(false);
+    if (modelData.formApi) {
+      const { valid } = await modelData.formApi.validate();
+      if (valid) {
+        modalApi.lock();
+        const data = await modelData.formApi.getValues();
+        try {
+          await headerSave(data);
+          modalApi.close();
+          emit('success');
+        } finally {
+          modalApi.lock(false);
+        }
       }
+    } else {
+      modalApi.close();
+      modalApi.lock(false);
     }
   },
 
@@ -148,7 +152,7 @@ const defaultValue = computed(() => {
         <TabsContent class="mt-0 w-full" :value="modelData.selectTab">
           <component
             :is="componentContext"
-            v-model:form-api="formApi"
+            v-model:form-api="modelData.formApi"
             :user-id="modelData.userId"
             @close-modal="modalApi.close()"
           />

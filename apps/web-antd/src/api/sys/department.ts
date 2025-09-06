@@ -81,7 +81,7 @@ export function doDepartmentDetail(params: Recordable<any>) {
 }
 
 export function doDepartmentTree(params: Recordable<any>) {
-  return requestClient.post<DepartmentTree>(Api.tree, params);
+  return requestClient.post<DepartmentTree[]>(Api.tree, params);
 }
 export function doDepartmentPrivilegeList(params: Recordable<any>) {
   return requestClient.get(Api.departmentPrivilegeList, { params });

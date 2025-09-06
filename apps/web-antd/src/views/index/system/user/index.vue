@@ -42,9 +42,9 @@ function onExport() {}
 /**
  * 删除用户
  */
-function onDelete(row: TenantModel) {
+function onDelete(row: any) {
   const hideLoading = message.loading({
-    content: `正在删除 用户名为：${row.tenantName}`,
+    content: `正在删除 昵称为：${row.nickName}`,
     duration: 0,
     key: 'action_process_msg',
   });

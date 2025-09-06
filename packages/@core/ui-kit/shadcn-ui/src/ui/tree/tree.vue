@@ -244,6 +244,7 @@ function onSelect(item: FlattenedItem<Recordable<any>>, isSelected: boolean) {
       });
   }
   updateTreeValue(false);
+  item.bind.isSelected = isSelected;
   emits('select', item);
 }
 
@@ -371,8 +372,6 @@ defineExpose({
                 event.stopPropagation();
                 return;
               }
-              event.stopPropagation();
-              event.preventDefault();
               handleSelect();
             }
           "
