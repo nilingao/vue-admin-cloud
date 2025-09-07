@@ -82,9 +82,6 @@ const [Modal, modalApi] = useVbenModal({
         .filter((o: any) => o.isDesensitized === 1)
         .map((o: any) => o.fieldName);
       const fieldList = allfieldList.filter((item) => !fieldListSet.has(item));
-      console.log('allfieldList', allfieldList);
-      console.log('fieldListSet', fieldListSet);
-      console.log('fieldList', fieldList);
       const param = {
         request: state.searchParam,
         fieldList,
