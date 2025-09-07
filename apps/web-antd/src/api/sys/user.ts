@@ -320,6 +320,7 @@ export function doExportEntityInfo(params: Recordable<any>) {
 export function doExportUrl(params: Recordable<any>) {
   return requestClient.post(Api.findExportUrl, params, {
     responseType: 'blob',
+    responseReturn: 'raw',
   });
 }
 export function doUnBindMiniWeb() {

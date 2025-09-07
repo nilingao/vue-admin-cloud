@@ -5,19 +5,35 @@ import type {
 } from '#/adapter/vxe-table';
 import type { TenantModel } from '#/api/sys/tenant';
 
+import { reactive } from 'vue';
+
 import { Page, useVbenModal } from '@vben/common-ui';
 import { Plus } from '@vben/icons';
 
 import { Button, message } from 'ant-design-vue';
 
 import { useVbenVxeGrid } from '#/adapter/vxe-table';
-import { doDelete, getUserPage } from '#/api/sys/user';
+import {
+  doDelete,
+  doExportEntityInfo,
+  doExportUrl,
+  getUserPage,
+} from '#/api/sys/user';
 
+import ExportCommonModel from './component/export/ExportCommonModel.vue';
 import { useColumns, useGridFormSchema } from './component/model';
 import Form from './component/SettingUserModel.vue';
 
+const state = reactive({
+  formValues: {},
+});
 const [FormModal, formModalApi] = useVbenModal({
   connectedComponent: Form,
+  destroyOnClose: true,
+});
+
+const [ExportModel, exportModalApi] = useVbenModal({
+  connectedComponent: ExportCommonModel,
   destroyOnClose: true,
 });
 
@@ -38,7 +54,20 @@ function onCreate() {
 /**
  * 导出用户
  */
-function onExport() {}
+function onExport() {
+  // 获取查询参数
+  exportModalApi
+    .setData({
+      searchParam: state.formValues,
+      paramApi: doExportEntityInfo,
+      exportApi: doExportUrl,
+    })
+    .open();
+}
+const successExport = () => {
+  message.success('导出成功');
+};
+
 /**
  * 删除用户
  */
@@ -90,6 +119,7 @@ const [Grid, gridApi] = useVbenVxeGrid({
     proxyConfig: {
       ajax: {
         query: async ({ page }, formValues) => {
+          state.formValues = formValues;
           return await getUserPage({
             pageNumber: page.currentPage,
             pageSize: page.pageSize,
@@ -121,6 +151,7 @@ function refreshGrid() {
 <template>
   <Page auto-content-height>
     <FormModal @success="refreshGrid" />
+    <ExportModel @success="successExport" />
     <Grid table-title="用户列表">
       <template #toolbar-tools>
         <Button
