@@ -138,7 +138,7 @@ const defaultValue = computed(() => {
   <Modal class="w-[500px] lg:w-[800px]" :title="getTitle">
     <div class="h-full w-full">
       <Tabs
-        class="h-full lg:flex"
+        class="h-full lg:flex lg:gap-2"
         :default-value="defaultValue"
         v-model:model-value="modelData.selectTab"
       >
@@ -149,7 +149,7 @@ const defaultValue = computed(() => {
             <TabsTrigger :value="item.component"> {{ item.name }} </TabsTrigger>
           </template>
         </TabsList>
-        <TabsContent class="mt-0 w-full" :value="modelData.selectTab">
+        <TabsContent class="mt-0 flex w-full" :value="modelData.selectTab">
           <component
             :is="componentContext"
             v-model:form-api="modelData.formApi"

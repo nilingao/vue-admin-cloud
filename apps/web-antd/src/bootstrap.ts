@@ -9,6 +9,7 @@ import '@vben/styles/antd';
 
 import { useTitle } from '@vueuse/core';
 
+import { useInitSocket } from '#/hooks/socket';
 import { $t, setupI18n } from '#/locales';
 
 import { initComponentAdapter } from './adapter/component';
@@ -69,7 +70,8 @@ async function bootstrap(namespace: string) {
       useTitle(pageTitle);
     }
   });
-
+  // webInitSocket
+  useInitSocket();
   app.mount('#app');
 }
 
