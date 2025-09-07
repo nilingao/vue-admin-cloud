@@ -21,7 +21,6 @@ const SecureSetting = defineAsyncComponent(
 const AccountBind = defineAsyncComponent(
   () => import('./accountBind/index.vue'),
 );
-const MsgNotify = defineAsyncComponent(() => import('./msgNotify/index.vue'));
 
 const modelData = reactive({
   isUpdate: false,
@@ -38,9 +37,6 @@ const componentContext = computed(() => {
     case 'BaseSetting': {
       return BaseSetting;
     }
-    case 'MsgNotify': {
-      return MsgNotify;
-    }
     case 'SecureSetting': {
       return SecureSetting;
     }
@@ -55,7 +51,6 @@ const headerSave = async (data: any) => {
   let param = null;
   switch (modelData.selectTab) {
     case 'AccountBind': {
-      api = modelData.isUpdate ? doUpdate : doInsert;
       break;
     }
     case 'BaseSetting': {
@@ -71,12 +66,7 @@ const headerSave = async (data: any) => {
       api = modelData.isUpdate ? doUpdate : doInsert;
       break;
     }
-    case 'MsgNotify': {
-      api = modelData.isUpdate ? doUpdate : doInsert;
-      break;
-    }
     case 'SecureSetting': {
-      api = modelData.isUpdate ? doUpdate : doInsert;
       break;
     }
     default: {
@@ -149,7 +139,7 @@ const defaultValue = computed(() => {
             <TabsTrigger :value="item.component"> {{ item.name }} </TabsTrigger>
           </template>
         </TabsList>
-        <TabsContent class="mt-0 flex w-full" :value="modelData.selectTab">
+        <TabsContent class="mt-0 w-full" :value="modelData.selectTab">
           <component
             :is="componentContext"
             v-model:form-api="modelData.formApi"

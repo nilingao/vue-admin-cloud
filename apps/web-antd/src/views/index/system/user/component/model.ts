@@ -489,11 +489,6 @@ export const settingUpdateList = [
     name: '账号绑定',
     component: 'AccountBind',
   },
-  {
-    key: '4',
-    name: '新消息通知',
-    component: 'MsgNotify',
-  },
 ];
 
 export const settingInsertList = [
