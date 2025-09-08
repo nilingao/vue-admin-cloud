@@ -137,10 +137,7 @@ export const getMenuList = () => {
 };
 // 获取菜单分页
 export function doMenuPage(params: Recordable<any>) {
-  return requestClient.post<Array<SystemMenuApi.SystemMenu>>(
-    Api.menuPage,
-    params,
-  );
+  return requestClient.post(Api.menuPage, params);
 }
 // 获取菜单权限树
 export function doMenuPrivilegeTree() {

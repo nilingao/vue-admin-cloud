@@ -84,13 +84,6 @@ export function useColumns<T = TenantModel>(
             },
           },
           {
-            code: 'print',
-            text: '打印',
-            show: () => {
-              return hasAccessByCodes(['system.user:print']);
-            },
-          },
-          {
             code: 'edit',
             show: () => {
               return hasAccessByCodes(['system.user:update']);
@@ -107,7 +100,7 @@ export function useColumns<T = TenantModel>(
       field: 'operation',
       fixed: 'right',
       title: '操作',
-      width: 180,
+      width: 160,
     },
   ];
 }

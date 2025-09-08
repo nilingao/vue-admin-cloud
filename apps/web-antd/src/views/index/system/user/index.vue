@@ -6,6 +6,7 @@ import type {
 import type { TenantModel } from '#/api/sys/tenant';
 
 import { reactive } from 'vue';
+import { useRouter } from 'vue-router';
 
 import { Page, useVbenModal } from '@vben/common-ui';
 import { Plus } from '@vben/icons';
@@ -24,6 +25,7 @@ import ExportCommonModel from './component/export/ExportCommonModel.vue';
 import { useColumns, useGridFormSchema } from './component/model';
 import Form from './component/SettingUserModel.vue';
 
+const router = useRouter();
 const state = reactive({
   formValues: {},
 });
@@ -97,6 +99,10 @@ function onActionClick({ code, row }: OnActionClickParams<TenantModel>) {
   switch (code) {
     case 'delete': {
       onDelete(row);
+      break;
+    }
+    case 'detail': {
+      router.push(`/system/user/user_detail/${row.id}`);
       break;
     }
     case 'edit': {
