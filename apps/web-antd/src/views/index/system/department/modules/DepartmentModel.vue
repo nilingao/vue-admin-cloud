@@ -1,17 +1,17 @@
 <script lang="ts" setup>
-import type { TenantModel } from '#/api/sys/tenant';
+import type { DepartmentEntity } from '#/api/sys/department';
 
 import { computed, ref } from 'vue';
 
 import { useVbenModal } from '@vben/common-ui';
 
 import { useVbenForm } from '#/adapter/form';
-import { doDetail, doSave } from '#/api/sys/role';
+import { doDepartmentDetail, doDepartmentSave } from '#/api/sys/department';
 
 import { useFormSchema } from './data';
 
 const emit = defineEmits(['success']);
-const formData = ref<Record<string, any>>({});
+const formData = ref<DepartmentEntity>({} as DepartmentEntity);
 
 const [Form, formApi] = useVbenForm({
   layout: 'horizontal',
@@ -24,9 +24,9 @@ const [Modal, modalApi] = useVbenModal({
     const { valid } = await formApi.validate();
     if (valid) {
       modalApi.lock();
-      const data = await formApi.getValues();
+      const data = (await formApi.getValues()) as DepartmentEntity;
       try {
-        await doSave({ id: formData.value.id, ...data });
+        await doDepartmentSave({ ...data, id: formData.value.id });
         modalApi.close();
         emit('success');
       } finally {
@@ -37,16 +37,21 @@ const [Modal, modalApi] = useVbenModal({
 
   async onOpenChange(isOpen) {
     if (isOpen) {
-      const data = modalApi.getData<TenantModel>();
+      const data = modalApi.getData<DepartmentEntity>();
+
       if (data && data.id) {
-        formData.value = await doDetail({ id: data.id });
-        formApi.setValues(formData.value);
+        formData.value = await doDepartmentDetail({ id: data.id });
+        const parentId = formData.value?.parentId || '';
+        formApi.setValues({ ...formData.value, parentId });
+      } else {
+        const parentId = data.parentId || '';
+        formApi.setValues({ parentId });
       }
     }
   },
 });
 const getTitle = computed(() => {
-  return formData.value?.id ? '修改角色' : '新增角色';
+  return formData.value?.id ? '修改部门' : '新增部门';
 });
 </script>
 

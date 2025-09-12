@@ -51,13 +51,13 @@ export function useColumns<T = TenantModel>(
       title: '联系人',
     },
     {
+      field: 'status',
+      title: '状态',
+      width: 200,
       cellRender: {
         attrs: { beforeChange: onStatusChange },
         name: onStatusChange ? 'CellSwitch' : 'CellTag',
       },
-      field: 'status',
-      title: '状态',
-      width: 200,
     },
     {
       field: 'accountCount',

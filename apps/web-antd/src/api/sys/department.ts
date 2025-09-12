@@ -5,9 +5,9 @@ import { requestClient } from '#/api/request';
 /**
  * @description: 部门信息
  */
-export interface DepartmentEntity {
+export interface DepartmentEntity extends Recordable<any> {
   // 父级编号
-  parentId: number;
+  parentId?: number;
   // 当前编号
   id: number;
   // 部门名称
