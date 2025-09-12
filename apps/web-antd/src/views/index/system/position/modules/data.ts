@@ -7,13 +7,11 @@ import type { TenantModel } from '#/api/sys/tenant';
 import { useAccess } from '@vben/access';
 import { getPopupContainer } from '@vben/utils';
 
-import { doDepartmentTree } from '#/api/sys/department';
+import { doPositionTree } from '#/api/sys/position';
 
 const { hasAccessByCodes } = useAccess();
 export function useGridFormSchema(): VbenFormSchema[] {
-  return [
-    { component: 'Input', fieldName: 'departmentName', label: '部门名称' },
-  ];
+  return [{ component: 'Input', fieldName: 'positionName', label: '职位名称' }];
 }
 
 export function useColumns<T = TenantModel>(
@@ -22,13 +20,13 @@ export function useColumns<T = TenantModel>(
   return [
     {
       field: 'id',
-      title: '部门编号',
+      title: '职位编号',
       width: 200,
       treeNode: true,
     },
     {
-      field: 'departmentName',
-      title: '部门名称',
+      field: 'positionName',
+      title: '职位名称',
       minWidth: 200,
     },
     {
@@ -54,7 +52,7 @@ export function useColumns<T = TenantModel>(
       cellRender: {
         attrs: {
           nameField: 'name',
-          nameTitle: '部门',
+          nameTitle: '职位',
           onClick: onActionClick,
         },
         name: 'CellOperation',
@@ -63,19 +61,19 @@ export function useColumns<T = TenantModel>(
             code: 'add',
             text: '新增',
             show: () => {
-              return hasAccessByCodes(['system.department:add']);
+              return hasAccessByCodes(['system.position:add']);
             },
           },
           {
             code: 'edit',
             show: () => {
-              return hasAccessByCodes(['system.department:update']);
+              return hasAccessByCodes(['system.position:update']);
             },
           },
           {
             code: 'delete',
             show: () => {
-              return hasAccessByCodes(['system.department:delete']);
+              return hasAccessByCodes(['system.position:delete']);
             },
           },
         ],
@@ -89,20 +87,20 @@ export function useFormSchema(): VbenFormSchema[] {
     {
       component: 'ApiTreeSelect',
       fieldName: 'parentId',
-      label: '上级部门',
+      label: '上级职位',
       componentProps: {
-        api: async () => await doDepartmentTree({ topName: '默认' }),
+        api: async () => await doPositionTree({ topName: '默认' }),
         class: 'w-full',
         filterTreeNode(input: string, node: Recordable<any>) {
           if (!input || input.length === 0) {
             return true;
           }
-          const title: string = node.departmentName ?? '';
+          const title: string = node.positionName ?? '';
           if (!title) return false;
           return true;
         },
         getPopupContainer,
-        labelField: 'departmentName',
+        labelField: 'positionName',
         showSearch: true,
         treeDefaultExpandAll: true,
         valueField: 'id',
@@ -111,11 +109,11 @@ export function useFormSchema(): VbenFormSchema[] {
     },
     {
       component: 'Input',
-      fieldName: 'departmentName',
-      label: '部门名称',
+      fieldName: 'positionName',
+      label: '职位名称',
       rules: 'required',
       componentProps: {
-        placeholder: '请选择部门名称',
+        placeholder: '请选择职位名称',
         min: 0,
         max: 1000,
       },

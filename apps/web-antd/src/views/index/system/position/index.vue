@@ -3,7 +3,7 @@ import type {
   OnActionClickParams,
   VxeTableGridOptions,
 } from '#/adapter/vxe-table';
-import type { DepartmentEntity } from '#/api/sys/department';
+import type { PositionEntity } from '#/api/sys/position';
 
 import { Page, useVbenModal } from '@vben/common-ui';
 import { Plus } from '@vben/icons';
@@ -11,10 +11,10 @@ import { Plus } from '@vben/icons';
 import { Button, message } from 'ant-design-vue';
 
 import { useVbenVxeGrid } from '#/adapter/vxe-table';
-import { doDepartmentPage, doDepartmentRemove } from '#/api/sys/department';
+import { doPositionPage, doPositionRemove } from '#/api/sys/position';
 
 import { useColumns, useGridFormSchema } from './modules/data';
-import DepartmentModel from './modules/DepartmentModel.vue';
+import DepartmentModel from './modules/PositionModel.vue';
 
 const [Modal, formModalApi] = useVbenModal({
   connectedComponent: DepartmentModel,
@@ -22,29 +22,29 @@ const [Modal, formModalApi] = useVbenModal({
 });
 
 /**
- * 编辑部门
+ * 编辑职位
  * @param row
  */
-function onEdit(row: DepartmentEntity) {
+function onEdit(row: PositionEntity) {
   formModalApi.setData(row).open();
 }
 
 /**
- * 创建部门
+ * 创建职位
  */
 function onCreate(parentId?: number) {
   formModalApi.setData({ parentId }).open();
 }
 /**
- * 删除部门
+ * 删除职位
  */
-function onDelete(row: DepartmentEntity) {
+function onDelete(row: PositionEntity) {
   const hideLoading = message.loading({
-    content: `正在删除 部门名为：${row.departmentName}`,
+    content: `正在删除 职位名为：${row.positionName}`,
     duration: 0,
     key: 'action_process_msg',
   });
-  doDepartmentRemove({ id: row.id })
+  doPositionRemove({ id: row.id })
     .then(() => {
       message.success({
         content: '删除成功',
@@ -60,7 +60,7 @@ function onDelete(row: DepartmentEntity) {
 /**
  * 表格操作按钮的回调函数
  */
-function onActionClick({ code, row }: OnActionClickParams<DepartmentEntity>) {
+function onActionClick({ code, row }: OnActionClickParams<PositionEntity>) {
   switch (code) {
     case 'add': {
       onCreate(row.id);
@@ -90,7 +90,7 @@ const [Grid, gridApi] = useVbenVxeGrid({
     proxyConfig: {
       ajax: {
         query: async (formValues) => {
-          const { items } = await doDepartmentPage({ ...formValues });
+          const { items } = await doPositionPage({ ...formValues });
           return items;
         },
       },
@@ -128,15 +128,15 @@ function refreshGrid() {
 <template>
   <Page auto-content-height>
     <Modal @success="refreshGrid" />
-    <Grid table-title="部门列表">
+    <Grid table-title="职位列表">
       <template #toolbar-tools>
         <Button
           type="primary"
-          v-access:code="'system.department:add'"
+          v-access:code="'system.position:add'"
           @click="() => onCreate()"
         >
           <Plus class="size-5" />
-          新增部门
+          新增职位
         </Button>
       </template>
     </Grid>

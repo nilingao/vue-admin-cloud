@@ -5,7 +5,7 @@ import { requestClient } from '#/api/request';
 /**
  * @description: 职位信息
  */
-export interface PositionEntity {
+export interface PositionEntity extends Recordable<any> {
   // 父级编号
   parentId: number;
   // 当前编号
