@@ -20,6 +20,7 @@ const props = withDefaults(defineProps<TreeProps>(), {
   autoCheckParent: true,
   bordered: false,
   checkStrictly: false,
+  defaultValue: undefined,
   defaultExpandedKeys: () => [],
   defaultExpandedLevel: 0,
   disabled: false,
@@ -82,6 +83,7 @@ const treeValue = ref();
 
 onMounted(() => {
   watchEffect(() => {
+    modelValue.value = props.defaultValue;
     flattenData.value = flatten(props.treeData, props.childrenField);
     updateTreeValue(true);
     if (
@@ -335,7 +337,7 @@ defineExpose({
             Array.isArray(item.value[childrenField]) &&
             item.value[childrenField].length > 0
           "
-          class="size-4 cursor-pointer transition"
+          class="size-4 flex-none cursor-pointer transition"
           :class="{ 'rotate-90': isExpanded }"
           @click.stop="
             () => {
@@ -344,7 +346,7 @@ defineExpose({
             }
           "
         />
-        <div v-else class="h-4 w-4">
+        <div v-else class="h-4 w-4 flex-none">
           <!-- <IconifyIcon v-if="item.value.icon" :icon="item.value.icon" /> -->
         </div>
         <Checkbox
@@ -364,7 +366,7 @@ defineExpose({
           "
         />
         <div
-          class="flex items-center gap-1 pl-2"
+          class="flex flex-auto items-center gap-1 pl-2"
           @click="
             (event: MouseEvent) => {
               if (isNodeDisabled(item)) {

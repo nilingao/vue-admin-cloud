@@ -21,6 +21,10 @@ enum Api {
   page = '/webapi/bean/role/page',
   // 删除角色
   remove = '/webapi/bean/role/remove',
+  // 获取角色权限
+  rolePrivilegeList = '/webapi/bean/role/role_privilege_list',
+  // 保存角色权限
+  rolePrivilegeSave = '/webapi/bean/role/role_privilege_save',
   // 保存角色
   save = '/webapi/bean/role/save',
   // 角色信息下拉展示(动态搜索数据源)
@@ -49,4 +53,11 @@ export function doRemove(params: Recordable<any>) {
 
 export function doDetail(params: Recordable<any>) {
   return requestClient.get(Api.detail, { params });
+}
+export function doRolePrivilegeList(params: Recordable<any>) {
+  return requestClient.get(Api.rolePrivilegeList, { params });
+}
+
+export function doRolePrivilegeSave(params: Recordable<any>) {
+  return requestClient.post(Api.rolePrivilegeSave, params);
 }

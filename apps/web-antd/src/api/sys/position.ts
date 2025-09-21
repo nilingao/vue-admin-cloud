@@ -42,6 +42,10 @@ enum Api {
   detail = '/webapi/bean/position/detail',
   // 获取职位分页
   page = '/webapi/bean/position/page',
+  // 获取职位权限
+  positionPrivilegeList = '/webapi/bean/position/position_privilege_list',
+  // 保存职位权限
+  positionPrivilegeSave = '/webapi/bean/position/position_privilege_save',
   // 删除职位
   remove = '/webapi/bean/position/remove',
   // 保存职位
@@ -77,4 +81,11 @@ export function doPositionDetail(params: Recordable<any>) {
 }
 export function doPositionTree(params: Recordable<any>) {
   return requestClient.post(Api.tree, params);
+}
+export function doPositionPrivilegeList(params: Recordable<any>) {
+  return requestClient.get(Api.positionPrivilegeList, { params });
+}
+
+export function doPositionPrivilegeSave(params: Recordable<any>) {
+  return requestClient.post(Api.positionPrivilegeSave, params);
 }
