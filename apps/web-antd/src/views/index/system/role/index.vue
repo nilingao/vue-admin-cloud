@@ -7,8 +7,9 @@ import type { RoleModel as RoleModelVo } from '#/api/sys/role';
 
 import { Page, useVbenModal } from '@vben/common-ui';
 import { Plus } from '@vben/icons';
+import { $t } from '@vben/locales';
 
-import { Button, message } from 'ant-design-vue';
+import { Modal as AntModal, Button, message } from 'ant-design-vue';
 
 import { useVbenVxeGrid } from '#/adapter/vxe-table';
 import { doRemove, getRolePage } from '#/api/sys/role';
@@ -39,22 +40,34 @@ function onCreate() {
  * 删除角色
  */
 function onDelete(row: RoleModelVo) {
-  const hideLoading = message.loading({
-    content: `正在删除 角色名为：${row.roleName}`,
-    duration: 0,
-    key: 'action_process_msg',
-  });
-  doRemove({ id: row.id })
-    .then(() => {
-      message.success({
-        content: '删除成功',
+  AntModal.confirm({
+    title: $t('system.role.confirmDelete'),
+    content: $t('system.role.confirmDeleteContent', { roleName: row.roleName }),
+    okText: $t('common.confirm'),
+    cancelText: $t('common.cancel'),
+    onOk: async () => {
+      const hideLoading = message.loading({
+        content: $t('system.role.deleting', { roleName: row.roleName }),
+        duration: 0,
         key: 'action_process_msg',
       });
-      refreshGrid();
-    })
-    .catch(() => {
-      hideLoading();
-    });
+      try {
+        await doRemove({ id: row.id });
+        message.success({
+          content: $t('system.role.deleteSuccess'),
+          key: 'action_process_msg',
+        });
+        refreshGrid();
+      } catch {
+        message.error({
+          content: $t('system.role.deleteFailed'),
+          key: 'action_process_msg',
+        });
+      } finally {
+        hideLoading();
+      }
+    },
+  });
 }
 
 /**
@@ -82,7 +95,6 @@ const [Grid, gridApi] = useVbenVxeGrid({
   gridOptions: {
     columns: useColumns(onActionClick),
     height: 'auto',
-    keepSource: true,
     proxyConfig: {
       ajax: {
         query: async ({ page }, formValues) => {
@@ -117,7 +129,7 @@ function refreshGrid() {
 <template>
   <Page auto-content-height>
     <Modal @success="refreshGrid" />
-    <Grid table-title="角色列表">
+    <Grid :table-title="$t('system.role.list')">
       <template #toolbar-tools>
         <Button
           type="primary"
@@ -125,7 +137,7 @@ function refreshGrid() {
           @click="onCreate"
         >
           <Plus class="size-5" />
-          新增角色
+          {{ $t('system.role.addRole') }}
         </Button>
       </template>
     </Grid>

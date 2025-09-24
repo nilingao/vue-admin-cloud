@@ -60,6 +60,13 @@
     "createTime": "Creation Time",
     "operation": "Operation",
     "permissions": "Permissions",
-    "setPermissions": "Permissions"
+    "setPermissions": "Permissions",
+    "confirmDelete": "Confirm Delete",
+    "confirmDeleteContent": "Are you sure you want to delete the role \"{roleName}\"? This action cannot be undone.",
+    "deleteSuccess": "Delete successful",
+    "deleteFailed": "Delete failed, please try again later",
+    "deleting": "Deleting role name: {roleName}",
+    "addRole": "Add Role",
+    "editRole": "Edit Role"
   }
 }

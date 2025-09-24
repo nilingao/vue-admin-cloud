@@ -61,7 +61,14 @@
     "createTime": "创建时间",
     "operation": "操作",
     "permissions": "权限",
-    "setPermissions": "授权"
+    "setPermissions": "授权",
+    "confirmDelete": "确认删除",
+    "confirmDeleteContent": "确定要删除角色 \"{roleName}\" 吗？此操作不可撤销。",
+    "deleteSuccess": "删除成功",
+    "deleteFailed": "删除失败，请稍后重试",
+    "deleting": "正在删除 角色名为：{roleName}",
+    "addRole": "新增角色",
+    "editRole": "修改角色"
   },
   "title": "系统管理"
 }

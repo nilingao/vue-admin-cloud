@@ -1,6 +1,6 @@
 import type { VbenFormSchema } from '#/adapter/form';
 import type { OnActionClickFn, VxeTableGridOptions } from '#/adapter/vxe-table';
-import type { TenantModel } from '#/api/sys/tenant';
+import type { RoleModel } from '#/api/sys/role';
 
 import { useAccess } from '@vben/access';
 
@@ -9,7 +9,7 @@ export function useGridFormSchema(): VbenFormSchema[] {
   return [{ component: 'Input', fieldName: 'roleName', label: '角色名称' }];
 }
 
-export function useColumns<T = TenantModel>(
+export function useColumns<T = RoleModel>(
   onActionClick: OnActionClickFn<T>,
 ): VxeTableGridOptions['columns'] {
   return [

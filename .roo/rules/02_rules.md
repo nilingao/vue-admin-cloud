@@ -99,6 +99,19 @@
 - 使用 `interface` 定义对象类型，`type` 定义联合类型
 - 导入类型时使用 `import type` 语法
 
+## 国际化支持
+- 在组件中使用国际化
+- 国际化文件放在 `apps/web-antd/src/locales` 目录下
+- 保证 zh-CN 为默认语言，其他语言为扩展语言 都要添加
+- 使用 `$t` 函数进行国际化
+
+```vue
+<script lang="ts" setup>
+import { $t } from '@vben/locales';
+$t('system.role.editRole');
+</script>
+```
+
 ## 状态管理
 
 - 使用 Pinia 进行状态管理

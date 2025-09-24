@@ -1,9 +1,10 @@
 <script lang="ts" setup>
-import type { TenantModel } from '#/api/sys/tenant';
+import type { RoleModel } from '#/api/sys/role';
 
 import { computed, ref } from 'vue';
 
 import { useVbenModal } from '@vben/common-ui';
+import { $t } from '@vben/locales';
 
 import { useVbenForm } from '#/adapter/form';
 import { doDetail, doSave } from '#/api/sys/role';
@@ -37,7 +38,7 @@ const [Modal, modalApi] = useVbenModal({
 
   async onOpenChange(isOpen) {
     if (isOpen) {
-      const data = modalApi.getData<TenantModel>();
+      const data = modalApi.getData<RoleModel>();
       if (data && data.id) {
         formData.value = await doDetail({ id: data.id });
         formApi.setValues(formData.value);
@@ -46,7 +47,9 @@ const [Modal, modalApi] = useVbenModal({
   },
 });
 const getTitle = computed(() => {
-  return formData.value?.id ? '修改角色' : '新增角色';
+  return formData.value?.id
+    ? $t('system.role.editRole')
+    : $t('system.role.addRole');
 });
 </script>
 
