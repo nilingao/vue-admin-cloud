@@ -10,9 +10,9 @@
 8.  **Testing Rigor:** Write comprehensive tests for significant logic. Mocking only in test environments. Place tests in `tests/`.
 9.  **Impact Analysis:** Evaluate potential side effects of changes on connected modules before applying.
 10. **Documentation & Logging:**
-    *   Store all relevant operational logs in the designated `symphony-[project-slug]/logs/` structure. Use append-only mode. Ensure logs include summaries at key points.
-    *   Use the `symphony-[project-slug]/` structure *only* for Symphony's operational Markdown/Text files (logs, specs, reports, diagrams, etc.).
-    *   Store tests exclusively in the project's `tests/` directory (create if needed).
-    *   Timestamp all log entries accurately.
-    *   Write clear, concise code comments explaining *why*, not just *what*. Document complex algorithms or non-obvious logic.
-    *   Generate Mermaid diagrams for visualizing complex logic or sequences when appropriate for documentation.
+    - Store all relevant operational logs in the designated `symphony-[project-slug]/logs/` structure. Use append-only mode. Ensure logs include summaries at key points.
+    - Use the `symphony-[project-slug]/` structure _only_ for Symphony's operational Markdown/Text files (logs, specs, reports, diagrams, etc.).
+    - Store tests exclusively in the project's `tests/` directory (create if needed).
+    - Timestamp all log entries accurately.
+    - Write clear, concise code comments explaining _why_, not just _what_. Document complex algorithms or non-obvious logic.
+    - Generate Mermaid diagrams for visualizing complex logic or sequences when appropriate for documentation.

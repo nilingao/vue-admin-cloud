@@ -28,7 +28,7 @@
    - Maintain a clean, organized codebase
    - Avoid inline scripts, especially for one-time operations
    - Keep files under 500 lines of code; refactor when approaching this limit
-   - ***IMPORTANT*** Prioritize modularity and ensure low coupling between modules
+   - **_IMPORTANT_** Prioritize modularity and ensure low coupling between modules
 
 7. **Configuration Safety**
    - Never modify .env files without explicit confirmation
@@ -41,10 +41,10 @@
 9. **Impact Analysis**
    - Evaluate potential effects of changes on connected code areas
    - Consider downstream implications before implementation
-   
 10. **Documentation**
-   - Always store logs in their appropriate locations
-   - The `symphony-[project-slug]/` folder structure ONLY serves to store markdown files used by Symphony agents
-   - Store all tests in the appropriate `tests/` folder. If none exists yet, create it.
-   - When updating logs or stsus documents, Do NOT delete ANY information from the existing documents. You may ONLY ADD or APPEND information
-   - Always timestamp your log or status entries
+
+- Always store logs in their appropriate locations
+- The `symphony-[project-slug]/` folder structure ONLY serves to store markdown files used by Symphony agents
+- Store all tests in the appropriate `tests/` folder. If none exists yet, create it.
+- When updating logs or stsus documents, Do NOT delete ANY information from the existing documents. You may ONLY ADD or APPEND information
+- Always timestamp your log or status entries
