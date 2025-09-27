@@ -5,7 +5,7 @@ import { Page } from '@vben/common-ui';
 
 import { VbenTree } from '@vben-core/shadcn-ui';
 
-import { message, Radio } from 'ant-design-vue';
+import { Button, message, Radio } from 'ant-design-vue';
 
 import {
   doDepartmentPrivilegeList,
@@ -24,7 +24,7 @@ import {
   doRolePrivilegeSave,
 } from '#/api/sys/role';
 
-import PrivilegeCheckbox from './modules/PrivilegeCheckbox.vue';
+import MyCheckBox from './modules/MyCheckBox.vue';
 
 const type = ref(1);
 const mode = ref('partial'); // cascade, independent, partial
@@ -32,8 +32,10 @@ const vbenTreeData = ref<any[]>([]);
 const selectTreeId = ref<number | string | undefined>();
 const treeData = ref<any[]>([]);
 const tenant = ref([]);
-const checkedList = ref([]);
+const checkedList = ref<Array<String>>([]);
+const dataList = ref<Array<String>>([]);
 const selectId = ref();
+
 // 点击字典类型事件
 const handleSelect = async ({ bind = {} as any }) => {
   let checked = [];
@@ -83,9 +85,11 @@ const getMenu = async (tenantId: number) => {
     : doMenuPrivilegeTree());
   treeData.value = data;
 };
-
+const updateCheckedList = (list: Array<String>) => {
+  dataList.value = list;
+};
 // 保存选中的元素
-const handleSave = async (checkIdList: number[]) => {
+const handleSave = async () => {
   if (!unref(type)) {
     message.error('请选择权限类型');
     return;
@@ -93,17 +97,17 @@ const handleSave = async (checkIdList: number[]) => {
   if (unref(type) === 1) {
     await doDepartmentPrivilegeSave({
       departmentId: unref(selectId),
-      privilegeList: checkIdList,
+      privilegeList: unref(dataList),
     });
   } else if (unref(type) === 2) {
     await doPositionPrivilegeSave({
       positionId: unref(selectId),
-      privilegeList: checkIdList,
+      privilegeList: unref(dataList),
     });
   } else {
     await doRolePrivilegeSave({
       roleId: unref(selectId),
-      privilegeList: checkIdList,
+      privilegeList: unref(dataList),
     });
   }
   message.success('保存成功');
@@ -194,18 +198,19 @@ watch(
         </VbenTree>
       </div>
       <div class="flex-auto overflow-hidden rounded-lg border shadow-sm">
-        <div class="flex justify-center border-b p-4">
+        <div class="flex items-center justify-between border-b p-4">
           <Radio.Group v-model:value="mode" button-style="solid">
             <Radio.Button value="cascade">父子联动</Radio.Button>
             <Radio.Button value="independent">父子不联动</Radio.Button>
             <Radio.Button value="partial">部分联动</Radio.Button>
           </Radio.Group>
+          <Button type="primary" @click="handleSave"> 保存 </Button>
         </div>
-        <PrivilegeCheckbox
+        <MyCheckBox
           :tree-data="treeData"
           :checked-list="checkedList"
           :mode="mode"
-          @save="handleSave"
+          @update:checked-list="updateCheckedList"
         />
       </div>
     </div>
