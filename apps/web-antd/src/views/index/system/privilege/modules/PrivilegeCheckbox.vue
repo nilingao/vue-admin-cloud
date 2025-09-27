@@ -62,6 +62,10 @@ watch(
       tree.value = dataTree.value;
     });
   },
+  {
+    deep: true,
+    immediate: true,
+  },
 );
 
 // 切换权限监控
@@ -70,6 +74,10 @@ watch(
   (data) => {
     tree.value = data;
     onInit();
+  },
+  {
+    deep: true,
+    immediate: true,
   },
 );
 
@@ -83,58 +91,23 @@ const handleSubsetChange = async ({ flag, id }: any) => {
 const loops = (data: CheckboxGroupEntity[], flag: boolean, id: String) => {
   data.forEach((item) => {
     if (item.id === id) {
-      item.checked = flag;
-      item.indeterminate = false;
-      // 取消选中时数组中驱除元素
-      shuzulist(flag, item.id);
-      if (item.parentId) {
-        // 子级选中父级也选中
-        const childAndParent_Select = (code: string) => {
-          const parent = getItem(code) as CheckboxGroupEntity;
-          if (parent.children && parent.children.length > 0) {
-            const all = parent.children.every((item1) => {
-              return item1.checked === true && item1.indeterminate === false;
-            });
-            const some = parent.children.some((item1) => {
-              return item1.checked === true || item1.indeterminate === true;
-            });
-            if (all) {
-              parent.indeterminate = false;
-              parent.checked = true;
-              // 取消选中时数组中驱除元素
-              shuzulist(true, parent.id);
-            } else if (some) {
-              parent.indeterminate = true;
-              parent.checked = false;
-              shuzulist(false, parent.id);
-            } else {
-              parent.indeterminate = false;
-              parent.checked = false;
-              shuzulist(false, parent.id);
-            }
-          }
-          if (parent.parentId) {
-            childAndParent_Select(parent.parentId);
-          }
-        };
-        childAndParent_Select(item.parentId);
-      }
-      if (item.children && item.children.length > 0) {
-        // 父亲选中，子级全选中，实现全选反选
-        const parentAndChild_Select = (
-          data: CheckboxGroupEntity[],
-          flag: boolean,
-        ) => {
-          data.forEach((item1) => {
-            item1.checked = flag;
-            item1.indeterminate = false;
-            shuzulist(flag, item1.id);
-            if (item1.children && item1.children.length > 0) {
-              parentAndChild_Select(item1.children, flag);
-            }
-          });
-        };
-        parentAndChild_Select(item.children, flag);
+      if (flag) {
+        item.checked = true;
+        shuzulist(true, item.id);
+        if (item.parentId) {
+          updateParentState(item.parentId);
+        }
+      } else {
+        if (item.children && hasCheckedChildren(item)) {
+          // 有子级选中，不能取消父级
+          item.checked = true; // 强制保持选中
+          return;
+        }
+        item.checked = false;
+        shuzulist(false, item.id);
+        if (item.parentId) {
+          updateParentState(item.parentId);
+        }
       }
     }
 
@@ -142,6 +115,45 @@ const loops = (data: CheckboxGroupEntity[], flag: boolean, id: String) => {
       loops(item.children, flag, id);
     }
   });
+};
+
+// 检查子级是否有选中项
+const hasCheckedChildren = (item: CheckboxGroupEntity): boolean => {
+  if (item.children && item.children.length > 0) {
+    return item.children.some(
+      (child) => child.checked || hasCheckedChildren(child),
+    );
+  }
+  return false;
+};
+
+// 更新父级状态
+const updateParentState = (parentId: string) => {
+  if (parentId) {
+    const parent = getItem(parentId);
+    if (parent && parent.children && parent.children.length > 0) {
+      const all = parent.children.every((child) => child.checked);
+      const some = parent.children.some(
+        (child) => child.checked || child.indeterminate,
+      );
+      if (all) {
+        parent.checked = true;
+        parent.indeterminate = false;
+        shuzulist(true, parent.id);
+      } else if (some) {
+        parent.checked = false;
+        parent.indeterminate = true;
+        shuzulist(false, parent.id);
+      } else {
+        parent.checked = false;
+        parent.indeterminate = false;
+        shuzulist(false, parent.id);
+      }
+      if (parent.parentId) {
+        updateParentState(parent.parentId);
+      }
+    }
+  }
 };
 
 // 根据code(唯一标识)找到其值

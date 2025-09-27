@@ -33,7 +33,6 @@ const treeData = ref<any[]>([]);
 const tenant = ref([]);
 const checkedList = ref([]);
 const selectId = ref();
-const getTitle = ref('部门信息');
 // 点击字典类型事件
 const handleSelect = async ({ bind = {} as any }) => {
   let checked = [];
@@ -44,15 +43,12 @@ const handleSelect = async ({ bind = {} as any }) => {
     selectId.value = bind.value.id;
     await getMenu(bind.value.tenantId);
     if (Math.trunc(type.value) === 1) {
-      getTitle.value = '部门信息';
       checked = await doDepartmentPrivilegeList({
         departmentId: bind.value.id,
       });
     } else if (Math.trunc(type.value) === 2) {
-      getTitle.value = '职位信息';
       checked = await doPositionPrivilegeList({ positionId: bind.value.id });
     } else {
-      getTitle.value = '角色信息';
       checked = await doRolePrivilegeList({ roleId: bind.value.id });
     }
   } else {
@@ -109,6 +105,7 @@ const handleSave = async (checkIdList: number[]) => {
       privilegeList: checkIdList,
     });
   }
+  message.success('保存成功');
 };
 // 监听类型变化
 watch(
@@ -138,6 +135,7 @@ watch(
         return headerTree(item, 'roleId', 'roleName', 'tenantId');
       });
     }
+    selectId.value = undefined;
     if (vbenTreeData.value && vbenTreeData.value.length > 0) {
       selectTreeId.value = vbenTreeData.value[0].id;
       handleSelect({ bind: { value: vbenTreeData.value[0] } });
