@@ -164,15 +164,14 @@ const getItem = (id: string) => {
 
 // 数组新增元素删除元素去重
 const shuzulist = (flag: boolean, id: string) => {
+  const cheList = [...new Set(unref(checkList))];
   if (flag) {
-    const cheList = [...unref(checkList)];
-    cheList.push(id);
-    const list = [...new Set(unref(cheList))];
-    checkList.value = list;
-  } else {
-    const cheList = [...new Set(unref(checkList))];
-    // 元素是否存在数组
     if (!cheList.includes(id)) {
+      cheList.push(id);
+      checkList.value = cheList;
+    }
+  } else {
+    if (cheList.includes(id)) {
       cheList.splice(cheList.indexOf(id), 1);
       checkList.value = cheList;
     }
@@ -191,13 +190,11 @@ const handleSave = () => {
 defineExpose({ onInit });
 </script>
 <template>
-  <div class="m-4 flex flex-col bg-white">
-    <div class="justify-end">
-      <Button class="float-right mr-4 mt-4" type="primary" @click="handleSave">
-        保存
-      </Button>
+  <div class="flex h-full flex-col">
+    <div class="flex justify-end border-b p-4">
+      <Button type="primary" @click="handleSave"> 保存 </Button>
     </div>
-    <div class="grow overflow-hidden">
+    <div class="flex-1 overflow-auto p-4">
       <MyCheckBox :tree-data="tree" @subset="handleSubsetChange" />
     </div>
   </div>

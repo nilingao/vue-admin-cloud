@@ -76,7 +76,12 @@ watch(
       vbenTreeData.value = roleData.value;
     }
     selectTreeData.value = undefined;
-    handleSelect({ bind: { value: vbenTreeData.value[0] } });
+    if (vbenTreeData.value && vbenTreeData.value.length > 0) {
+      handleSelect({ bind: { value: vbenTreeData.value[0] } });
+    } else {
+      treeData.value = [];
+      checkedList.value = [];
+    }
   },
 );
 
@@ -103,7 +108,12 @@ const init = async () => {
   // 初始化部门
   getTitle.value = '部门信息';
   vbenTreeData.value = departmentData.value;
-  handleSelect({ bind: { value: vbenTreeData.value[0] } });
+  if (vbenTreeData.value && vbenTreeData.value.length > 0) {
+    handleSelect({ bind: { value: vbenTreeData.value[0] } });
+  } else {
+    treeData.value = [];
+    checkedList.value = [];
+  }
 };
 
 const headerTree = (
@@ -166,11 +176,11 @@ onMounted(() => {
     description="设置各个管理模块的权限"
   >
     <div
-      class="bg-background dark:bg-background flex h-full flex-row gap-2 py-2"
+      class="bg-background dark:bg-background flex h-full flex-row gap-4 p-4"
     >
-      <div class="flex_none h-full pl-2">
+      <div class="w-80 flex-none">
         <VbenTree
-          class="h-full rounded-none !p-2"
+          class="h-full rounded-lg border shadow-sm"
           :tree-data="vbenTreeData"
           :default-value="selectTreeData"
           bordered
@@ -182,18 +192,23 @@ onMounted(() => {
           <template #header>
             <Radio.Group
               v-model:value="type"
-              class="!m-0"
-              style="width: 100%; margin: 10px 0; text-align: center"
+              class="mb-4 w-full"
               button-style="solid"
             >
-              <Radio.Button :value="1">部门</Radio.Button>
-              <Radio.Button :value="2">职位</Radio.Button>
-              <Radio.Button :value="3">角色</Radio.Button>
+              <Radio.Button :value="1" class="flex-1 text-center">
+                部门
+              </Radio.Button>
+              <Radio.Button :value="2" class="flex-1 text-center">
+                职位
+              </Radio.Button>
+              <Radio.Button :value="3" class="flex-1 text-center">
+                角色
+              </Radio.Button>
             </Radio.Group>
           </template>
         </VbenTree>
       </div>
-      <div class="mr-2 flex-auto border p-2">
+      <div class="flex-auto overflow-hidden rounded-lg border shadow-sm">
         <PrivilegeCheckbox
           :tree-data="treeData"
           :checked-list="checkedList"
