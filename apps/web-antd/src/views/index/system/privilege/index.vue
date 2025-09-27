@@ -192,16 +192,22 @@ onMounted(() => {
           <template #header>
             <Radio.Group
               v-model:value="type"
-              class="mb-4 w-full"
+              class="flex w-full"
               button-style="solid"
             >
-              <Radio.Button :value="1" class="flex-1 text-center">
+              <Radio.Button
+                :value="1"
+                class="flex-1 !rounded-es-none text-center"
+              >
                 部门
               </Radio.Button>
               <Radio.Button :value="2" class="flex-1 text-center">
                 职位
               </Radio.Button>
-              <Radio.Button :value="3" class="flex-1 text-center">
+              <Radio.Button
+                :value="3"
+                class="flex-1 !rounded-ee-none text-center"
+              >
                 角色
               </Radio.Button>
             </Radio.Group>

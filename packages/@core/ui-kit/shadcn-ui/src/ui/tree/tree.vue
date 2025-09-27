@@ -82,8 +82,8 @@ const expanded = ref<Array<number | string>>(props.defaultExpandedKeys ?? []);
 const treeValue = ref();
 
 onMounted(() => {
+  modelValue.value = props.defaultValue;
   watchEffect(() => {
-    modelValue.value = props.defaultValue;
     flattenData.value = flatten(props.treeData, props.childrenField);
     updateTreeValue(true);
     if (
@@ -134,20 +134,25 @@ function processParentSelection(
   selectedValues: Array<number | string>,
   oniInit: boolean,
 ): Array<number | string> {
+  function parentTree(id: number | string) {
+    let list = [] as Array<number | string>;
+    const item = getItemByValue(id);
+    if (!item) return list;
+    const parentId = get(item, props.parentField);
+    // 如果父节点未被选中，则添加父节点
+    if (parentId && !withParents.includes(parentId)) {
+      list.push(parentId);
+    }
+    list = [...list, ...parentTree(item.parentId)];
+    return list;
+  }
   // 第一步：添加父节点逻辑
-  const withParents = [...selectedValues];
+  let withParents = [...selectedValues];
   if (oniInit) {
     for (const value of selectedValues) {
-      const item = getItemByValue(value);
-      if (!item) continue;
-      const parentId = get(item, props.parentField);
-      // 如果父节点未被选中，则添加父节点
-      if (parentId && !withParents.includes(parentId)) {
-        withParents.push(parentId);
-      }
+      withParents = [...withParents, ...parentTree(value)];
     }
   }
-
   // 第二步：清理无效父节点（保留原有逻辑）
   if (props.checkStrictly) return withParents;
   const result = [...withParents];
