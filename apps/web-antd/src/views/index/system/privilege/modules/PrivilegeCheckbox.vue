@@ -18,6 +18,10 @@ const props = defineProps({
     type: Array<String>,
     default: () => [],
   },
+  mode: {
+    type: String,
+    default: 'partial', // cascade, independent, partial
+  },
 });
 const emit = defineEmits(['save']);
 const checkList = ref(props.checkedList);
@@ -91,22 +95,18 @@ const handleSubsetChange = async ({ flag, id }: any) => {
 const loops = (data: CheckboxGroupEntity[], flag: boolean, id: String) => {
   data.forEach((item) => {
     if (item.id === id) {
-      if (flag) {
-        item.checked = true;
-        shuzulist(true, item.id);
-        if (item.parentId) {
-          updateParentState(item.parentId);
+      switch (props.mode) {
+        case 'cascade': {
+          handleCascade(item, flag);
+          break;
         }
-      } else {
-        if (item.children && hasCheckedChildren(item)) {
-          // 有子级选中，不能取消父级
-          item.checked = true; // 强制保持选中
-          return;
+        case 'independent': {
+          handleIndependent(item, flag);
+          break;
         }
-        item.checked = false;
-        shuzulist(false, item.id);
-        if (item.parentId) {
-          updateParentState(item.parentId);
+        default: {
+          handlePartial(item, flag);
+          break;
         }
       }
     }
@@ -125,6 +125,78 @@ const hasCheckedChildren = (item: CheckboxGroupEntity): boolean => {
     );
   }
   return false;
+};
+
+// 全选子级
+const selectAllChildren = (item: CheckboxGroupEntity, flag: boolean) => {
+  if (item.children) {
+    item.children.forEach((child) => {
+      child.checked = flag;
+      child.indeterminate = false;
+      shuzulist(flag, child.id);
+      selectAllChildren(child, flag);
+    });
+  }
+};
+
+// 父子联动模式逻辑
+const handleCascade = (item: CheckboxGroupEntity, flag: boolean) => {
+  if (flag) {
+    item.checked = true;
+    shuzulist(true, item.id);
+    // 全选子级
+    selectAllChildren(item, true);
+    // 递归选中父级
+    if (item.parentId) {
+      const parent = getItem(item.parentId);
+      if (parent) {
+        handleCascade(parent, true);
+      }
+    }
+  } else {
+    item.checked = false;
+    shuzulist(false, item.id);
+    // 全取消子级
+    selectAllChildren(item, false);
+    // 递归取消父级
+    if (item.parentId) {
+      const parent = getItem(item.parentId);
+      if (parent && !hasCheckedChildren(parent)) {
+        handleCascade(parent, false);
+      }
+    }
+  }
+};
+
+// 独立模式逻辑
+const handleIndependent = (item: CheckboxGroupEntity, flag: boolean) => {
+  item.checked = flag;
+  if (flag) {
+    shuzulist(true, item.id);
+  } else {
+    shuzulist(false, item.id);
+  }
+};
+
+// 部分联动模式逻辑（当前）
+const handlePartial = (item: CheckboxGroupEntity, flag: boolean) => {
+  if (flag) {
+    item.checked = true;
+    shuzulist(true, item.id);
+    if (item.parentId) {
+      updateParentState(item.parentId);
+    }
+  } else {
+    if (item.children && hasCheckedChildren(item)) {
+      item.checked = true;
+      return;
+    }
+    item.checked = false;
+    shuzulist(false, item.id);
+    if (item.parentId) {
+      updateParentState(item.parentId);
+    }
+  }
 };
 
 // 更新父级状态

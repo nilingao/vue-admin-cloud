@@ -27,6 +27,7 @@ import {
 import PrivilegeCheckbox from './modules/PrivilegeCheckbox.vue';
 
 const type = ref(1);
+const mode = ref('partial'); // cascade, independent, partial
 const vbenTreeData = ref<any[]>([]);
 const selectTreeId = ref<number | string | undefined>();
 const treeData = ref<any[]>([]);
@@ -193,9 +194,17 @@ watch(
         </VbenTree>
       </div>
       <div class="flex-auto overflow-hidden rounded-lg border shadow-sm">
+        <div class="flex justify-center border-b p-4">
+          <Radio.Group v-model:value="mode" button-style="solid">
+            <Radio.Button value="cascade">父子联动</Radio.Button>
+            <Radio.Button value="independent">父子不联动</Radio.Button>
+            <Radio.Button value="partial">部分联动</Radio.Button>
+          </Radio.Group>
+        </div>
         <PrivilegeCheckbox
           :tree-data="treeData"
           :checked-list="checkedList"
+          :mode="mode"
           @save="handleSave"
         />
       </div>
