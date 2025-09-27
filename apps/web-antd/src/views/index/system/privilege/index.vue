@@ -1,19 +1,30 @@
 <script lang="ts" setup>
-import { onMounted, ref, watch } from 'vue';
+import { onMounted, ref, unref, watch } from 'vue';
 
 import { Page } from '@vben/common-ui';
 
 import { VbenTree } from '@vben-core/shadcn-ui';
 
-import { Radio } from 'ant-design-vue';
+import { message, Radio } from 'ant-design-vue';
 
 import {
   doDepartmentPrivilegeList,
+  doDepartmentPrivilegeSave,
   doDepartmentTree,
 } from '#/api/sys/department';
 import { doMenuPrivilegeTree, doTenantMenuPrivilegeTree } from '#/api/sys/menu';
-import { doPositionPrivilegeList, doPositionTree } from '#/api/sys/position';
-import { doAll, doRolePrivilegeList } from '#/api/sys/role';
+import {
+  doPositionPrivilegeList,
+  doPositionPrivilegeSave,
+  doPositionTree,
+} from '#/api/sys/position';
+import {
+  doAll,
+  doRolePrivilegeList,
+  doRolePrivilegeSave,
+} from '#/api/sys/role';
+
+import PrivilegeCheckbox from './modules/PrivilegeCheckbox.vue';
 
 const type = ref(1);
 const vbenTreeData = ref<any[]>([]);
@@ -56,7 +67,7 @@ const handleSelect = async ({ bind = {} as any }) => {
 
 watch(
   () => type.value,
-  async (value) => {
+  (value) => {
     if (value === 1) {
       vbenTreeData.value = departmentData.value;
     } else if (value === 2) {
@@ -65,7 +76,7 @@ watch(
       vbenTreeData.value = roleData.value;
     }
     selectTreeData.value = undefined;
-    await handleSelect({ bind: { value: vbenTreeData.value[0] } });
+    handleSelect({ bind: { value: vbenTreeData.value[0] } });
   },
 );
 
@@ -92,7 +103,7 @@ const init = async () => {
   // 初始化部门
   getTitle.value = '部门信息';
   vbenTreeData.value = departmentData.value;
-  selectTreeData.value = vbenTreeData.value[0]?.id;
+  handleSelect({ bind: { value: vbenTreeData.value[0] } });
 };
 
 const headerTree = (
@@ -119,6 +130,30 @@ const getMenu = async (tenantId: number) => {
     ? doTenantMenuPrivilegeTree({ tenantId })
     : doMenuPrivilegeTree());
   treeData.value = data;
+};
+
+// 保存选中的元素
+const handleSave = async (checkIdList: number[]) => {
+  if (!unref(type)) {
+    message.error('请选择权限类型');
+    return;
+  }
+  if (unref(type) === 1) {
+    await doDepartmentPrivilegeSave({
+      departmentId: unref(selectId),
+      privilegeList: checkIdList,
+    });
+  } else if (unref(type) === 2) {
+    await doPositionPrivilegeSave({
+      positionId: unref(selectId),
+      privilegeList: checkIdList,
+    });
+  } else {
+    await doRolePrivilegeSave({
+      roleId: unref(selectId),
+      privilegeList: checkIdList,
+    });
+  }
 };
 onMounted(() => {
   init();
@@ -158,7 +193,13 @@ onMounted(() => {
           </template>
         </VbenTree>
       </div>
-      <div class="mr-2 flex-auto border p-2"></div>
+      <div class="mr-2 flex-auto border p-2">
+        <PrivilegeCheckbox
+          :tree-data="treeData"
+          :checked-list="checkedList"
+          @save="handleSave"
+        />
+      </div>
     </div>
   </Page>
 </template>

@@ -29,17 +29,20 @@ const onInit = () => {
   // 深度克隆
   const lastv = [] as string[];
   const data = cloneDeep(props.treeData) as CheckboxGroupEntity[];
-  function addParentKey(data: CheckboxGroupEntity[], parentKey: any) {
+  function addParentKey(
+    data: CheckboxGroupEntity[],
+    parentKey: string | undefined,
+  ) {
     data.forEach((ele) => {
-      const { children, v } = ele;
+      const { children, id } = ele;
       ele.parentId = parentKey;
       ele.indeterminate = false;
       ele.checked = false;
       if (children) {
         // 如果唯一标识不是code可以自行改变
-        addParentKey(children, ele.v);
+        addParentKey(children, ele.id);
       } else {
-        lastv.push(v);
+        lastv.push(id);
         last.value = lastv;
       }
     });
@@ -54,8 +57,8 @@ watch(
   (checkedList) => {
     checkList.value = checkedList;
     // 递归循环
-    checkList.value.forEach((obj: any) => {
-      loops(dataTree.value, true, obj);
+    checkedList.forEach((id: String) => {
+      loops(dataTree.value, true, id);
       tree.value = dataTree.value;
     });
   },
@@ -72,19 +75,19 @@ watch(
 
 // 点击复选框触发
 const handleSubsetChange = async (val: any) => {
-  const { flag, v } = val;
-  await loops(dataTree.value, flag, v);
+  const { flag, id } = val;
+  await loops(dataTree.value, flag, id);
   tree.value = dataTree.value;
 };
 
 // 递归循环
-const loops = (data: CheckboxGroupEntity[], flag: boolean, v: string) => {
+const loops = (data: CheckboxGroupEntity[], flag: boolean, id: String) => {
   data.forEach((item) => {
-    if (item.v === v) {
+    if (item.id === id) {
       item.checked = flag;
       item.indeterminate = false;
       // 取消选中时数组中驱除元素
-      shuzulist(flag, item.v);
+      shuzulist(flag, item.id);
       if (item.parentId) {
         // 子级选中父级也选中
         const childAndParent_Select = (code: string) => {
@@ -100,15 +103,15 @@ const loops = (data: CheckboxGroupEntity[], flag: boolean, v: string) => {
               parent.indeterminate = false;
               parent.checked = true;
               // 取消选中时数组中驱除元素
-              shuzulist(true, parent.v);
+              shuzulist(true, parent.id);
             } else if (some) {
               parent.indeterminate = true;
               parent.checked = false;
-              shuzulist(false, parent.v);
+              shuzulist(false, parent.id);
             } else {
               parent.indeterminate = false;
               parent.checked = false;
-              shuzulist(false, parent.v);
+              shuzulist(false, parent.id);
             }
           }
           if (parent.parentId) {
@@ -126,7 +129,7 @@ const loops = (data: CheckboxGroupEntity[], flag: boolean, v: string) => {
           data.forEach((item1) => {
             item1.checked = flag;
             item1.indeterminate = false;
-            shuzulist(flag, item1.v);
+            shuzulist(flag, item1.id);
             if (item1.children && item1.children.length > 0) {
               parentAndChild_Select(item1.children, flag);
             }
@@ -137,17 +140,17 @@ const loops = (data: CheckboxGroupEntity[], flag: boolean, v: string) => {
     }
 
     if (item.children && item.children.length > 0) {
-      loops(item.children, flag, v);
+      loops(item.children, flag, id);
     }
   });
 };
 
 // 根据code(唯一标识)找到其值
-const getItem = (code: string) => {
+const getItem = (id: string) => {
   let value: CheckboxGroupEntity | undefined;
   const loops = (data: CheckboxGroupEntity[], code: string) => {
     data.forEach((item) => {
-      if (item.v === code) {
+      if (item.id === code) {
         value = item;
       }
       if (item.children && item.children.length > 0) {
@@ -155,22 +158,22 @@ const getItem = (code: string) => {
       }
     });
   };
-  loops(unref(dataTree), code);
+  loops(unref(dataTree), id);
   return value;
 };
 
 // 数组新增元素删除元素去重
-const shuzulist = (flag: boolean, v: string) => {
+const shuzulist = (flag: boolean, id: string) => {
   if (flag) {
     const cheList = [...unref(checkList)];
-    cheList.push(v);
+    cheList.push(id);
     const list = [...new Set(unref(cheList))];
     checkList.value = list;
   } else {
     const cheList = [...new Set(unref(checkList))];
     // 元素是否存在数组
-    if (!cheList.includes(v)) {
-      cheList.splice(cheList.indexOf(v), 1);
+    if (!cheList.includes(id)) {
+      cheList.splice(cheList.indexOf(id), 1);
       checkList.value = cheList;
     }
   }

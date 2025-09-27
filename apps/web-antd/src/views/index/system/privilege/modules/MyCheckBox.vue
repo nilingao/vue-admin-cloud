@@ -28,55 +28,35 @@ const subChan = (v: any) => {
 </script>
 
 <template>
-  <template v-for="(value, index) in treedata">
+  <template v-for="value in treedata">
     <div
       class="ml-10 flex flex-col content-around pt-4"
-      v-if="value.type === 1"
-      :key="index"
+      v-if="value.type !== 3"
+      :key="value.id"
     >
       <div class="pr-6">
         <Checkbox
           class="select-none"
-          :value="value.v"
+          :value="value.id"
           :indeterminate="value.indeterminate"
           v-model:checked="value.checked"
-          @change="(e) => subChange(e, value.v)"
+          @change="(e) => subChange(e, value.id)"
         >
-          {{ value.k }}
+          {{ value.menuName }}
         </Checkbox>
       </div>
       <MyCheckBox :tree-data="value.children" @subset="subChan" />
     </div>
-    <div
-      class="ml-10 flex flex-col content-around pt-4"
-      v-else-if="value.type === 2"
-      :key="value.k"
-    >
-      <div class="pr-6">
-        <Checkbox
-          class="select-none"
-          :value="value.v"
-          v-model:checked="value.checked"
-          :indeterminate="value.indeterminate"
-          @change="(e) => subChange(e, value.v)"
-        >
-          {{ value.k }}
-        </Checkbox>
-      </div>
-      <div class="ml-10 flex flex-wrap content-around pt-4">
-        <MyCheckBox :tree-data="value.children" @subset="subChan" />
-      </div>
-    </div>
     <template v-else>
-      <div class="pr-6" :key="index">
+      <div class="pr-6" :key="value.id">
         <Checkbox
           class="select-none"
-          :value="value.v"
+          :value="value.id"
           v-model:checked="value.checked"
           :indeterminate="value.indeterminate"
-          @change="(e) => subChange(e, value.v)"
+          @change="(e) => subChange(e, value.id)"
         >
-          {{ value.k }}
+          {{ value.menuName }}
         </Checkbox>
       </div>
     </template>

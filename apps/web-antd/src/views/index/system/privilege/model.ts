@@ -1,9 +1,9 @@
 export interface CheckboxGroupEntity {
   parentId?: string;
-  k: string;
+  id: string;
   type: number;
   indeterminate?: boolean;
   checked?: boolean;
-  v: string;
+  menuName: string;
   children: Array<CheckboxGroupEntity>;
 }
