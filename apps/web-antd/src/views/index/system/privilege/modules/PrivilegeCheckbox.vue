@@ -111,6 +111,7 @@ const loops = (data: CheckboxGroupEntity[], flag: boolean, id: String) => {
       loops(item.children, flag, id);
     }
   });
+  console.warn('data', data);
 };
 
 // 检查子级是否有选中项
@@ -276,7 +277,7 @@ defineExpose({ onInit });
         <Radio.Button value="independent">父子不联动</Radio.Button>
         <Radio.Button value="partial">部分联动</Radio.Button>
       </Radio.Group>
-      <Button type="primary" @click="handleSave"> 保存 </Button>
+      <Button v-if="showSave" type="primary" @click="handleSave"> 保存 </Button>
     </div>
 
     <div class="flex-1 overflow-auto p-4">

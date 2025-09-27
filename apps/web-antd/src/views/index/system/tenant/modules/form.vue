@@ -1,12 +1,9 @@
 <script lang="ts" setup>
-import type { Recordable } from '@vben/types';
-
 import type { TenantModel } from '#/api/sys/tenant';
 
 import { computed, ref } from 'vue';
 
-import { useVbenModal, VbenTree } from '@vben/common-ui';
-import { IconifyIcon } from '@vben/icons';
+import { useVbenModal } from '@vben/common-ui';
 
 import { useVbenForm } from '#/adapter/form';
 import { doMenuPrivilegeTree } from '#/api/sys/menu';
@@ -18,6 +15,7 @@ import {
   doTenantUpdate,
 } from '#/api/sys/tenant';
 
+import PrivilegeCheckbox from '../../privilege/modules/PrivilegeCheckbox.vue';
 import { useFormSchema } from '../data';
 
 const emit = defineEmits(['success']);
@@ -116,40 +114,13 @@ const [Modal, modalApi] = useVbenModal({
 const getTitle = computed(() => {
   return formData.value?.id ? '修改租户' : '新增租户';
 });
-
-function getNodeClass(node: Recordable<any>) {
-  const classes: string[] = [];
-  if (node.value?.type === 'button') {
-    classes.push('inline-flex');
-    if (node.index % 3 >= 1) {
-      classes.push('!pl-0');
-    }
-  }
-
-  return classes.join(' ');
-}
 </script>
 
 <template>
   <Modal class="w-1/2" :title="getTitle">
     <Form class="mx-4">
       <template #privilegeList="slotProps">
-        <VbenTree
-          :tree-data="privilegeList"
-          check-strictly
-          multiple
-          bordered
-          :get-node-class="getNodeClass"
-          v-bind="slotProps"
-          value-field="id"
-          label-field="menuName"
-          icon-field="icon"
-        >
-          <template #node="{ value }">
-            <IconifyIcon v-if="value.icon" :icon="value.icon" />
-            {{ $t(value.menuName) }}
-          </template>
-        </VbenTree>
+        <PrivilegeCheckbox :tree-data="privilegeList" v-bind="slotProps" />
       </template>
     </Form>
   </Modal>

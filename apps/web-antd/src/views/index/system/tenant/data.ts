@@ -441,8 +441,8 @@ export function useFormSchema(
       component: 'Input',
       fieldName: 'privilegeList',
       formItemClass: 'col-span-1 lg:col-span-2',
-      label: '权限',
-      modelPropName: 'modelValue',
+      hideLabel: true,
+      modelPropName: 'checkedList',
       componentProps: {
         placeholder: '请输入备注',
       },
