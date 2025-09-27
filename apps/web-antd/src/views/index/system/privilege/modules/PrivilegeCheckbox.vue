@@ -146,32 +146,65 @@ const selectAllChildren = (item: CheckboxGroupEntity, flag: boolean) => {
 
 // 父子联动模式逻辑
 const handleCascade = (item: CheckboxGroupEntity, flag: boolean) => {
+  // 标记当前节点
+  item.checked = flag;
+  item.indeterminate = false;
+  shuzulist(flag, item.id);
+
   if (flag) {
-    item.checked = true;
-    shuzulist(true, item.id);
-    // 全选子级
-    selectAllChildren(item, true);
-    // 递归选中父级
-    if (item.parentId) {
-      const parent = getItem(item.parentId);
-      if (parent) {
-        handleCascade(parent, true);
-      }
+    // 选中时仅处理其子节点，不处理父节点
+    if (item.children && item.children.length > 0) {
+      // 选中所有子节点
+      selectAllChildren(item, true);
     }
   } else {
-    item.checked = false;
-    shuzulist(false, item.id);
-    // 全取消子级
-    selectAllChildren(item, false);
-    // 递归取消父级
-    if (item.parentId) {
-      const parent = getItem(item.parentId);
-      if (parent && !hasCheckedChildren(parent)) {
-        handleCascade(parent, false);
-      }
+    // 取消选中时，如果有子节点则取消选中所有子节点
+    if (item.children && item.children.length > 0) {
+      selectAllChildren(item, false);
+    }
+  }
+
+  // 不论选中还是取消，都仅更新父节点状态，不改变父节点选中状态
+  if (item.parentId) {
+    updateCascadeParentOnly(item.parentId);
+  }
+};
+
+// 仅更新父节点状态，不改变其他子节点
+const updateCascadeParentOnly = (parentId: string) => {
+  const parent = getItem(parentId);
+  if (parent && parent.children && parent.children.length > 0) {
+    // 检查所有直接子节点的状态
+    const allChecked = parent.children.every((child) => child.checked);
+    const someChecked = parent.children.some(
+      (child) => child.checked || child.indeterminate,
+    );
+
+    if (allChecked) {
+      // 所有子节点选中，父节点应该是全选中状态
+      parent.checked = true;
+      parent.indeterminate = false;
+      shuzulist(true, parent.id);
+    } else if (someChecked) {
+      // 部分子节点选中，父节点半选
+      parent.checked = false;
+      parent.indeterminate = true;
+      shuzulist(false, parent.id);
+    } else {
+      // 没有子节点选中，父节点取消选中
+      parent.checked = false;
+      parent.indeterminate = false;
+      shuzulist(false, parent.id);
+    }
+
+    // 递归更新更上层的父节点
+    if (parent.parentId) {
+      updateCascadeParentOnly(parent.parentId);
     }
   }
 };
+
+// 此处已删除旧的updateParentCascadeState函数
 
 // 独立模式逻辑
 const handleIndependent = (item: CheckboxGroupEntity, flag: boolean) => {
@@ -213,6 +246,7 @@ const updateParentState = (parentId: string) => {
       const some = parent.children.some(
         (child) => child.checked || child.indeterminate,
       );
+
       if (all) {
         parent.checked = true;
         parent.indeterminate = false;
@@ -226,6 +260,7 @@ const updateParentState = (parentId: string) => {
         parent.indeterminate = false;
         shuzulist(false, parent.id);
       }
+
       if (parent.parentId) {
         updateParentState(parent.parentId);
       }
