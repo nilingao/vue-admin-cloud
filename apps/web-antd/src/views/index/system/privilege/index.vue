@@ -182,7 +182,7 @@ onMounted(() => {
         <VbenTree
           class="h-full rounded-lg border shadow-sm"
           :tree-data="vbenTreeData"
-          :default-value="selectTreeData"
+          v-model="selectTreeData"
           bordered
           show-icon
           value-field="id"

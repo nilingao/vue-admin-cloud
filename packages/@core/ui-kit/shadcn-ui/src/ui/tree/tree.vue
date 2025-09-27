@@ -20,7 +20,6 @@ const props = withDefaults(defineProps<TreeProps>(), {
   autoCheckParent: true,
   bordered: false,
   checkStrictly: false,
-  defaultValue: undefined,
   defaultExpandedKeys: () => [],
   defaultExpandedLevel: 0,
   disabled: false,
@@ -82,7 +81,6 @@ const expanded = ref<Array<number | string>>(props.defaultExpandedKeys ?? []);
 const treeValue = ref();
 
 onMounted(() => {
-  modelValue.value = props.defaultValue;
   watchEffect(() => {
     flattenData.value = flatten(props.treeData, props.childrenField);
     updateTreeValue(true);

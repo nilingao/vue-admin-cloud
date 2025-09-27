@@ -26,13 +26,13 @@ const isButtonLevel = computed(() => {
   return props.treeData.every((item) => item.type === 3);
 });
 
-const subChange = (e: any, v: any) => {
+const subChange = (e: any, id: any) => {
   const flag = e.target.checked;
-  emit('subset', { flag, v });
+  emit('subset', { flag, id });
 };
 
-const subChan = (v: any) => {
-  emit('subset', v);
+const subChan = (id: any) => {
+  emit('subset', id);
 };
 </script>
 

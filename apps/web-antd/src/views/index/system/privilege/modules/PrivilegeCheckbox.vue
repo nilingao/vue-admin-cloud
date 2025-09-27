@@ -74,8 +74,7 @@ watch(
 );
 
 // 点击复选框触发
-const handleSubsetChange = async (val: any) => {
-  const { flag, id } = val;
+const handleSubsetChange = async ({ flag, id }: any) => {
   await loops(dataTree.value, flag, id);
   tree.value = dataTree.value;
 };
