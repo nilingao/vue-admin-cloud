@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { onMounted, ref, unref, watch } from 'vue';
+import { ref, unref, watch } from 'vue';
 
 import { Page } from '@vben/common-ui';
 
@@ -28,11 +28,8 @@ import PrivilegeCheckbox from './modules/PrivilegeCheckbox.vue';
 
 const type = ref(1);
 const vbenTreeData = ref<any[]>([]);
-const selectTreeData = ref<any[]>();
+const selectTreeId = ref<number | string | undefined>();
 const treeData = ref<any[]>([]);
-const departmentData = ref<any[]>([]);
-const positionData = ref<any[]>([]);
-const roleData = ref<any[]>([]);
 const tenant = ref([]);
 const checkedList = ref([]);
 const selectId = ref();
@@ -41,12 +38,11 @@ const getTitle = ref('部门信息');
 const handleSelect = async ({ bind = {} as any }) => {
   let checked = [];
   if (bind.value.id) {
-    if (selectTreeData.value === bind.value.id) {
+    if (selectId.value === bind.value.id) {
       return;
     }
-    selectTreeData.value = bind.value.id;
-    await getMenu(bind.value.tenantId);
     selectId.value = bind.value.id;
+    await getMenu(bind.value.tenantId);
     if (Math.trunc(type.value) === 1) {
       getTitle.value = '部门信息';
       checked = await doDepartmentPrivilegeList({
@@ -63,57 +59,6 @@ const handleSelect = async ({ bind = {} as any }) => {
     treeData.value = [];
   }
   checkedList.value = checked;
-};
-
-watch(
-  () => type.value,
-  (value) => {
-    if (value === 1) {
-      vbenTreeData.value = departmentData.value;
-    } else if (value === 2) {
-      vbenTreeData.value = positionData.value;
-    } else {
-      vbenTreeData.value = roleData.value;
-    }
-    selectTreeData.value = undefined;
-    if (vbenTreeData.value && vbenTreeData.value.length > 0) {
-      handleSelect({ bind: { value: vbenTreeData.value[0] } });
-    } else {
-      treeData.value = [];
-      checkedList.value = [];
-    }
-  },
-);
-
-const init = async () => {
-  // 部门信息
-  const departmentTree = await doDepartmentTree({
-    ...tenant.value,
-  });
-  departmentData.value = departmentTree.map((item: any) => {
-    return headerTree(item, 'id', 'departmentName', 'tenantId');
-  });
-  // 职位信息
-  const positionTree = await doPositionTree({
-    ...tenant.value,
-  });
-  positionData.value = positionTree.map((item: any) => {
-    return headerTree(item, 'id', 'positionName', 'tenantId');
-  });
-  // 角色信息
-  const roleTree = await doAll({ ...tenant.value });
-  roleData.value = roleTree.map((item: any) => {
-    return headerTree(item, 'roleId', 'roleName', 'tenantId');
-  });
-  // 初始化部门
-  getTitle.value = '部门信息';
-  vbenTreeData.value = departmentData.value;
-  if (vbenTreeData.value && vbenTreeData.value.length > 0) {
-    handleSelect({ bind: { value: vbenTreeData.value[0] } });
-  } else {
-    treeData.value = [];
-    checkedList.value = [];
-  }
 };
 
 const headerTree = (
@@ -165,9 +110,44 @@ const handleSave = async (checkIdList: number[]) => {
     });
   }
 };
-onMounted(() => {
-  init();
-});
+// 监听类型变化
+watch(
+  () => type.value,
+  async (value) => {
+    if (value === 1) {
+      // 部门信息
+      const departmentTree = await doDepartmentTree({
+        ...tenant.value,
+      });
+      vbenTreeData.value = departmentTree.map((item: any) => {
+        return headerTree(item, 'id', 'departmentName', 'tenantId');
+      });
+    } else if (value === 2) {
+      // 职位信息
+
+      const positionTree = await doPositionTree({
+        ...tenant.value,
+      });
+      vbenTreeData.value = positionTree.map((item: any) => {
+        return headerTree(item, 'id', 'positionName', 'tenantId');
+      });
+    } else {
+      // 角色信息
+      const roleTree = await doAll({ ...tenant.value });
+      vbenTreeData.value = roleTree.map((item: any) => {
+        return headerTree(item, 'roleId', 'roleName', 'tenantId');
+      });
+    }
+    if (vbenTreeData.value && vbenTreeData.value.length > 0) {
+      selectTreeId.value = vbenTreeData.value[0].id;
+      handleSelect({ bind: { value: vbenTreeData.value[0] } });
+    } else {
+      treeData.value = [];
+      checkedList.value = [];
+    }
+  },
+  { immediate: true },
+);
 </script>
 <template>
   <Page
@@ -182,7 +162,7 @@ onMounted(() => {
         <VbenTree
           class="h-full rounded-lg border shadow-sm"
           :tree-data="vbenTreeData"
-          v-model="selectTreeData"
+          v-model="selectTreeId"
           bordered
           show-icon
           value-field="id"
