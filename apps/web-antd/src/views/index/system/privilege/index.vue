@@ -197,6 +197,7 @@ watch(
         <PrivilegeCheckbox
           :tree-data="treeData"
           :checked-list="checkedList"
+          :show-save="true"
           @save="handleSave"
         />
       </div>

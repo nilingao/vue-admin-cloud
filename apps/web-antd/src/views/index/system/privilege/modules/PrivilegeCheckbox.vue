@@ -14,13 +14,13 @@ const props = defineProps({
     type: Array<CheckboxGroupEntity>,
     default: () => [],
   },
-  checkedList: {
-    type: Array<String>,
-    default: () => [],
+  showSave: {
+    type: Boolean,
+    default: false,
   },
 });
 const emit = defineEmits(['save']);
-const checkList = ref(props.checkedList);
+const checkedList = defineModel<Array<String>>('checkedList', { default: [] });
 const dataTree = ref();
 const mode = ref('partial'); // cascade, independent, partial
 const tree = ref(props.treeData);
@@ -54,11 +54,10 @@ const onInit = () => {
 };
 // 切换权限监控
 watch(
-  () => props.checkedList,
-  (checkedList) => {
-    checkList.value = checkedList;
+  () => checkedList.value,
+  (list) => {
     // 递归循环
-    checkedList.forEach((id: String) => {
+    list.forEach((id: String) => {
       loops(dataTree.value, true, id);
       tree.value = dataTree.value;
     });
@@ -244,16 +243,16 @@ const getItem = (id: string) => {
 
 // 数组新增元素删除元素去重
 const shuzulist = (flag: boolean, id: string) => {
-  const cheList = [...new Set(unref(checkList))];
+  const cheList = [...new Set(unref(checkedList))];
   if (flag) {
     if (!cheList.includes(id)) {
       cheList.push(id);
-      checkList.value = cheList;
+      checkedList.value = cheList;
     }
   } else {
     if (cheList.includes(id)) {
       cheList.splice(cheList.indexOf(id), 1);
-      checkList.value = cheList;
+      checkedList.value = cheList;
     }
   }
 };
@@ -261,7 +260,7 @@ const shuzulist = (flag: boolean, id: string) => {
 // 抛出选中数组方法
 const handleSave = () => {
   // 只要最下级元素
-  const resultArray = unref(checkList).filter((item) =>
+  const resultArray = unref(checkedList).filter((item) =>
     unref(last).includes(item),
   );
   emit('save', resultArray);
