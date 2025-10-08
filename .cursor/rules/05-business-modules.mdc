@@ -1,0 +1,213 @@
+---
+description: 业务模块和功能开发规则
+---
+
+# 业务模块和功能开发规则
+
+## 系统管理模块
+
+### 用户管理 (User Management)
+- **位置**: [apps/web-antd/src/views/index/system/user/](mdc:apps/web-antd/src/views/index/system/user/)
+- **API**: [apps/web-antd/src/api/sys/user.ts](mdc:apps/web-antd/src/api/sys/user.ts)
+- **功能**: 用户增删改查、用户设置、账号绑定、安全设置
+- **组件**: 包含基本设置、身份设置、账号绑定等子组件
+
+### 角色管理 (Role Management)
+- **位置**: [apps/web-antd/src/views/index/system/role/](mdc:apps/web-antd/src/views/index/system/role/)
+- **API**: [apps/web-antd/src/api/sys/role.ts](mdc:apps/web-antd/src/api/sys/role.ts)
+- **功能**: 角色权限配置、角色分配
+
+### 菜单管理 (Menu Management)
+- **位置**: [apps/web-antd/src/views/index/system/menu/](mdc:apps/web-antd/src/views/index/system/menu/)
+- **API**: [apps/web-antd/src/api/sys/menu.ts](mdc:apps/web-antd/src/api/sys/menu.ts)
+- **功能**: 动态菜单配置、菜单权限控制
+
+### 部门管理 (Department Management)
+- **位置**: [apps/web-antd/src/views/index/system/department/](mdc:apps/web-antd/src/views/index/system/department/)
+- **API**: [apps/web-antd/src/api/sys/department.ts](mdc:apps/web-antd/src/api/sys/department.ts)
+- **功能**: 组织架构管理、部门层级关系
+
+### 权限管理 (Privilege Management)
+- **位置**: [apps/web-antd/src/views/index/system/privilege/](mdc:apps/web-antd/src/views/index/system/privilege/)
+- **功能**: 细粒度权限控制、按钮级权限
+
+### 租户管理 (Tenant Management)
+- **位置**: [apps/web-antd/src/views/index/system/tenant/](mdc:apps/web-antd/src/views/index/system/tenant/)
+- **API**: [apps/web-antd/src/api/sys/tenant.ts](mdc:apps/web-antd/src/api/sys/tenant.ts)
+- **功能**: 多租户支持、租户配置
+
+## 仪表盘模块
+
+### 工作台 (Workspace)
+- **位置**: [apps/web-antd/src/views/dashboard/workspace/](mdc:apps/web-antd/src/views/dashboard/workspace/)
+- **功能**: 工作台首页、快捷导航、待办事项、项目概览
+
+### 数据分析 (Analytics)
+- **位置**: [apps/web-antd/src/views/dashboard/analytics/](mdc:apps/web-antd/src/views/dashboard/analytics/)
+- **功能**: 数据统计、图表展示、趋势分析
+- **组件**: 包含访问量、用户量、下载量等统计图表
+
+## 认证模块
+
+### 登录认证
+- **位置**: [apps/web-antd/src/views/_core/authentication/](mdc:apps/web-antd/src/views/_core/authentication/)
+- **功能**: 多种登录方式（密码、验证码、二维码、短信）
+- **API**: [apps/web-antd/src/api/core/auth.ts](mdc:apps/web-antd/src/api/core/auth.ts)
+
+### 错误页面
+- **位置**: [apps/web-antd/src/views/_core/fallback/](mdc:apps/web-antd/src/views/_core/fallback/)
+- **功能**: 404、403、500 等错误页面处理
+
+## 业务开发规范
+
+### 页面开发模式
+```typescript
+// 标准页面结构
+export default defineComponent({
+  name: 'ModuleName',
+  setup() {
+    // 1. 数据定义
+    const loading = ref(false);
+    const dataSource = ref([]);
+    
+    // 2. 表格配置
+    const columns = useColumns();
+    const formSchema = useFormSchema();
+    
+    // 3. 操作方法
+    const handleAdd = () => {};
+    const handleEdit = (record: any) => {};
+    const handleDelete = (record: any) => {};
+    
+    return {
+      loading,
+      dataSource,
+      columns,
+      formSchema,
+      handleAdd,
+      handleEdit,
+      handleDelete,
+    };
+  },
+});
+```
+
+### API 接口规范
+```typescript
+// API 接口定义
+export interface UserModel {
+  id: string;
+  username: string;
+  realName: string;
+  email: string;
+  phone: string;
+  status: number;
+  createTime: string;
+}
+
+export interface UserQueryParams {
+  page: number;
+  size: number;
+  username?: string;
+  realName?: string;
+  status?: number;
+}
+
+// API 方法
+export const getUserList = (params: UserQueryParams) => {
+  return requestClient.get<UserModel[]>('/api/users', { params });
+};
+
+export const createUser = (data: Partial<UserModel>) => {
+  return requestClient.post<UserModel>('/api/users', data);
+};
+```
+
+### 表格组件使用
+```vue
+<template>
+  <Page>
+    <VbenVxeGrid
+      v-model:data="dataSource"
+      :columns="columns"
+      :loading="loading"
+      @action-click="handleActionClick"
+    >
+      <template #toolbar>
+        <Button type="primary" @click="handleAdd">
+          <Plus />
+          新增
+        </Button>
+      </template>
+    </VbenVxeGrid>
+  </Page>
+</template>
+```
+
+### 表单组件使用
+```vue
+<template>
+  <VbenModal
+    v-model:visible="visible"
+    :title="isEdit ? '编辑' : '新增'"
+    @ok="handleSubmit"
+  >
+    <VbenForm
+      ref="formRef"
+      :schema="formSchema"
+      :model="formData"
+      @submit="handleSubmit"
+    />
+  </VbenModal>
+</template>
+```
+
+## 数据流管理
+
+### 状态管理
+- 使用 Pinia 进行全局状态管理
+- 用户信息存储在 `useUserStore`
+- 应用配置存储在 `usePreferencesStore`
+- 路由信息存储在 `useRouteStore`
+
+### 请求拦截
+- 统一错误处理
+- 请求/响应拦截
+- Token 自动刷新
+- 请求重试机制
+
+### 权限控制
+- 路由级权限控制
+- 按钮级权限控制
+- 数据级权限控制
+- 动态菜单生成
+
+## 国际化支持
+
+### 多语言配置
+- 中文 (zh-CN) - 默认语言
+- 英文 (en-US)
+- 日文 (ja-JP)
+
+### 使用方式
+```typescript
+import { $t } from '@vben/locales';
+
+// 在组件中使用
+const title = $t('system.user.title');
+const message = $t('common.confirm.delete');
+```
+
+## 主题和样式
+
+### 主题配置
+- 支持多主题切换
+- 暗色模式支持
+- 自定义主题色彩
+- 响应式布局
+
+### 样式规范
+- 使用 Tailwind CSS 原子化类名
+- 组件样式使用 CSS 变量
+- 支持主题变量覆盖
+- 响应式设计原则

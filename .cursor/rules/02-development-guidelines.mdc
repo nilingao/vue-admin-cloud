@@ -1,0 +1,100 @@
+---
+alwaysApply: true
+description: 开发指南和代码规范
+---
+
+# 开发指南和代码规范
+
+## 代码规范
+
+### TypeScript 规范
+- 严格使用 TypeScript，避免使用 `any` 类型
+- 为所有 API 响应数据定义接口类型
+- 使用 `interface` 定义对象类型，`type` 定义联合类型
+- 导入类型时使用 `import type` 语法
+
+### Vue 组件规范
+- 使用 Composition API 和 `<script setup>` 语法
+- 组件文件使用 PascalCase 命名
+- 页面文件放在 `apps/web-antd/src/views/` 目录下
+- 组件文件放在 `apps/web-antd/src/components/` 目录下
+
+### 文件命名规范
+- 组件文件：PascalCase (如 `UserList.vue`)
+- 工具文件：camelCase (如 `userUtils.ts`)
+- 常量文件：UPPER_SNAKE_CASE (如 `API_CONSTANTS.ts`)
+- 类型文件：camelCase (如 `userTypes.ts`)
+
+## 项目结构规范
+
+### 页面开发
+- 页面文件放在 [apps/web-antd/src/views/](mdc:apps/web-antd/src/views/) 目录下
+- 每个页面包含：
+  - 主页面文件 (index.vue)
+  - 组件目录 (components/)
+  - 数据文件 (data.ts)
+  - 类型文件 (types.ts)
+
+### 组件开发
+- 组件文件放在 [apps/web-antd/src/components/](mdc:apps/web-antd/src/components/) 目录下
+- 使用项目内置组件和 Ant Design Vue 组件
+- 自定义组件遵循 Vue 3 + TypeScript 规范
+
+### API 开发
+- API 文件放在 [apps/web-antd/src/api/](mdc:apps/web-antd/src/api/) 目录下
+- 按模块组织 API 文件
+- 为每个 API 定义对应的 TypeScript 类型
+
+## 国际化规范
+
+- 在组件中使用国际化
+- 国际化文件放在 [apps/web-antd/src/locales](mdc:apps/web-antd/src/locales) 目录下
+- 保证 zh-CN 为默认语言，其他语言为扩展语言
+- 使用 `$t` 函数进行国际化
+
+```vue
+<script lang="ts" setup>
+import { $t } from '@vben/locales';
+$t('system.role.editRole');
+</script>
+```
+
+## 状态管理规范
+
+- 使用 Pinia 进行状态管理
+- Store 文件放在 [apps/web-antd/src/store/](mdc:apps/web-antd/src/store/) 目录下
+- 使用 `defineStore` 定义 store
+- 支持持久化存储
+
+## 样式规范
+
+- 使用 Tailwind CSS 原子化类名
+- 避免使用内联样式
+- 自定义样式使用 CSS 变量
+- 支持暗色模式
+
+## Git 提交规范
+
+遵循 [Conventional Commits](https://www.conventionalcommits.org/) 规范：
+
+- `feat`: 新功能
+- `fix`: 修复问题/BUG
+- `style`: 代码风格相关无影响运行结果的
+- `perf`: 优化/性能提升
+- `refactor`: 重构
+- `revert`: 撤销修改
+- `test`: 测试相关
+- `docs`: 文档/注释
+- `chore`: 依赖更新/脚手架配置修改等
+- `ci`: 持续集成
+- `types`: 类型定义文件更改
+
+## 代码质量工具
+
+项目使用以下工具保证代码质量：
+
+- **ESLint**: 代码检查，配置在 [eslint.config.mjs](mdc:eslint.config.mjs)
+- **Prettier**: 代码格式化
+- **Stylelint**: 样式检查，配置在 [stylelint.config.mjs](mdc:stylelint.config.mjs)
+- **TypeScript**: 类型检查
+- **CSpell**: 拼写检查，配置在 [cspell.json](mdc:cspell.json)

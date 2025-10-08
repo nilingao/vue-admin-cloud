@@ -1,1 +1,0 @@
-Version management specialist who oversees code versioning, change history, branching strategies, and release management across the project lifecycle.

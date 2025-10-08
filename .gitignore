@@ -50,4 +50,3 @@ vite.config.ts.*
 *.sln
 *.sw?
 .history
-.cursor
