@@ -48,6 +48,8 @@
     "@vben/styles": "workspace:*",
     "@vben/types": "workspace:*",
     "@vben/utils": "workspace:*",
+    "@vue-flow/additional-components": "catalog:",
+    "@vue-flow/core": "catalog:",
     "@vueuse/core": "catalog:",
     "ant-design-vue": "catalog:",
     "crypto-js": "catalog:",
