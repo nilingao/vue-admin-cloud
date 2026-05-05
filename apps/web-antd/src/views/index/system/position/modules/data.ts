@@ -2,7 +2,7 @@ import type { Recordable } from '@vben/types';
 
 import type { VbenFormSchema } from '#/adapter/form';
 import type { OnActionClickFn, VxeTableGridOptions } from '#/adapter/vxe-table';
-import type { TenantModel } from '#/api/sys/tenant';
+import type { PositionEntity } from '#/api/sys/position';
 
 import { useAccess } from '@vben/access';
 import { getPopupContainer } from '@vben/utils';
@@ -10,32 +10,42 @@ import { getPopupContainer } from '@vben/utils';
 import { doPositionTree } from '#/api/sys/position';
 
 const { hasAccessByCodes } = useAccess();
+
 export function useGridFormSchema(): VbenFormSchema[] {
-  return [{ component: 'Input', fieldName: 'positionName', label: '职位名称' }];
+  return [
+    {
+      component: 'Input',
+      fieldName: 'positionName',
+      label: '职位名称',
+      componentProps: {
+        placeholder: '请输入职位名称',
+      },
+    },
+  ];
 }
 
-export function useColumns<T = TenantModel>(
+export function useColumns<T = PositionEntity>(
   onActionClick: OnActionClickFn<T>,
 ): VxeTableGridOptions['columns'] {
   return [
     {
       field: 'id',
       title: '职位编号',
-      width: 200,
       treeNode: true,
+      width: 200,
     },
     {
       field: 'positionName',
-      title: '职位名称',
       minWidth: 200,
+      title: '职位名称',
     },
     {
-      field: 'isEnable',
-      title: '状态',
-      minWidth: 200,
       cellRender: {
         name: 'CellTag',
       },
+      field: 'isEnable',
+      minWidth: 200,
+      title: '状态',
     },
     {
       field: 'memo',
@@ -44,14 +54,10 @@ export function useColumns<T = TenantModel>(
       title: '备注',
     },
     {
-      field: 'operation',
-      fixed: 'right',
-      title: '操作',
-      width: 160,
       align: 'center',
       cellRender: {
         attrs: {
-          nameField: 'name',
+          nameField: 'positionName',
           nameTitle: '职位',
           onClick: onActionClick,
         },
@@ -59,25 +65,23 @@ export function useColumns<T = TenantModel>(
         options: [
           {
             code: 'add',
+            show: () => hasAccessByCodes(['system.position:add']),
             text: '新增',
-            show: () => {
-              return hasAccessByCodes(['system.position:add']);
-            },
           },
           {
             code: 'edit',
-            show: () => {
-              return hasAccessByCodes(['system.position:update']);
-            },
+            show: () => hasAccessByCodes(['system.position:update']),
           },
           {
             code: 'delete',
-            show: () => {
-              return hasAccessByCodes(['system.position:delete']);
-            },
+            show: () => hasAccessByCodes(['system.position:delete']),
           },
         ],
       },
+      field: 'operation',
+      fixed: 'right',
+      title: '操作',
+      width: 160,
     },
   ];
 }
@@ -90,21 +94,20 @@ export function useFormSchema(): VbenFormSchema[] {
       label: '上级职位',
       componentProps: {
         api: async () => await doPositionTree({ topName: '默认' }),
+        childrenField: 'children',
         class: 'w-full',
         filterTreeNode(input: string, node: Recordable<any>) {
-          if (!input || input.length === 0) {
+          if (!input) {
             return true;
           }
           const title: string = node.positionName ?? '';
-          if (!title) return false;
-          return true;
+          return title.includes(input);
         },
         getPopupContainer,
         labelField: 'positionName',
         showSearch: true,
         treeDefaultExpandAll: true,
         valueField: 'id',
-        childrenField: 'children',
       },
     },
     {
@@ -113,20 +116,20 @@ export function useFormSchema(): VbenFormSchema[] {
       label: '职位名称',
       rules: 'required',
       componentProps: {
-        placeholder: '请选择职位名称',
-        min: 0,
         max: 1000,
+        min: 0,
+        placeholder: '请输入职位名称',
       },
     },
     {
       component: 'Switch',
+      defaultValue: 1,
       fieldName: 'isEnable',
       label: '是否开启',
       rules: 'required',
-      defaultValue: 1,
       componentProps: {
-        class: 'w-auto',
         checkedValue: 1,
+        class: 'w-auto',
         unCheckedValue: 0,
       },
     },
@@ -136,12 +139,6 @@ export function useFormSchema(): VbenFormSchema[] {
       label: '备注',
       componentProps: {
         placeholder: '请输入备注',
-      },
-      dependencies: {
-        triggerFields: ['id'],
-        if: ({ id }) => {
-          return !id;
-        },
       },
     },
   ];

@@ -14,30 +14,21 @@ import { useVbenVxeGrid } from '#/adapter/vxe-table';
 import { doPositionPage, doPositionRemove } from '#/api/sys/position';
 
 import { useColumns, useGridFormSchema } from './modules/data';
-import DepartmentModel from './modules/PositionModel.vue';
+import PositionModel from './modules/PositionModel.vue';
 
 const [Modal, formModalApi] = useVbenModal({
-  connectedComponent: DepartmentModel,
+  connectedComponent: PositionModel,
   destroyOnClose: true,
 });
 
-/**
- * 编辑职位
- * @param row
- */
 function onEdit(row: PositionEntity) {
   formModalApi.setData(row).open();
 }
 
-/**
- * 创建职位
- */
 function onCreate(parentId?: number) {
   formModalApi.setData({ parentId }).open();
 }
-/**
- * 删除职位
- */
+
 function onDelete(row: PositionEntity) {
   const hideLoading = message.loading({
     content: `正在删除 职位名为：${row.positionName}`,
@@ -57,9 +48,6 @@ function onDelete(row: PositionEntity) {
     });
 }
 
-/**
- * 表格操作按钮的回调函数
- */
 function onActionClick({ code, row }: OnActionClickParams<PositionEntity>) {
   switch (code) {
     case 'add': {
@@ -79,7 +67,6 @@ function onActionClick({ code, row }: OnActionClickParams<PositionEntity>) {
 
 const [Grid, gridApi] = useVbenVxeGrid({
   formOptions: {
-    // fieldMappingTime: [['createTime', ['startTime', 'endTime']]],
     schema: useGridFormSchema(),
     submitOnChange: false,
   },
@@ -87,6 +74,9 @@ const [Grid, gridApi] = useVbenVxeGrid({
     columns: useColumns(onActionClick),
     height: 'auto',
     keepSource: true,
+    pagerConfig: {
+      enabled: false,
+    },
     proxyConfig: {
       ajax: {
         query: async (formValues) => {
@@ -94,9 +84,6 @@ const [Grid, gridApi] = useVbenVxeGrid({
           return items;
         },
       },
-    },
-    pagerConfig: {
-      enabled: false,
     },
     rowConfig: {
       keyField: 'id',
@@ -109,30 +96,28 @@ const [Grid, gridApi] = useVbenVxeGrid({
       zoom: true,
     },
     treeConfig: {
+      childrenField: 'children',
+      expandAll: true,
       parentField: 'parentId',
       rowField: 'id',
-      childrenField: 'children',
       transform: false,
-      expandAll: true,
     },
   } as VxeTableGridOptions,
 });
 
-/**
- * 刷新表格
- */
 function refreshGrid() {
   gridApi.query();
 }
 </script>
+
 <template>
   <Page auto-content-height>
     <Modal @success="refreshGrid" />
     <Grid table-title="职位列表">
       <template #toolbar-tools>
         <Button
-          type="primary"
           v-access:code="'system.position:add'"
+          type="primary"
           @click="() => onCreate()"
         >
           <Plus class="size-5" />

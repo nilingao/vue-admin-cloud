@@ -10,63 +10,67 @@ import { Button, Radio } from 'ant-design-vue';
 import MyCheckBox from './MyCheckBox.vue';
 
 const props = defineProps({
-  treeData: {
-    type: Array<CheckboxGroupEntity>,
-    default: () => [],
-  },
   showSave: {
-    type: Boolean,
     default: false,
+    type: Boolean,
+  },
+  treeData: {
+    default: () => [],
+    type: Array<CheckboxGroupEntity>,
   },
 });
-const emit = defineEmits(['save']);
-const checkedList = defineModel<Array<string>>('checkedList', { default: [] });
-const dataTree = ref();
-const mode = ref('partial'); // cascade, independent, partial
-const tree = ref(props.treeData);
-const last = ref();
+
+const emit = defineEmits<{
+  save: [ids: string[]];
+}>();
+
+const checkedList = defineModel<string[]>('checkedList', { default: [] });
+const dataTree = ref<CheckboxGroupEntity[]>([]);
+const mode = ref('partial');
+const tree = ref<CheckboxGroupEntity[]>([]);
+const last = ref<string[]>([]);
 const isInternal = ref(false);
 const selected = ref(new Set(unref(checkedList)));
 const idMap = ref(new Map<string, CheckboxGroupEntity>());
-const onInit = () => {
-  // 给子级添加父级Key
-  // 深度克隆
-  const lastv = [] as string[];
+
+function onInit() {
+  const lastIds: string[] = [];
   const data = cloneDeep(props.treeData) as CheckboxGroupEntity[];
   const map = new Map<string, CheckboxGroupEntity>();
+
   function addParentKey(
-    data: CheckboxGroupEntity[],
+    nodes: CheckboxGroupEntity[],
     parentKey: string | undefined,
   ) {
-    data.forEach((ele) => {
-      const { children, id } = ele;
-      ele.parentId = parentKey;
-      ele.indeterminate = false;
-      ele.checked = false;
-      map.set(id, ele);
-      if (children) {
-        // 如果唯一标识不是code可以自行改变
-        addParentKey(children, ele.id);
+    nodes.forEach((node) => {
+      const { children, id } = node;
+      node.parentId = parentKey;
+      node.indeterminate = false;
+      node.checked = false;
+      map.set(id, node);
+      if (children?.length > 0) {
+        addParentKey(children, id);
       } else {
-        lastv.push(id);
-        last.value = lastv;
+        lastIds.push(id);
       }
     });
   }
-  addParentKey(data, undefined); // 一开始为undefined,根节点没有父级
+
+  addParentKey(data, undefined);
+  last.value = lastIds;
   dataTree.value = data;
   tree.value = unref(dataTree);
   idMap.value = map;
-};
-// 切换权限监控
+}
+
 watch(
   () => checkedList.value,
   (list) => {
     if (isInternal.value) return;
     isInternal.value = true;
     selected.value = new Set(list);
-    onInit(); // 重置tree
-    list.forEach((id: string) => {
+    onInit();
+    list.forEach((id) => {
       loops(true, id);
     });
     tree.value = unref(dataTree);
@@ -78,11 +82,9 @@ watch(
   },
 );
 
-// 切换权限监控
 watch(
   () => props.treeData,
-  (data) => {
-    tree.value = data;
+  () => {
     selected.value = new Set(unref(checkedList));
     onInit();
   },
@@ -92,207 +94,171 @@ watch(
   },
 );
 
-// 点击复选框触发
-const handleSubsetChange = async ({ flag, id }: any) => {
+async function handleSubsetChange({ flag, id }: any) {
   await loops(flag, id);
   tree.value = unref(dataTree);
   isInternal.value = true;
   checkedList.value = [...selected.value];
   isInternal.value = false;
-};
+}
 
-// 递归循环
-const loops = (flag: boolean, id: string) => {
+function loops(flag: boolean, id: string) {
   const item = unref(idMap).get(id);
-  if (item) {
-    switch (mode.value) {
-      case 'cascade': {
-        handleCascade(item, flag);
-        break;
-      }
-      case 'independent': {
-        handleIndependent(item, flag);
-        break;
-      }
-      default: {
-        handlePartial(item, flag);
-        break;
-      }
+  if (!item) return;
+
+  switch (mode.value) {
+    case 'cascade': {
+      handleCascade(item, flag);
+      break;
+    }
+    case 'independent': {
+      handleIndependent(item, flag);
+      break;
+    }
+    default: {
+      handlePartial(item, flag);
+      break;
     }
   }
-};
+}
 
-// 检查子级是否有选中项
-const hasCheckedChildren = (item: CheckboxGroupEntity): boolean => {
-  if (item.children && item.children.length > 0) {
+function hasCheckedChildren(item: CheckboxGroupEntity): boolean {
+  if (item.children?.length > 0) {
     return item.children.some(
       (child) => child.checked || hasCheckedChildren(child),
     );
   }
   return false;
-};
+}
 
-// 全选子级
-const selectAllChildren = (item: CheckboxGroupEntity, flag: boolean) => {
-  if (item.children) {
-    item.children.forEach((child) => {
-      child.checked = flag;
-      child.indeterminate = false;
-      shuzulist(flag, child.id);
-      selectAllChildren(child, flag);
-    });
-  }
-};
+function selectAllChildren(item: CheckboxGroupEntity, flag: boolean) {
+  if (!item.children) return;
 
-// 父子联动模式逻辑
-const handleCascade = (item: CheckboxGroupEntity, flag: boolean) => {
-  // 标记当前节点
+  item.children.forEach((child) => {
+    child.checked = flag;
+    child.indeterminate = false;
+    updateSelected(flag, child.id);
+    selectAllChildren(child, flag);
+  });
+}
+
+function handleCascade(item: CheckboxGroupEntity, flag: boolean) {
   item.checked = flag;
   item.indeterminate = false;
-  shuzulist(flag, item.id);
-
-  if (flag) {
-    // 选中时仅处理其子节点，不处理父节点
-    if (item.children && item.children.length > 0) {
-      // 选中所有子节点
-      selectAllChildren(item, true);
-    }
-  } else {
-    // 取消选中时，如果有子节点则取消选中所有子节点
-    if (item.children && item.children.length > 0) {
-      selectAllChildren(item, false);
-    }
+  updateSelected(flag, item.id);
+  if (item.children?.length > 0) {
+    selectAllChildren(item, flag);
   }
-
-  // 不论选中还是取消，都仅更新父节点状态，不改变父节点选中状态
   if (item.parentId) {
     updateCascadeParentOnly(item.parentId);
   }
-};
+}
 
-// 仅更新父节点状态，不改变其他子节点
-const updateCascadeParentOnly = (parentId: string) => {
+function updateCascadeParentOnly(parentId: string) {
   const parent = getItem(parentId);
-  if (parent && parent.children && parent.children.length > 0) {
-    // 检查所有直接子节点的状态
-    const allChecked = parent.children.every((child) => child.checked);
-    const someChecked = parent.children.some(
-      (child) => child.checked || child.indeterminate,
-    );
+  if (!parent?.children?.length) return;
 
-    if (allChecked) {
-      // 所有子节点选中，父节点应该是全选中状态
-      parent.checked = true;
-      parent.indeterminate = false;
-      shuzulist(true, parent.id);
-    } else if (someChecked) {
-      // 部分子节点选中，父节点半选
-      parent.checked = false;
-      parent.indeterminate = true;
-      shuzulist(false, parent.id);
-    } else {
-      // 没有子节点选中，父节点取消选中
-      parent.checked = false;
-      parent.indeterminate = false;
-      shuzulist(false, parent.id);
-    }
+  const allChecked = parent.children.every((child) => child.checked);
+  const someChecked = parent.children.some(
+    (child) => child.checked || child.indeterminate,
+  );
 
-    // 递归更新更上层的父节点
-    if (parent.parentId) {
-      updateCascadeParentOnly(parent.parentId);
-    }
-  }
-};
-
-// 此处已删除旧的updateParentCascadeState函数
-
-// 独立模式逻辑
-const handleIndependent = (item: CheckboxGroupEntity, flag: boolean) => {
-  item.checked = flag;
-  if (flag) {
-    shuzulist(true, item.id);
+  if (allChecked) {
+    parent.checked = true;
+    parent.indeterminate = false;
+    updateSelected(true, parent.id);
+  } else if (someChecked) {
+    parent.checked = false;
+    parent.indeterminate = true;
+    updateSelected(false, parent.id);
   } else {
-    shuzulist(false, item.id);
+    parent.checked = false;
+    parent.indeterminate = false;
+    updateSelected(false, parent.id);
   }
-};
 
-// 部分联动模式逻辑（当前）
-const handlePartial = (item: CheckboxGroupEntity, flag: boolean) => {
+  if (parent.parentId) {
+    updateCascadeParentOnly(parent.parentId);
+  }
+}
+
+function handleIndependent(item: CheckboxGroupEntity, flag: boolean) {
+  item.checked = flag;
+  updateSelected(flag, item.id);
+}
+
+function handlePartial(item: CheckboxGroupEntity, flag: boolean) {
   if (flag) {
     item.checked = true;
-    shuzulist(true, item.id);
+    updateSelected(true, item.id);
     if (item.parentId) {
       updateParentState(item.parentId);
     }
+    return;
+  }
+
+  if (item.children?.length > 0 && hasCheckedChildren(item)) {
+    item.checked = true;
+    return;
+  }
+
+  item.checked = false;
+  updateSelected(false, item.id);
+  if (item.parentId) {
+    updateParentState(item.parentId);
+  }
+}
+
+function updateParentState(parentId: string) {
+  const parent = getItem(parentId);
+  if (!parent?.children?.length) return;
+
+  const all = parent.children.every((child) => child.checked);
+  const some = parent.children.some(
+    (child) => child.checked || child.indeterminate,
+  );
+
+  if (all) {
+    parent.checked = true;
+    parent.indeterminate = false;
+    updateSelected(true, parent.id);
+  } else if (some) {
+    parent.checked = false;
+    parent.indeterminate = true;
+    updateSelected(false, parent.id);
   } else {
-    if (item.children && hasCheckedChildren(item)) {
-      item.checked = true;
-      return;
-    }
-    item.checked = false;
-    shuzulist(false, item.id);
-    if (item.parentId) {
-      updateParentState(item.parentId);
-    }
+    parent.checked = false;
+    parent.indeterminate = false;
+    updateSelected(false, parent.id);
   }
-};
 
-// 更新父级状态
-const updateParentState = (parentId: string) => {
-  if (parentId) {
-    const parent = getItem(parentId);
-    if (parent && parent.children && parent.children.length > 0) {
-      const all = parent.children.every((child) => child.checked);
-      const some = parent.children.some(
-        (child) => child.checked || child.indeterminate,
-      );
-
-      if (all) {
-        parent.checked = true;
-        parent.indeterminate = false;
-        shuzulist(true, parent.id);
-      } else if (some) {
-        parent.checked = false;
-        parent.indeterminate = true;
-        shuzulist(false, parent.id);
-      } else {
-        parent.checked = false;
-        parent.indeterminate = false;
-        shuzulist(false, parent.id);
-      }
-
-      if (parent.parentId) {
-        updateParentState(parent.parentId);
-      }
-    }
+  if (parent.parentId) {
+    updateParentState(parent.parentId);
   }
-};
+}
 
-// 根据code(唯一标识)找到其值
-const getItem = (id: string) => {
+function getItem(id: string) {
   return unref(idMap).get(id);
-};
+}
 
-// 数组新增元素删除元素去重
-const shuzulist = (flag: boolean, id: string) => {
+function updateSelected(flag: boolean, id: string) {
   if (flag) {
     selected.value.add(id);
   } else {
     selected.value.delete(id);
   }
-};
+}
 
-// 抛出选中数组方法
-const handleSave = () => {
-  // 只要最下级元素
+function handleSave() {
   const resultArray = unref(checkedList).filter((item) =>
     unref(last).includes(item),
   );
   emit('save', resultArray);
-};
+}
 
 defineExpose({ onInit });
 </script>
+
 <template>
   <div class="flex h-full flex-col">
     <div class="flex items-center justify-between border-b p-4">
