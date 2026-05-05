@@ -17,7 +17,7 @@
     "activePathHelp": "跳转到当前路由时，需要激活的菜单路径。\n当不在导航菜单中显示时，需要指定激活路径",
     "activePathMustExist": "该路径未能找到有效的菜单",
     "advancedSettings": "其它设置",
-    "affixTab": "固定在标签",
+    "affixTab": "固定在标签页",
     "authCode": "权限标识",
     "badge": "徽章内容",
     "badgeVariants": "徽标样式",

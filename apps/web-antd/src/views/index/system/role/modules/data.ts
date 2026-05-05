@@ -5,8 +5,18 @@ import type { RoleModel } from '#/api/sys/role';
 import { useAccess } from '@vben/access';
 
 const { hasAccessByCodes } = useAccess();
+
 export function useGridFormSchema(): VbenFormSchema[] {
-  return [{ component: 'Input', fieldName: 'roleName', label: '角色名称' }];
+  return [
+    {
+      component: 'Input',
+      fieldName: 'roleName',
+      label: '角色名称',
+      componentProps: {
+        placeholder: '请输入角色名称',
+      },
+    },
+  ];
 }
 
 export function useColumns<T = RoleModel>(
@@ -24,24 +34,21 @@ export function useColumns<T = RoleModel>(
     },
     {
       field: 'roleName',
+      minWidth: 200,
       showOverflow: true,
       title: '角色名称',
-      minWidth: 200,
     },
     {
       field: 'memo',
       minWidth: 200,
+      showOverflow: true,
       title: '备注',
     },
     {
-      field: 'operation',
-      fixed: 'right',
-      title: '操作',
-      width: 130,
       align: 'center',
       cellRender: {
         attrs: {
-          nameField: 'name',
+          nameField: 'roleName',
           nameTitle: '角色',
           onClick: onActionClick,
         },
@@ -49,18 +56,18 @@ export function useColumns<T = RoleModel>(
         options: [
           {
             code: 'edit',
-            show: () => {
-              return hasAccessByCodes(['system.role:update']);
-            },
+            show: () => hasAccessByCodes(['system.role:update']),
           },
           {
             code: 'delete',
-            show: () => {
-              return hasAccessByCodes(['system.role:delete']);
-            },
+            show: () => hasAccessByCodes(['system.role:delete']),
           },
         ],
       },
+      field: 'operation',
+      fixed: 'right',
+      title: '操作',
+      width: 130,
     },
   ];
 }
@@ -73,9 +80,9 @@ export function useFormSchema(): VbenFormSchema[] {
       label: '角色名称',
       rules: 'required',
       componentProps: {
-        placeholder: '请输入角色名称',
-        min: 0,
         max: 1000,
+        min: 0,
+        placeholder: '请输入角色名称',
       },
     },
     {
@@ -84,12 +91,6 @@ export function useFormSchema(): VbenFormSchema[] {
       label: '备注',
       componentProps: {
         placeholder: '请输入备注',
-      },
-      dependencies: {
-        triggerFields: ['id'],
-        if: ({ id }) => {
-          return !id;
-        },
       },
     },
   ];

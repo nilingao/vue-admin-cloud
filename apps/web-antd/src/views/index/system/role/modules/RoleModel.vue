@@ -11,8 +11,11 @@ import { doDetail, doSave } from '#/api/sys/role';
 
 import { useFormSchema } from './data';
 
-const emit = defineEmits(['success']);
-const formData = ref<Record<string, any>>({});
+const emit = defineEmits<{
+  success: [];
+}>();
+
+const formData = ref<RoleModel>();
 
 const [Form, formApi] = useVbenForm({
   layout: 'horizontal',
@@ -23,34 +26,41 @@ const [Form, formApi] = useVbenForm({
 const [Modal, modalApi] = useVbenModal({
   async onConfirm() {
     const { valid } = await formApi.validate();
-    if (valid) {
-      modalApi.lock();
+    if (!valid) return;
+
+    modalApi.lock();
+    try {
       const data = await formApi.getValues();
-      try {
-        await doSave({ id: formData.value.id, ...data });
-        modalApi.close();
-        emit('success');
-      } finally {
-        modalApi.lock(false);
-      }
+      await doSave({ id: formData.value?.id, ...data });
+      modalApi.close();
+      emit('success');
+    } finally {
+      modalApi.lock(false);
     }
   },
 
   async onOpenChange(isOpen) {
-    if (isOpen) {
-      const data = modalApi.getData<RoleModel>();
-      if (data && data.id) {
-        formData.value = await doDetail({ id: data.id });
-        formApi.setValues(formData.value);
+    if (!isOpen) {
+      formApi.resetForm();
+      formData.value = undefined;
+      return;
+    }
+
+    const data = modalApi.getData<RoleModel>();
+    if (data?.id) {
+      // 修复点：先获取详情，再判断结果是否存在，最后赋值
+      const detail = await doDetail({ id: data.id });
+      if (detail) {
+        formData.value = detail;
+        formApi.setValues(detail);
       }
     }
   },
 });
-const getTitle = computed(() => {
-  return formData.value?.id
-    ? $t('system.role.editRole')
-    : $t('system.role.addRole');
-});
+
+const getTitle = computed(() =>
+  formData.value?.id ? $t('system.role.editRole') : $t('system.role.addRole'),
+);
 </script>
 
 <template>

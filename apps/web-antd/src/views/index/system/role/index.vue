@@ -22,29 +22,20 @@ const [Modal, formModalApi] = useVbenModal({
   destroyOnClose: true,
 });
 
-/**
- * 编辑角色
- * @param row
- */
 function onEdit(row: RoleModelVo) {
   formModalApi.setData(row).open();
 }
 
-/**
- * 创建角色
- */
 function onCreate() {
   formModalApi.setData(null).open();
 }
-/**
- * 删除角色
- */
+
 function onDelete(row: RoleModelVo) {
   AntModal.confirm({
-    title: $t('system.role.confirmDelete'),
+    cancelText: $t('common.cancel'),
     content: $t('system.role.confirmDeleteContent', { roleName: row.roleName }),
     okText: $t('common.confirm'),
-    cancelText: $t('common.cancel'),
+    title: $t('system.role.confirmDelete'),
     onOk: async () => {
       const hideLoading = message.loading({
         content: $t('system.role.deleting', { roleName: row.roleName }),
@@ -70,9 +61,6 @@ function onDelete(row: RoleModelVo) {
   });
 }
 
-/**
- * 表格操作按钮的回调函数
- */
 function onActionClick({ code, row }: OnActionClickParams<RoleModelVo>) {
   switch (code) {
     case 'delete': {
@@ -88,7 +76,6 @@ function onActionClick({ code, row }: OnActionClickParams<RoleModelVo>) {
 
 const [Grid, gridApi] = useVbenVxeGrid({
   formOptions: {
-    // fieldMappingTime: [['createTime', ['startTime', 'endTime']]],
     schema: useGridFormSchema(),
     submitOnChange: false,
   },
@@ -119,21 +106,19 @@ const [Grid, gridApi] = useVbenVxeGrid({
   } as VxeTableGridOptions,
 });
 
-/**
- * 刷新表格
- */
 function refreshGrid() {
   gridApi.query();
 }
 </script>
+
 <template>
   <Page auto-content-height>
     <Modal @success="refreshGrid" />
     <Grid :table-title="$t('system.role.list')">
       <template #toolbar-tools>
         <Button
-          type="primary"
           v-access:code="'system.role:add'"
+          type="primary"
           @click="onCreate"
         >
           <Plus class="size-5" />
