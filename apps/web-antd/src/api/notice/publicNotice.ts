@@ -41,10 +41,10 @@ enum Api {
   remove = '/webapi/notice/public_notice/remove',
   /** 修改平台通知公告 */
   update = '/webapi/notice/public_notice/update',
-  /** 用户查看公告详情并标记已读 */
-  userReadNoticeDetail = '/webapi/notice/public_notice/user_read_notice_detail',
   /** 用户公告分页 */
   userPage = '/webapi/notice/public_notice/user_page',
+  /** 用户查看公告详情并标记已读 */
+  userReadNoticeDetail = '/webapi/notice/public_notice/user_read_notice_detail',
 }
 
 export function getPublicNoticePage(params: PublicNoticeParams) {

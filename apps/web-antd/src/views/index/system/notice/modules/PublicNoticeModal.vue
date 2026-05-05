@@ -43,7 +43,9 @@ const [Modal, modalApi] = useVbenModal({
         ...data,
         id: formData.value?.id,
       };
-      await (formData.value?.id ? doPublicNoticeUpdate(params) : doPublicNoticeInsert(params));
+      await (formData.value?.id
+        ? doPublicNoticeUpdate(params)
+        : doPublicNoticeInsert(params));
       modalApi.close();
       emit('success');
     } finally {

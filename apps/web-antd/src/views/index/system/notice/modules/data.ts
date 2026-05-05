@@ -31,18 +31,14 @@ function getNoticeTypeOption(type?: number | string): OptionItem {
   const typeValue = Number(type ?? 0);
   // 使用非空断言操作符 ! 告诉 TS find 的结果在结合 ?? 后一定是 OptionItem
   // 或者更严谨地，直接断言整个返回值
-  return (
-    noticeTypeOptions.find((item) => item.value === typeValue) ??
-    noticeTypeOptions[1]
-  ) as OptionItem; // 添加类型断言
+  return (noticeTypeOptions.find((item) => item.value === typeValue) ??
+    noticeTypeOptions[1]) as OptionItem; // 添加类型断言
 }
 
 function getNoticeStatusOption(status?: number | string): OptionItem {
   const statusValue = Number(status ?? 1);
-  return (
-    noticeStatusOptions.find((item) => item.value === statusValue) ??
-    noticeStatusOptions[1]
-  ) as OptionItem; // 添加类型断言
+  return (noticeStatusOptions.find((item) => item.value === statusValue) ??
+    noticeStatusOptions[1]) as OptionItem; // 添加类型断言
 }
 
 export function useGridFormSchema(): VbenFormSchema[] {
