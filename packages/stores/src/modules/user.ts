@@ -5,7 +5,7 @@ interface BasicUserInfo {
   /**
    * 用户id
    */
-  id: string;
+  id?: string;
   /**
    * 头像
    */
@@ -17,7 +17,11 @@ interface BasicUserInfo {
   /**
    * 用户角色
    */
-  roleIdList?: string[];
+  roles?: string[];
+  /**
+   * 用户id
+   */
+  userId?: string;
   /**
    * 用户名
    */

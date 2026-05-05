@@ -53,6 +53,7 @@ const wrapperClass = computed(() => {
 
 provideFormRenderProps(props);
 
+// @ts-expect-error unused
 const { isCalculated, keepFormItemIndex, wrapperRef } = useExpandable(props);
 
 const shapes = computed(() => {
@@ -156,7 +157,7 @@ const computedSchema = computed(
           ...schema.formFieldProps,
         },
         formItemClass: cn(
-          'flex-shrink-0',
+          'shrink-0',
           { hidden },
           formItemClass,
           resolvedSchemaFormItemClass,

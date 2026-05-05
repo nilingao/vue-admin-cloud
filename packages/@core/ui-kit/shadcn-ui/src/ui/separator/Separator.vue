@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import type { SeparatorProps } from 'radix-vue';
+import type { SeparatorProps } from 'reka-ui';
 
 import { computed } from 'vue';
 
 import { cn } from '@vben-core/shared/utils';
 
-import { Separator } from 'radix-vue';
+import { Separator } from 'reka-ui';
 
 const props = defineProps<SeparatorProps & { class?: any; label?: string }>();
 
@@ -31,10 +31,10 @@ const delegatedProps = computed(() => {
       v-if="props.label"
       :class="
         cn(
-          'text-muted-foreground bg-background absolute left-1/2 top-1/2 flex -translate-x-1/2 -translate-y-1/2 items-center justify-center text-xs',
+          'bg-background text-muted-foreground absolute top-1/2 left-1/2 flex -translate-x-1/2 -translate-y-1/2 items-center justify-center text-xs',
           props.orientation === 'vertical'
-            ? 'w-[1px] px-1 py-2'
-            : 'h-[1px] px-2 py-1',
+            ? 'w-0.25 px-1 py-2'
+            : 'h-0.25 px-2 py-1',
         )
       "
     >

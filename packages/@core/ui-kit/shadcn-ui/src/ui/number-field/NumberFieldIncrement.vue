@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import type { NumberFieldIncrementProps } from 'radix-vue';
+import type { NumberFieldIncrementProps } from 'reka-ui';
 
 import { computed } from 'vue';
 
 import { cn } from '@vben-core/shared/utils';
 
 import { Plus } from 'lucide-vue-next';
-import { NumberFieldIncrement, useForwardProps } from 'radix-vue';
+import { NumberFieldIncrement, useForwardProps } from 'reka-ui';
 
 const props = defineProps<NumberFieldIncrementProps & { class?: any }>();
 
@@ -25,7 +25,7 @@ const forwarded = useForwardProps(delegatedProps);
     v-bind="forwarded"
     :class="
       cn(
-        'absolute right-0 top-1/2 -translate-y-1/2 p-3 disabled:cursor-not-allowed disabled:opacity-20',
+        'absolute top-1/2 right-0 -translate-y-1/2 p-3 disabled:cursor-not-allowed disabled:opacity-20',
         props.class,
       )
     "

@@ -72,6 +72,7 @@ const {
   gridEvents,
   formOptions,
   tableTitle,
+  tableData,
   tableTitleHelp,
   showSearchForm,
   separator,
@@ -165,6 +166,7 @@ const toolbarOptions = computed(() => {
   }
 
   if (!showToolbar.value) {
+    toolbarConfig.enabled = false;
     return { toolbarConfig };
   }
 
@@ -228,6 +230,9 @@ const options = computed(() => {
   }
   if (mergedOptions.formConfig) {
     mergedOptions.formConfig.enabled = false;
+    if (tableData.value && tableData.value.length > 0) {
+      mergedOptions.data = tableData.value;
+    }
   }
   return mergedOptions;
 });
@@ -326,7 +331,7 @@ async function init() {
 watch(
   formOptions,
   () => {
-    formApi.setState((prev) => {
+    formApi.setState((prev: Record<string, any>) => {
       const finalFormOptions: VbenFormProps = mergeWithArrayOverride(
         {},
         formOptions.value,
@@ -359,7 +364,7 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <div :class="cn('bg-card h-full rounded-md', className)">
+  <div :class="cn('h-full rounded-md bg-card', className)">
     <VxeGrid
       ref="gridRef"
       :class="
@@ -377,9 +382,9 @@ onUnmounted(() => {
       <!-- 左侧操作区域或者title -->
       <template v-if="showToolbar" #toolbar-actions="slotProps">
         <slot v-if="showTableTitle" name="table-title">
-          <div class="mr-1 pl-1 text-[1rem]">
+          <div class="flex-center gap-1 text-[1rem] font-bold">
             {{ tableTitle }}
-            <VbenHelpTooltip v-if="tableTitleHelp" trigger-class="pb-1">
+            <VbenHelpTooltip v-if="tableTitleHelp">
               {{ tableTitleHelp }}
             </VbenHelpTooltip>
           </div>
@@ -415,7 +420,7 @@ onUnmounted(() => {
           v-show="showSearchForm !== false"
           :class="
             cn(
-              'relative rounded py-3',
+              'relative rounded-sm py-3',
               isCompactForm
                 ? isSeparator
                   ? 'pb-8'
@@ -457,7 +462,7 @@ onUnmounted(() => {
             :style="{
               ...(separatorBg ? { backgroundColor: separatorBg } : undefined),
             }"
-            class="bg-background-deep z-100 absolute -left-2 bottom-1 h-2 w-[calc(100%+1rem)] overflow-hidden md:bottom-2 md:h-3"
+            class="absolute bottom-1 -left-2 z-100 h-2 w-[calc(100%+1rem)] overflow-hidden bg-background-deep md:bottom-2 md:h-3"
           ></div>
         </div>
       </template>

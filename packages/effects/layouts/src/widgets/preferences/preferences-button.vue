@@ -13,8 +13,8 @@ function clearPreferencesAndLogout() {
 </script>
 <template>
   <Preferences @clear-preferences-and-logout="clearPreferencesAndLogout">
-    <VbenIconButton>
-      <Settings class="text-foreground size-4" />
+    <VbenIconButton class="hover:animate-[shrink_0.3s_ease-in-out]">
+      <Settings class="size-4 text-foreground" />
     </VbenIconButton>
   </Preferences>
 </template>

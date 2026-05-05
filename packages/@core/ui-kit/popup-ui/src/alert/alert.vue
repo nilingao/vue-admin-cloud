@@ -147,9 +147,9 @@ async function handleOpenChange(val: boolean) {
       :class="
         cn(
           containerClass,
-          'left-0 right-0 mx-auto flex max-h-[80%] flex-col p-0 duration-300 sm:w-[520px] sm:max-w-[80%] sm:rounded-[var(--radius)]',
+          'inset-x-0 mx-auto flex max-h-[80%] flex-col p-0 duration-300 sm:w-130 sm:max-w-[80%] sm:rounded-(--radius)',
           {
-            'border-border border': bordered,
+            'border border-border': bordered,
             'shadow-3xl': !bordered,
           },
         )
@@ -168,13 +168,13 @@ async function handleOpenChange(val: boolean) {
                 :disabled="loading"
                 @click="handleCancel"
               >
-                <X class="text-muted-foreground size-4" />
+                <X class="size-4 text-muted-foreground" />
               </VbenButton>
             </AlertDialogCancel>
           </div>
         </AlertDialogTitle>
         <AlertDialogDescription>
-          <div class="m-4 min-h-[30px]">
+          <div class="m-4 min-h-7.5">
             <VbenRenderContent :content="content" render-br />
           </div>
           <VbenLoading v-if="loading && contentMasking" :spinning="loading" />

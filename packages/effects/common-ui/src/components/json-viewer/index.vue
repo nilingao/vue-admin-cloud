@@ -11,14 +11,13 @@ import type {
 } from './types';
 
 import { computed, useAttrs } from 'vue';
-// @ts-ignore
-import VueJsonViewer from 'vue-json-viewer';
+// @ts-expect-error - vue-json-viewer does not expose compatible typings for this import path
+import VueJsonViewerImport from 'vue-json-viewer';
 
 import { $t } from '@vben/locales';
 
 import { isBoolean } from '@vben-core/shared/utils';
 
-// @ts-ignore
 import JsonBigint from 'json-bigint';
 
 defineOptions({ name: 'JsonViewer' });
@@ -43,6 +42,11 @@ const emit = defineEmits<{
   valueClick: [value: JsonViewerValue];
 }>();
 
+/** CJS/UMD 在 Vite 下解析为 { default: Component }，需解包否则会出现 missing template or render */
+const VueJsonViewer =
+  (VueJsonViewerImport as { default?: typeof VueJsonViewerImport }).default ??
+  VueJsonViewerImport;
+
 const attrs: SetupContext['attrs'] = useAttrs();
 
 function handleClick(event: MouseEvent) {
@@ -55,16 +59,12 @@ function handleClick(event: MouseEvent) {
       return;
     }
     const param: JsonViewerValue = {
-      path: '',
-      value: '',
-      depth: 0,
       el: event.target,
+      path: pathNode.getAttribute('path') || '',
+      depth: Number(pathNode.getAttribute('depth')) || 0,
+      value: event.target.textContent || undefined,
     };
 
-    param.path = pathNode.getAttribute('path') || '';
-    param.depth = Number(pathNode.getAttribute('depth')) || 0;
-
-    param.value = event.target.textContent || undefined;
     param.value = JSON.parse(param.value);
     emit('valueClick', param);
   }

@@ -19,11 +19,10 @@ coverage
 dev-dist
 .stylelintcache
 yarn.lock
-pnpm-lock.yaml
 package-lock.json
 .VSCodeCounter
 **/backend-mock/data
-
+.omx
 # local env files
 .env.local
 .env.*.local
@@ -50,3 +49,11 @@ vite.config.ts.*
 *.sln
 *.sw?
 .history
+.cursor
+
+# AI
+.agent
+.agents
+.claude
+.codex
+skills-lock.json

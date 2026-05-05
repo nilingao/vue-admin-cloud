@@ -1,15 +1,11 @@
 <script setup lang="ts">
-import type { ScrollAreaRootProps } from 'radix-vue';
+import type { ScrollAreaRootProps } from 'reka-ui';
 
 import { computed } from 'vue';
 
 import { cn } from '@vben-core/shared/utils';
 
-import {
-  ScrollAreaCorner,
-  ScrollAreaRoot,
-  ScrollAreaViewport,
-} from 'radix-vue';
+import { ScrollAreaCorner, ScrollAreaRoot, ScrollAreaViewport } from 'reka-ui';
 
 import ScrollBar from './ScrollBar.vue';
 
@@ -39,7 +35,7 @@ const delegatedProps = computed(() => {
   >
     <ScrollAreaViewport
       as-child
-      class="h-full w-full rounded-[inherit] focus:outline-none"
+      class="h-full w-full rounded-[inherit] focus:outline-hidden"
       @scroll="onScroll"
     >
       <slot></slot>

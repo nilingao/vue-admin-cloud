@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import type { ScrollAreaScrollbarProps } from 'radix-vue';
+import type { ScrollAreaScrollbarProps } from 'reka-ui';
 
 import { computed } from 'vue';
 
 import { cn } from '@vben-core/shared/utils';
 
-import { ScrollAreaScrollbar, ScrollAreaThumb } from 'radix-vue';
+import { ScrollAreaScrollbar, ScrollAreaThumb } from 'reka-ui';
 
 const props = withDefaults(
   defineProps<ScrollAreaScrollbarProps & { class?: any }>(),
@@ -26,7 +26,7 @@ const delegatedProps = computed(() => {
     v-bind="delegatedProps"
     :class="
       cn(
-        'flex touch-none select-none transition-colors',
+        'flex touch-none transition-colors select-none',
         orientation === 'vertical' &&
           'h-full w-2.5 border-l border-l-transparent p-px',
         orientation === 'horizontal' &&

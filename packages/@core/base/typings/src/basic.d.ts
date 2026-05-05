@@ -9,10 +9,6 @@ type TabOption = BasicOption;
 
 interface BasicUserInfo {
   /**
-   * 用户id
-   */
-  id: string;
-  /**
    * 头像
    */
   imageUrl: string;

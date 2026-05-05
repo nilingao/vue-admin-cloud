@@ -13,6 +13,7 @@ import {
   LanguageToggle,
   PreferencesButton,
   ThemeToggle,
+  TimezoneButton,
 } from '../../widgets';
 
 interface Props {
@@ -66,15 +67,21 @@ const rightSlots = computed(() => {
       name: 'language-toggle',
     });
   }
-  if (preferences.widget.fullscreen) {
+  if (preferences.widget.timezone) {
     list.push({
       index: REFERENCE_VALUE + 40,
+      name: 'timezone',
+    });
+  }
+  if (preferences.widget.fullscreen) {
+    list.push({
+      index: REFERENCE_VALUE + 50,
       name: 'fullscreen',
     });
   }
   if (preferences.widget.notification) {
     list.push({
-      index: REFERENCE_VALUE + 50,
+      index: REFERENCE_VALUE + 60,
       name: 'notification',
     });
   }
@@ -85,7 +92,7 @@ const rightSlots = computed(() => {
       list.push({ index: Number(name[2]), name: key });
     }
   });
-  return list.sort((a, b) => a.index - b.index);
+  return list.toSorted((a, b) => a.index - b.index);
 });
 
 const leftSlots = computed(() => {
@@ -104,7 +111,7 @@ const leftSlots = computed(() => {
       list.push({ index: Number(name[2]), name: key });
     }
   });
-  return list.sort((a, b) => a.index - b.index);
+  return list.toSorted((a, b) => a.index - b.index);
 });
 
 function clearPreferencesAndLogout() {
@@ -140,7 +147,7 @@ function clearPreferencesAndLogout() {
   >
     <slot name="menu"></slot>
   </div>
-  <div class="flex h-full min-w-0 flex-shrink-0 items-center">
+  <div class="flex h-full min-w-0 shrink-0 items-center">
     <template v-for="slot in rightSlots" :key="slot.name">
       <slot :name="slot.name">
         <template v-if="slot.name === 'global-search'">
@@ -158,13 +165,16 @@ function clearPreferencesAndLogout() {
           />
         </template>
         <template v-else-if="slot.name === 'theme-toggle'">
-          <ThemeToggle class="mr-1 mt-[2px]" />
+          <ThemeToggle class="mt-0.5 mr-1" />
         </template>
         <template v-else-if="slot.name === 'language-toggle'">
           <LanguageToggle class="mr-1" />
         </template>
         <template v-else-if="slot.name === 'fullscreen'">
           <VbenFullScreen class="mr-1" />
+        </template>
+        <template v-else-if="slot.name === 'timezone'">
+          <TimezoneButton class="mt-0.5 mr-1" />
         </template>
       </slot>
     </template>

@@ -7,12 +7,22 @@ import { isDarkTheme } from './update-css-variables';
 
 function usePreferences() {
   const preferences = preferencesManager.getPreferences();
+  const customPreferences = preferencesManager.getCustomPreferences();
   const initialPreferences = preferencesManager.getInitialPreferences();
+  const initialCustomPreferences =
+    preferencesManager.getInitialCustomPreferences();
+  const preferencesExtension = computed(() =>
+    preferencesManager.getPreferencesExtension(),
+  );
   /**
    * @zh_CN 计算偏好设置的变化
    */
   const diffPreference = computed(() => {
     return diff(initialPreferences, preferences);
+  });
+
+  const diffCustomPreference = computed(() => {
+    return diff(initialCustomPreferences, customPreferences);
   });
 
   const appPreferences = computed(() => preferences.app);
@@ -136,7 +146,7 @@ function usePreferences() {
   });
 
   /**
-   * @zh_CN 登录注册页面布局是否为左侧
+   * @zh_CN 登录注册页面布局是否为右侧
    */
   const authPanelRight = computed(() => {
     return appPreferences.value.authPageLayout === 'panel-right';
@@ -228,7 +238,9 @@ function usePreferences() {
     authPanelLeft,
     authPanelRight,
     contentIsMaximize,
+    customPreferences,
     diffPreference,
+    diffCustomPreference,
     globalLockScreenShortcutKey,
     globalLogoutShortcutKey,
     globalSearchShortcutKey,
@@ -245,6 +257,7 @@ function usePreferences() {
     keepAlive,
     layout,
     locale,
+    preferencesExtension,
     preferencesButtonPosition,
     sidebarCollapsed,
     theme,

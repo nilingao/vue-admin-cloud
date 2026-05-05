@@ -61,7 +61,7 @@ export const authenticateResponseInterceptor = ({
     rejected: async (error) => {
       const { config, response } = error;
       // 如果不是 401 错误，直接抛出异常
-      if (response?.data.code !== 314) {
+      if (response?.status !== 401) {
         throw error;
       }
       // 判断是否启用了 refreshToken 功能
@@ -117,6 +117,7 @@ export const errorMessageResponseInterceptor = (
       if (axios.isCancel(error)) {
         return Promise.reject(error);
       }
+
       const err: string = error?.toString?.() ?? '';
       let errMsg = '';
       if (err?.includes('Network Error')) {
@@ -129,14 +130,10 @@ export const errorMessageResponseInterceptor = (
         return Promise.reject(error);
       }
 
-      let errorMessage = '';
+      let errorMessage: string;
       const status = error?.response?.status;
 
       switch (status) {
-        case 314: {
-          errorMessage = $t('ui.fallback.http.unauthorized');
-          break;
-        }
         case 400: {
           errorMessage = $t('ui.fallback.http.badRequest');
           break;

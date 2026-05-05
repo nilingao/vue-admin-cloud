@@ -84,6 +84,8 @@ onBeforeUnmount(() => {
 });
 
 const id = useId();
+
+const pinType = 'text' as const;
 </script>
 
 <template>
@@ -94,7 +96,7 @@ const id = useId();
     class="flex w-full justify-between"
     otp
     placeholder="○"
-    type="number"
+    :type="pinType"
     @complete="handleComplete"
   >
     <div class="relative flex w-full">
@@ -108,7 +110,7 @@ const id = useId();
       <VbenButton
         :disabled="disabled"
         :loading="btnLoading"
-        class="flex-grow"
+        class="grow"
         size="lg"
         variant="outline"
         @click="handleSend"

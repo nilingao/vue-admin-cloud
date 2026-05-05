@@ -21,7 +21,6 @@ async function generateAccess(options: GenerateMenuAndRoutesOptions) {
     BasicLayout,
     IFrameView,
   };
-
   return await generateAccessible(preferences.app.accessMode, {
     ...options,
     fetchMenuListAsync: async () => {
