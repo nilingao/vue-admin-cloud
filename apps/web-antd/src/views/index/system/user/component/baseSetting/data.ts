@@ -23,56 +23,44 @@ export function useBaseSettingFormSchema(
         orientation: 'left',
       },
       renderComponentContent() {
-        return {
-          default: () => '基本信息',
-        };
+        return { default: () => '基本信息' };
       },
     },
     {
       component: 'Upload',
-      formItemClass: 'col-span-1 lg:col-span-2',
-      fieldName: 'imageUrl',
-      label: '图像',
-      renderComponentContent: () => {
-        return {
-          default: () => '点击上传图片',
-        };
-      },
-      rules: 'required',
       componentProps: {
-        // 更多属性见：https://ant.design/components/upload-cn
         accept: '.png,.jpg,.jpeg',
-        // 自动携带认证信息
         customRequest: ({ file, onError, onProgress, onSuccess }: any) =>
           upload_file({
-            type: 1,
             file,
             onError,
             onProgress,
             onSuccess,
+            type: 1,
           }),
-        disabled: false,
+        handleChange: headerImageChange,
+        listType: 'picture-card',
         maxCount: 1,
         multiple: false,
         showUploadList: true,
-        // 上传列表的内建样式，支持四种基本样式 text, picture, picture-card 和 picture-circle
-        listType: 'picture-card',
-        handleChange: headerImageChange,
       },
+      fieldName: 'imageUrl',
+      formItemClass: 'col-span-1 lg:col-span-2',
+      label: '头像',
+      renderComponentContent: () => ({ default: () => '点击上传图片' }),
+      rules: 'required',
     },
     {
       component: 'Input',
       fieldName: 'loginAccount',
-      label: '账户',
+      label: '账号',
       rules: 'required',
       dependencies: {
+        if: ({ id }) => !id,
         triggerFields: ['id'],
-        if: ({ id }) => {
-          return !id;
-        },
       },
       componentProps: {
-        placeholder: '请输入账户',
+        placeholder: '请输入账号',
       },
     },
     {
@@ -81,10 +69,8 @@ export function useBaseSettingFormSchema(
       label: '密码',
       rules: 'required',
       dependencies: {
+        if: ({ id }) => !id,
         triggerFields: ['id'],
-        if: ({ id }) => {
-          return !id;
-        },
       },
       componentProps: {
         placeholder: '请输入密码',
@@ -110,26 +96,17 @@ export function useBaseSettingFormSchema(
     },
     {
       component: 'RadioGroup',
+      defaultValue: 1,
       fieldName: 'gender',
       label: '性别',
       rules: 'required',
-      defaultValue: 1,
       componentProps: {
-        placeholder: '请选择性别',
         options: [
-          {
-            label: '男',
-            value: 1,
-          },
-          {
-            label: '女',
-            value: 2,
-          },
-          {
-            label: '隐藏',
-            value: 0,
-          },
+          { label: '男', value: 1 },
+          { label: '女', value: 2 },
+          { label: '保密', value: 0 },
         ],
+        placeholder: '请选择性别',
       },
     },
     {
@@ -141,66 +118,61 @@ export function useBaseSettingFormSchema(
       },
       rules: z
         .string()
-        .refine((v) => v !== '', {
-          message: '输入手机号码',
-        })
-        .refine((v) => v?.match(/^1[3-9]\d{9}$/), {
-          message: '号码格式不正确',
+        .refine((v) => v !== '', { message: '请输入手机号' })
+        .refine((v) => /^1[3-9]\d{9}$/.test(v ?? ''), {
+          message: '手机号格式不正确',
         }),
     },
     {
       component: 'Input',
       fieldName: 'idCard',
-      label: '身份证',
+      label: '身份证号',
       componentProps: {
-        placeholder: '请输入身份证号码',
+        placeholder: '请输入身份证号',
       },
       rules: z
         .string()
-        .refine((v) => v !== '', {
-          message: '输入身份证号码',
-        })
+        .refine((v) => v !== '', { message: '请输入身份证号' })
         .refine(
           (v) =>
-            v?.match(
-              /^[1-9]\d{5}(18|19|([23]\d))\d{2}((0[1-9])|(10|11|12))(([0-2][1-9])|10|20|30|31)\d{3}[0-9X]$/i,
+            /^[1-9]\d{5}(18|19|([23]\d))\d{2}((0[1-9])|(10|11|12))(([0-2][1-9])|10|20|30|31)\d{3}[0-9X]$/i.test(
+              v ?? '',
             ),
-          {
-            message: '号码格式不正确',
-          },
+          { message: '身份证号格式不正确' },
         ),
     },
     {
       component: markRaw(Cascader),
+      controlClass: 'w-full',
       fieldName: 'areaList',
       label: '地址',
-      rules: 'required',
-      controlClass: 'w-full',
       modelPropName: 'value',
+      rules: 'required',
       componentProps: {
-        placeholder: '请选择地址',
         options: systemStore.getAreaList,
+        placeholder: '请选择地址',
         showSearch: true,
       },
     },
     {
       component: 'Switch',
+      defaultValue: 1,
       fieldName: 'isAdmin',
       label: '系统管理员',
-      defaultValue: 1,
       componentProps: {
-        class: 'w-auto',
         checkedValue: 1,
+        class: 'w-auto',
         unCheckedValue: 0,
       },
     },
     {
       component: 'Switch',
+      defaultValue: 1,
       fieldName: 'isEnabled',
       label: '启用状态',
       componentProps: {
-        class: 'w-auto',
         checkedValue: 1,
+        class: 'w-auto',
         unCheckedValue: 0,
       },
     },

@@ -3,51 +3,72 @@ import type {
   OnActionClickParams,
   VxeTableGridOptions,
 } from '#/adapter/vxe-table';
-import type { TenantModel } from '#/api/sys/tenant';
+import type { ActivitiRepositoryEntity } from '#/api/oa/activiti';
 
-import { Page, useVbenModal } from '@vben/common-ui';
+import { useRouter } from 'vue-router';
+
+import { Page } from '@vben/common-ui';
 import { Plus } from '@vben/icons';
 
 import { Button, Modal } from 'ant-design-vue';
 
 import { useVbenVxeGrid } from '#/adapter/vxe-table';
-import { doTenantRemove, getTenantPage } from '#/api/sys/tenant';
+import {
+  doDeleteProcess,
+  doFindRepositoryList,
+  doSuspendedProcessDefinition,
+  OAIndex,
+} from '#/api/oa/activiti';
 
-import { useColumns, useGridFormSchema } from './data';
-import Form from './modules/form.vue';
+import { useColumns, useGridFormSchema } from './modules/data';
 
-const [FormModal, formModalApi] = useVbenModal({
-  connectedComponent: Form,
-  destroyOnClose: true,
-});
-
-function onEdit(row: TenantModel) {
-  formModalApi.setData({ id: row.id }).open();
-}
+const router = useRouter();
 
 function onCreate() {
-  formModalApi.setData({}).open();
+  router.push(`${OAIndex.Deploy}undefined`);
 }
 
-function onDelete(row: TenantModel) {
+function onDeploy(row: ActivitiRepositoryEntity) {
+  router.push(`${OAIndex.Deploy}${row.id}`);
+}
+
+function onSuspended(row: ActivitiRepositoryEntity) {
   Modal.confirm({
-    title: '删除操作',
-    content: `确定删除租户“${row.tenantName ?? row.id}”？`,
+    title: '状态切换',
+    content: `确定切换流程“${row.deploymentName ?? row.key}”状态？`,
     async onOk() {
-      await doTenantRemove({ id: row.id });
+      await doSuspendedProcessDefinition({ processDefinitionId: row.id });
       refreshGrid();
     },
   });
 }
 
-function onActionClick({ code, row }: OnActionClickParams<TenantModel>) {
+function onDelete(row: ActivitiRepositoryEntity) {
+  Modal.confirm({
+    title: '删除操作',
+    content: `确定删除流程“${row.deploymentName ?? row.key}”？`,
+    async onOk() {
+      await doDeleteProcess({ deploymentId: row.deploymentId, stats: 2 });
+      refreshGrid();
+    },
+  });
+}
+
+function onActionClick({
+  code,
+  row,
+}: OnActionClickParams<ActivitiRepositoryEntity>) {
   switch (code) {
     case 'delete': {
       onDelete(row);
       break;
     }
-    case 'edit': {
-      onEdit(row);
+    case 'deploy': {
+      onDeploy(row);
+      break;
+    }
+    case 'pending': {
+      onSuspended(row);
       break;
     }
   }
@@ -65,7 +86,7 @@ const [Grid, gridApi] = useVbenVxeGrid({
     proxyConfig: {
       ajax: {
         query: async ({ page }, formValues) => {
-          return await getTenantPage({
+          return await doFindRepositoryList({
             pageNumber: page.currentPage,
             pageSize: page.pageSize,
             ...formValues,
@@ -93,16 +114,15 @@ function refreshGrid() {
 
 <template>
   <Page auto-content-height>
-    <FormModal @success="refreshGrid" />
-    <Grid table-title="租户列表">
+    <Grid table-title="流程定义">
       <template #toolbar-tools>
         <Button
-          v-access:code="'system.tenant:add'"
+          v-access:code="'oa.repository:add'"
           type="primary"
           @click="onCreate"
         >
           <Plus class="size-5" />
-          新增租户
+          添加
         </Button>
       </template>
     </Grid>

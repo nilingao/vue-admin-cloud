@@ -5,47 +5,41 @@ import { requestClient } from '#/api/request';
 // 默认系统租户编号
 export const sysTenantId = 1;
 
-/**
- * @description: 租户信息
- */
 export interface TenantModel extends Recordable<any> {
-  // 键
+  /** 账号数量 */
+  accountCount?: number | string;
+  /** 租户编号 */
   id: number | undefined;
-  // 租户名
-  tenantName?: string;
-  // 租户联系人编号
-  tenantUserId?: number;
-  // 租户联系人名称
-  tenantUserName?: string;
-  // 租户状态（0正常 1停用）
+  /** 租户状态：1 启用，0 禁用 */
   status?: number;
-  // 账号数量
-  accountCount?: string;
+  /** 租户名称 */
+  tenantName?: string;
+  /** 租户联系人编号 */
+  tenantUserId?: number;
+  /** 租户联系人名称 */
+  tenantUserName?: string;
 }
 
-/**
- * 查询参数类型
- */
 export type TenantParams = Recordable<any>;
 
 export type TenantPageResultModel = Recordable<TenantModel>;
 
 enum Api {
-  // 保存租户
+  /** 租户详情 */
   detail = '/webapi/config/tenant/detail',
-  // 新增租户
+  /** 新增租户 */
   insert = '/webapi/config/tenant/insert',
-  // 获取租户分页
+  /** 租户分页 */
   page = '/webapi/config/tenant/page',
-  // 删除租户
+  /** 删除租户 */
   remove = '/webapi/config/tenant/remove',
-  // 租户信息下拉展示(动态搜索数据源)
+  /** 租户下拉数据 */
   select = '/webapi/config/tenant/select',
-  // 租户权限信息
+  /** 租户权限列表 */
   tenantPrivilegeList = '/webapi/config/tenant/tenant_privilege_list',
-  // 租户权限保存
+  /** 租户权限保存 */
   tenantPrivilegeSave = '/webapi/config/tenant/tenant_privilege_save',
-  // 编辑租户
+  /** 编辑租户 */
   update = '/webapi/config/tenant/update',
 }
 
@@ -72,8 +66,9 @@ export function doTenantRemove(params: Recordable<any>) {
 export function doTenantDetail(params: Recordable<any>) {
   return requestClient.get<TenantModel>(Api.detail, { params });
 }
+
 export function doTenantPrivilegeList(params: Recordable<any>) {
-  return requestClient.get(Api.tenantPrivilegeList, { params });
+  return requestClient.get<string[]>(Api.tenantPrivilegeList, { params });
 }
 
 export function doTenantPrivilegeSave(params: Recordable<any>) {

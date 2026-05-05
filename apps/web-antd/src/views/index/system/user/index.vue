@@ -9,9 +9,9 @@ import { reactive } from 'vue';
 import { useRouter } from 'vue-router';
 
 import { Page, useVbenModal } from '@vben/common-ui';
-import { Plus } from '@vben/icons';
+import { Download, Plus } from '@vben/icons';
 
-import { Button, message } from 'ant-design-vue';
+import { Button, message, Modal } from 'ant-design-vue';
 
 import { useVbenVxeGrid } from '#/adapter/vxe-table';
 import {
@@ -29,6 +29,7 @@ const router = useRouter();
 const state = reactive({
   formValues: {},
 });
+
 const [FormModal, formModalApi] = useVbenModal({
   connectedComponent: Form,
   destroyOnClose: true,
@@ -39,62 +40,39 @@ const [ExportModel, exportModalApi] = useVbenModal({
   destroyOnClose: true,
 });
 
-/**
- * 编辑用户
- * @param row
- */
 function onEdit(row: TenantModel) {
   formModalApi.setData(row).open();
 }
 
-/**
- * 创建用户
- */
 function onCreate() {
-  formModalApi.setData(null).open();
+  formModalApi.setData({}).open();
 }
-/**
- * 导出用户
- */
+
 function onExport() {
-  // 获取查询参数
   exportModalApi
     .setData({
-      searchParam: state.formValues,
-      paramApi: doExportEntityInfo,
       exportApi: doExportUrl,
+      paramApi: doExportEntityInfo,
+      searchParam: state.formValues,
     })
     .open();
 }
-const successExport = () => {
-  message.success('导出成功');
-};
 
-/**
- * 删除用户
- */
-function onDelete(row: any) {
-  const hideLoading = message.loading({
-    content: `正在删除 昵称为：${row.nickName}`,
-    duration: 0,
-    key: 'action_process_msg',
-  });
-  doDelete({ id: row.id })
-    .then(() => {
-      message.success({
-        content: '删除成功',
-        key: 'action_process_msg',
-      });
-      refreshGrid();
-    })
-    .catch(() => {
-      hideLoading();
-    });
+function successExport() {
+  message.success('导出成功');
 }
 
-/**
- * 表格操作按钮的回调函数
- */
+function onDelete(row: any) {
+  Modal.confirm({
+    title: '删除操作',
+    content: `确定删除用户“${row.nickName ?? row.userName ?? row.id}”？`,
+    async onOk() {
+      await doDelete({ id: row.id });
+      refreshGrid();
+    },
+  });
+}
+
 function onActionClick({ code, row }: OnActionClickParams<TenantModel>) {
   switch (code) {
     case 'delete': {
@@ -114,7 +92,6 @@ function onActionClick({ code, row }: OnActionClickParams<TenantModel>) {
 
 const [Grid, gridApi] = useVbenVxeGrid({
   formOptions: {
-    // fieldMappingTime: [['createTime', ['startTime', 'endTime']]],
     schema: useGridFormSchema(),
     submitOnChange: false,
   },
@@ -147,13 +124,11 @@ const [Grid, gridApi] = useVbenVxeGrid({
   } as VxeTableGridOptions,
 });
 
-/**
- * 刷新表格
- */
 function refreshGrid() {
   gridApi.query();
 }
 </script>
+
 <template>
   <Page auto-content-height>
     <FormModal @success="refreshGrid" />
@@ -161,20 +136,20 @@ function refreshGrid() {
     <Grid table-title="用户列表">
       <template #toolbar-tools>
         <Button
-          type="primary"
-          class="mr-2"
           v-access:code="'system.user:add'"
+          class="mr-2"
+          type="primary"
           @click="onCreate"
         >
           <Plus class="size-5" />
           添加
         </Button>
         <Button
-          type="primary"
           v-access:code="'system.user:export'"
+          type="primary"
           @click="onExport"
         >
-          <Plus class="size-5" />
+          <Download class="size-5" />
           导出
         </Button>
       </template>

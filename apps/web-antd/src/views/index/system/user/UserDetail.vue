@@ -10,46 +10,42 @@ import printJS from 'print-js';
 
 import { UserInfoApi } from '#/api/sys/user';
 
-// const htmlElement = ref<HTMLElement | null>(null);
 const route = useRoute();
 const { setTabTitle } = useTabs();
 const state = reactive({
-  userId: route.params?.id,
-  userName: '',
-  memoRef: '',
   user: {} as any,
+  userId: route.params?.id,
 });
 
-const initUserInfo = async () => {
-  state.user = await UserInfoApi({ id: state.userId });
-  // 设置导航名称
-  setTabTitle(`详情：用户${state.user.nickName}`);
-  // 水印
-  // nextTick(() => {
-  //   htmlElement.value = document.querySelector('#myHtmlElement');
-  //   const { setWatermark } = useWatermark(htmlElement);
-  //   setWatermark(model.v);
-  // });
-};
+function getGenderText(gender?: number) {
+  if (gender === 1) return '男';
+  if (gender === 2) return '女';
+  return '保密';
+}
 
-const handleSubmit = () => {
+async function initUserInfo() {
+  state.user = await UserInfoApi({ id: state.userId });
+  setTabTitle(`详情：用户${state.user.nickName ?? state.user.userName ?? ''}`);
+}
+
+function handlePrint() {
   printJS({
-    printable: 'myHtmlElement',
-    type: 'html',
-    targetStyles: ['*'],
     ignoreElements: ['no-print'],
     maxWidth: 900,
+    printable: 'myHtmlElement',
+    targetStyles: ['*'],
+    type: 'html',
   });
-};
-onMounted(() => {
-  initUserInfo();
-});
+}
+
+onMounted(initUserInfo);
 </script>
+
 <template>
   <Page
-    :title="`用户${state.userName}的资料`"
-    content-class="flex flex-col"
     auto-content-height
+    content-class="flex flex-col"
+    :title="`用户${state.user?.nickName ?? state.user?.userName ?? ''}的资料`"
   >
     <div
       id="myHtmlElement"
@@ -66,15 +62,7 @@ onMounted(() => {
           {{ state.user?.phone }}
         </Descriptions.Item>
         <Descriptions.Item class="w-[180px]" label="性别">
-          <Tag color="success">
-            {{
-              state.user?.gender === 1
-                ? '男'
-                : state.user?.gender === 2
-                  ? '女'
-                  : '隐藏'
-            }}
-          </Tag>
+          <Tag color="success">{{ getGenderText(state.user?.gender) }}</Tag>
         </Descriptions.Item>
         <Descriptions.Item class="w-[180px]" label="身份证号">
           {{ state.user?.idCard }}
@@ -109,7 +97,7 @@ onMounted(() => {
         v-access:code="['system.user:print']"
         class="flex h-full items-center justify-end pr-[10px] pt-2"
       >
-        <Button @click="handleSubmit">打印</Button>
+        <Button @click="handlePrint">打印</Button>
       </div>
     </div>
   </Page>
