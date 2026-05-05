@@ -97,7 +97,7 @@ export function useColumns<T = TenantModel>(
 }
 
 export function useFormSchema(
-  headerImageChange: (file: File) => Promise<void>,
+  headerImageChange: ({ file }: { file: File }) => Promise<void>,
 ): VbenFormSchema[] {
   return [
     {
@@ -201,7 +201,7 @@ export function useFormSchema(
         showUploadList: true,
         // 上传列表的内建样式，支持四种基本样式 text, picture, picture-card 和 picture-circle
         listType: 'picture-card',
-        onChange: headerImageChange,
+        handleChange: headerImageChange,
       },
       dependencies: {
         triggerFields: ['id'],

@@ -45,7 +45,6 @@ const componentContext = computed(() => {
     }
   }
 });
-
 const headerSave = async (data: any) => {
   let api = null;
   let param = null;
@@ -55,6 +54,7 @@ const headerSave = async (data: any) => {
     }
     case 'BaseSetting': {
       const { imageUrl, areaList, ...values } = data;
+      // 保留此处赋值即可
       api = modelData.isUpdate ? doUpdate : doInsert;
       param = {
         ...values,
@@ -63,7 +63,7 @@ const headerSave = async (data: any) => {
         cityId: areaList[1],
         areaId: areaList[2],
       };
-      api = modelData.isUpdate ? doUpdate : doInsert;
+      // 删除了重复的 api 赋值语句
       break;
     }
     case 'SecureSetting': {
