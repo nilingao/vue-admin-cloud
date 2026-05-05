@@ -30,12 +30,13 @@ export async function useInitSocket() {
     () => {
       Object.keys(useSocket.getNamespaceMap).forEach(
         async (key: SocketNamespace | string) => {
-          let nameSpace: Namespace = useSocket.getNamespace(
+          let nameSpace: Namespace | undefined = useSocket.getNamespace(
             key as SocketNamespace,
           );
           if (!nameSpace) {
             nameSpace = useSocket.getNamespaceMap[key] as Namespace;
           }
+          if (!nameSpace) return;
           const socket = nameSpace.getSocket();
           if (socket) {
             socket.disconnect();
@@ -44,12 +45,13 @@ export async function useInitSocket() {
       );
       Object.keys(useSocket.getNamespaceMap).forEach(
         async (key: SocketNamespace | string) => {
-          let nameSpace: Namespace = useSocket.getNamespace(
+          let nameSpace: Namespace | undefined = useSocket.getNamespace(
             key as SocketNamespace,
           );
           if (!nameSpace) {
             nameSpace = useSocket.getNamespaceMap[key] as Namespace;
           }
+          if (!nameSpace) return;
           const param = nameSpace.getParam();
           if (!param.init) {
             return;
@@ -75,9 +77,12 @@ export async function useFsSocket(
   watch(
     () => accessStore.accessToken,
     async () => {
-      let nameSpace: Namespace = useSocket.getNamespace(namespace);
+      let nameSpace: Namespace | undefined = useSocket.getNamespace(namespace);
       if (!nameSpace) {
         nameSpace = useSocket.getNamespaceMap[namespace] as Namespace;
+      }
+      if (!nameSpace) {
+        return;
       }
       if (!accessStore.accessToken) {
         return;

@@ -37,7 +37,7 @@ export interface BranchCondition {
   height?: number;
   id: number | string;
   index: number;
-  nextNodeId?: number;
+  nextNodeId?: number | string;
 }
 
 export interface Condition {

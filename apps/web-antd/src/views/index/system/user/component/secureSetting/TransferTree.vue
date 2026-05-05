@@ -23,13 +23,15 @@ function getNodeClass(node: Recordable<any>) {
 
   return classes.join(' ');
 }
+
 const treeData = computed(() => {
   return handleTreeData(modelValue.value[1], modelValue.value[0]);
 });
+
 const dataSource = computed(() => {
   return handleSourceData(modelValue.value[1]);
 });
-// 转换eTreeData
+
 const handleTreeData = (data: any[], targetKeys: string[]) => {
   const tree = [] as any[];
   data.forEach((item) => {
@@ -45,7 +47,7 @@ const handleTreeData = (data: any[], targetKeys: string[]) => {
   });
   return tree;
 };
-// 转换eTreeData
+
 const handleSourceData = (data: any) => {
   const transferDataSource = [] as any;
   data.forEach((item: any) => {
@@ -58,9 +60,10 @@ const handleSourceData = (data: any) => {
   });
   return transferDataSource;
 };
+
 const onChecked = (item: any, onItemSelect: (n: any, c: boolean) => void) => {
   const { bind } = item;
-  onItemSelect(item._id, bind.isSelected);
+  onItemSelect(item.key, bind.isSelected);
 };
 
 const onChange = (keys: string[]) => {
@@ -68,6 +71,7 @@ const onChange = (keys: string[]) => {
   emit('change', modelValue.value);
 };
 </script>
+
 <template>
   <Transfer
     :data-source="dataSource"

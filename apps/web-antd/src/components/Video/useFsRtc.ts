@@ -44,7 +44,7 @@ declare global {
 
 export function useFsRtc(
   rtcProps: RtcProps,
-  container?: Ref<HTMLVideoElement>,
+  container?: Ref<HTMLVideoElement | undefined>,
 ) {
   const success = ref(false);
   const fsRtcClient = ref<FsRtcEndpoint>();

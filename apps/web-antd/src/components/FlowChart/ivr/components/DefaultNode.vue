@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import type { MenuInfo } from 'ant-design-vue/es/menu/src/interface';
+
 import { IconifyIcon } from '@vben/icons';
 
 import { Handle, Position, useVueFlow } from '@vue-flow/core';
@@ -34,7 +36,7 @@ const emit = defineEmits<{
 
 const { removeNodes } = useVueFlow();
 
-function handleMenuClick({ key }: { key: string }) {
+function handleMenuClick({ key }: MenuInfo) {
   if (key === 'del') {
     removeNodes([props.nodeId]);
     return;

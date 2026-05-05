@@ -1,6 +1,6 @@
 import type { VxeGridSlots, VxeGridSlotTypes } from 'vxe-table';
 
-import type { SlotsType } from 'vue';
+import type { Component, SlotsType } from 'vue';
 
 import type { BaseFormComponentType } from '@vben-core/form-ui';
 
@@ -43,7 +43,7 @@ export function useVbenVxeGrid<
       api.setState({ ...props, ...attrs } as Partial<VxeGridProps<T, D, P>>);
       return () =>
         h(
-          VxeGrid,
+          VxeGrid as Component,
           {
             ...props,
             ...attrs,

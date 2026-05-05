@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { Edge, Node } from '@vue-flow/core';
 
-import { nextTick, reactive, ref, watch } from 'vue';
+import { nextTick, ref, shallowReactive, watch } from 'vue';
 
 import { Background, Panel } from '@vue-flow/additional-components';
 import { PanelPosition, useVueFlow, VueFlow } from '@vue-flow/core';
@@ -35,7 +35,7 @@ const props = withDefaults(
   },
 );
 
-const graphData = reactive({
+const graphData = shallowReactive({
   edges: [] as Edge[],
   nodes: [] as Node[],
   viewport: {},

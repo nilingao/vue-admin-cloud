@@ -1,16 +1,18 @@
+import type { Socket } from 'socket.io-client';
+
 import type { Recordable } from '@vben/types';
 
 import type { Namespace } from '#/hooks/socket/common';
 
 import { message } from 'ant-design-vue';
 import { defineStore } from 'pinia';
-import VueSocketIO, { Socket } from 'socket.io-client';
+import VueSocketIO from 'socket.io-client';
 
 import { SocketInEvent, SocketNamespace } from '../../enums/SocketEnum';
 
 interface SocketState {
   namespaceMap: Recordable<Namespace>;
-  socketMap: Recordable<Socket>;
+  socketMap: Recordable<Namespace | undefined>;
 }
 
 export const useSocketStore = defineStore('app-socket', {
@@ -22,7 +24,7 @@ export const useSocketStore = defineStore('app-socket', {
     getNamespaceMap(): Recordable<Namespace> {
       return { ...this.namespaceMap };
     },
-    getSocketMap(): Recordable<Socket> {
+    getSocketMap(): Recordable<Namespace | undefined> {
       return this.socketMap;
     },
   },
@@ -41,13 +43,13 @@ export const useSocketStore = defineStore('app-socket', {
       token?: string,
       socketUrl?: string,
     ): Promise<void> {
-      let nameSpace: Namespace = this.getNamespace(
+      let nameSpace: Namespace | undefined = this.getNamespace(
         namespace.getParam().namespace,
       );
       if (!nameSpace) {
         nameSpace = namespace;
       }
-      let socket: Socket = nameSpace.getSocket();
+      let socket = nameSpace.getSocket();
       if (socket) {
         socket.disconnect();
       }
@@ -84,11 +86,11 @@ export const useSocketStore = defineStore('app-socket', {
       // 缓存socket空间
       this.socketMap[nameSpace.getParam().namespace] = nameSpace;
     },
-    getNamespace(namespace: SocketNamespace): Namespace {
+    getNamespace(namespace: SocketNamespace): Namespace | undefined {
       return this.socketMap[namespace];
     },
     delNamespace(namespace: SocketNamespace): void {
-      const nameSpace: Namespace = this.socketMap[namespace];
+      const nameSpace = this.socketMap[namespace];
       if (nameSpace) {
         nameSpace.getSocket()?.disconnect();
         this.socketMap[namespace] = undefined;
@@ -99,7 +101,7 @@ export const useSocketStore = defineStore('app-socket', {
       event: SocketInEvent,
       message: any,
     ) {
-      const nameSpace: Namespace = this.socketMap[namespace];
+      const nameSpace = this.socketMap[namespace];
       if (!nameSpace) {
         throw new Error(`socket is null! namespace:${namespace}`);
       }

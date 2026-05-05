@@ -1,3 +1,5 @@
+import type { Component } from 'vue';
+
 import type {
   DrawerApiOptions,
   DrawerProps,
@@ -57,12 +59,12 @@ export function useVbenDrawer<
           ...attrs,
           ...slots,
         });
-        return () =>
-          h(
-            isDrawerReady.value ? connectedComponent : 'div',
-            { ...props, ...attrs },
-            slots,
-          );
+        return () => {
+          const component = (
+            isDrawerReady.value ? connectedComponent : 'div'
+          ) as Component;
+          return h(component, { ...props, ...attrs }, slots);
+        };
       },
       // eslint-disable-next-line vue/one-component-per-file
       {
@@ -105,7 +107,11 @@ export function useVbenDrawer<
   const Drawer = defineComponent(
     (props: DrawerProps, { attrs, slots }) => {
       return () =>
-        h(VbenDrawer, { ...props, ...attrs, drawerApi: extendedApi }, slots);
+        h(
+          VbenDrawer as Component,
+          { ...props, ...attrs, drawerApi: extendedApi },
+          slots,
+        );
     },
     // eslint-disable-next-line vue/one-component-per-file
     {

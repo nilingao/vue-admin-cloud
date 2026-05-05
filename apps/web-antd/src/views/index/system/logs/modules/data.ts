@@ -110,7 +110,7 @@ export function useColumns<T = LogsEntity>(
       slots: {
         default: ({ row }) => {
           const option = getLogsTypeOption(row.type);
-          return h(Tag, { color: option.color }, () => option.label);
+          return h(Tag, { color: option?.color }, () => option?.label ?? '');
         },
       },
       title: '日志类型',
@@ -174,5 +174,5 @@ export function useColumns<T = LogsEntity>(
 }
 
 export function getLogsTypeName(type?: number | string) {
-  return getLogsTypeOption(type).label;
+  return getLogsTypeOption(type)?.label ?? '';
 }

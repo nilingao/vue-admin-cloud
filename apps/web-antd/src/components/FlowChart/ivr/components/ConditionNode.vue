@@ -123,8 +123,9 @@ function removeCondition(branch: Branch, index: number) {
   state.branchConditionList.forEach((item, idx) => {
     item.index = idx;
   });
-  if (branch.type === 1 && state.branchList.length > 0) {
-    state.branchList[0].type = 1;
+  const firstBranch = state.branchList[0];
+  if (branch.type === 1 && firstBranch) {
+    firstBranch.type = 1;
   }
 }
 
@@ -158,7 +159,7 @@ function handleCope(newNodeId: string) {
   });
   branchList.forEach((branch) => {
     branchConditionMap[`${branch.id}`] = {
-      ...branchConditionMap[`${branch.id}`],
+      ...(branchConditionMap[`${branch.id}`] ?? { index: 0 }),
       id: `${branchId}`,
       nextNodeId: undefined,
     };

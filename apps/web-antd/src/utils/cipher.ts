@@ -36,7 +36,6 @@ export interface HashingFactory {
 }
 
 class AesEncryption implements Encryption {
-  private static instance: any;
   get getOptions() {
     return {
       mode: this.md,

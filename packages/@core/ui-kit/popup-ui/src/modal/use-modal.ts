@@ -1,4 +1,5 @@
 import type { ExtendedModalApi, ModalApiOptions, ModalProps } from './modal';
+import type { Component } from 'vue';
 
 import {
   defineComponent,
@@ -54,15 +55,19 @@ export function useVbenModal<TParentModalProps extends ModalProps = ModalProps>(
           ...attrs,
           ...slots,
         });
-        return () =>
-          h(
-            isModalReady.value ? connectedComponent : 'div',
+        return () => {
+          const component = (
+            isModalReady.value ? connectedComponent : 'div'
+          ) as Component;
+          return h(
+            component,
             {
               ...props,
               ...attrs,
             },
             slots,
           );
+        };
       },
       // eslint-disable-next-line vue/one-component-per-file
       {
@@ -114,7 +119,7 @@ export function useVbenModal<TParentModalProps extends ModalProps = ModalProps>(
     (props: ModalProps, { attrs, slots }) => {
       return () =>
         h(
-          VbenModal,
+          VbenModal as Component,
           {
             ...props,
             ...attrs,

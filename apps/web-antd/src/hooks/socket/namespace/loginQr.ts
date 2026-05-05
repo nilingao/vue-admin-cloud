@@ -1,6 +1,6 @@
-import type { Namespace, SocketModel } from '../common';
+import type { Socket } from 'socket.io-client';
 
-import { Socket } from 'socket.io-client';
+import type { Namespace, SocketModel } from '../common';
 
 import { SocketNamespace, SocketOutEvent } from '#/enums/SocketEnum';
 import rootSocketEmitter from '#/hooks/socket/rootSocketEmitter';
@@ -8,7 +8,7 @@ import rootSocketEmitter from '#/hooks/socket/rootSocketEmitter';
 class LoginQrNamespace implements Namespace {
   private readonly namespace: SocketNamespace;
   private readonly path: string;
-  private socket: Socket;
+  private socket?: Socket;
   private readonly token: boolean;
 
   constructor() {

@@ -1,4 +1,4 @@
-import { Socket } from 'socket.io-client';
+import type { Socket } from 'socket.io-client';
 
 import { SocketNamespace } from '#/enums/SocketEnum';
 /**
@@ -10,7 +10,7 @@ export interface Namespace {
   // 设置socket
   setSocket(socket: Socket): void;
   // 获取socket
-  getSocket(): Socket;
+  getSocket(): Socket | undefined;
 }
 
 /**
