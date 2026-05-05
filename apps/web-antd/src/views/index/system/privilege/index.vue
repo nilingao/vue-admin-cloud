@@ -81,9 +81,13 @@ async function handleSelect({ bind = {} as any }) {
   await getMenu(current.tenantId);
 
   if (Math.trunc(type.value) === 1) {
-    checkedList.value = await doDepartmentPrivilegeList({ departmentId: currentId });
+    checkedList.value = await doDepartmentPrivilegeList({
+      departmentId: currentId,
+    });
   } else if (Math.trunc(type.value) === 2) {
-    checkedList.value = await doPositionPrivilegeList({ positionId: currentId });
+    checkedList.value = await doPositionPrivilegeList({
+      positionId: currentId,
+    });
   } else {
     checkedList.value = await doRolePrivilegeList({ roleId: currentId });
   }
