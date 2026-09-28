@@ -19,7 +19,7 @@ agent: "agent"
 
 按顺序创建（路径均在 `apps/web-antd/src/` 下）：
 
-1. `api/<域>/<实体>.ts` — 极简 typed wrapper：Entity 接口 + `do<Entity>Page/Add/Update/Remove` 函数，只用 `requestClient`
+1. `api/<域>/<实体>.ts` — 按 `/api-wrapper` skill 的模板与命名约定生成（enum Api + do* 函数 + requestClient）
 2. `views/<模块路径>/index.vue` — `Page` + `useVbenVxeGrid`（formOptions.schema 来自 data.ts）+ `useVbenModal` 连接弹窗 + `onActionClick` 分发 add/edit/delete
 3. `views/<模块路径>/modules/data.ts` — 导出 `useGridFormSchema()`（搜索栏）、`useColumns(onActionClick)`（含 CellOperation 列，show 用 `hasAccessByCodes`）、`useFormSchema()`（弹窗表单，必填项用 zod rules）
 4. `views/<模块路径>/modules/<Entity>Model.vue` — `useVbenModal` 弹窗，新增/编辑复用，提交成功后 `emit('success')`

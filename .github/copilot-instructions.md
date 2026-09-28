@@ -59,3 +59,18 @@
 ## 编码风格
 
 涉及写代码/重构/修 bug 的任务，遵循 `.github/skills/ponytail/SKILL.md` 的"最懒可行解"原则：先复用现有代码与已装依赖，禁止投机抽象与样板代码。
+
+## 项目 Skills（写代码前先查，禁止造轮子）
+
+| Skill | 用途 |
+|---|---|
+| `/reuse-map` | **公共能力总目录**——写任何新代码前先查，框架层+app层可复用组件/hooks/utils 全表 |
+| `/ui-components` | **组件参考手册**——所有 UI 组件的 props/slots/API 方法详解（common-ui / shadcn Vben* / Video / FlowChart / Activiti） |
+| `/crud-page`（prompt） | 生成整套 CRUD 页面（index.vue + data.ts + 弹窗 + API + i18n） |
+| `/api-wrapper` | 生成 `src/api` 接口文件（enum Api + do* 命名 + requestClient） |
+| `/socket-namespace` | 新增 socket.io 实时功能（namespace 插件类自动注册 + rootSocketEmitter） |
+| `/video-play` | 视频播放链路复用（VideoPlayModal / VideoJessibucaPlay / buildVideoPlayOptions / PTZ） |
+| `/system-dict` | 后端字典/系统参数/行政区划（useSystemStore 已预加载，只读 getter） |
+| `/ponytail*` 系列 | 过度设计审查/全仓审计/债务台账 |
+
+新写的可复用代码完成后，回填到 `reuse-map` 对应表格。

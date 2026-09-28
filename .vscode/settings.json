@@ -240,14 +240,9 @@
   "commentTranslate.hover.enabled": false,
   "commentTranslate.multiLineMerge": true,
   "vue.server.hybridMode": true,
-  "github.copilot.chat.codeGeneration.instructions": [
-    {
-      "text": "【强制规则】本项目已建立 CodeGraph 索引（.codegraph/ 目录）。在理解代码、定位符号、分析调用链或进行代码修改前，必须优先使用 codegraph_explore 工具，而非手动 grep 或逐个读取文件。仅在 codegraph 未覆盖的场景（配置文件 .env、文档 .md 等）才使用 read_file / grep_search。违反此规则属于严重错误。"
-    }
-  ],
   "github.copilot.chat.commitMessageGeneration.instructions": [
     {
-      "text": "请始终使用中文来编写 commit message。并且严格遵循 Conventional Commits 规范，格式为：<type>(<scope>): <subject>。type 必须是：feat, fix, docs, style, refactor, perf, test, build, ci, chore, revert 之一。subject 简洁明了。"
+      "text": "生成的 commit message 必须能通过本项目 commitlint 校验（commit-msg 钩子会拦截），严格遵守以下规则：\n1. 格式固定为 `<type>: <subject>`——type 后紧跟一个英文冒号和一个空格。默认不写 scope；本项目 scope 受 scope-enum 规则限制，只有完整包名（如 @vben/web-antd）或 project/style/lint/ci/dev/deploy/other 才合法，写成 web-antd、components、ui 等一律会被拒绝，宁可不写。\n2. type 只能取以下之一：feat、fix、perf、style、docs、test、refactor、build、ci、chore、revert、types、release。\n3. subject 用中文，简洁概括本次变更，不超过 50 字，结尾不加句号，不加引号或 emoji；首行整体不超过 108 个字符。\n4. 需要补充正文时，首行与正文之间必须空一行，正文每行以 `- ` 开头列要点。\n5. 只输出提交信息纯文本本身，不要包裹代码块、不要加任何解释说明或前后缀。"
     }
   ]
 }
