@@ -57,12 +57,7 @@ vite.config.ts.*
 .agents
 .claude
 .codex
-!.codex/
-.codex/*
-!.codex/skills/
-.codex/skills/*
-!.codex/skills/vue-admin-cloud/
-!.codex/skills/vue-admin-cloud/**
+.codegraph
 skills-lock.json
 .atomcode
 datalog

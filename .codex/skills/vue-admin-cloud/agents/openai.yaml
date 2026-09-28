@@ -1,4 +1,0 @@
-interface:
-  display_name: "Vue Admin Cloud"
-  short_description: "Work effectively in this Vben-based Vue admin monorepo."
-  default_prompt: "Use $vue-admin-cloud when working on this project's Vben-based admin app."
