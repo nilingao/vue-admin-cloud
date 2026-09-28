@@ -1,31 +1,61 @@
 # Copilot 项目指令
 
-## ⚠️⚠️⚠️ 最高优先级规则 — 会话开始第一件事必读 ⚠️⚠️⚠️
-
-> **本项目已建立 CodeGraph 索引（`.codegraph/` 目录）。**
->
-> 在理解代码、定位符号、分析调用链或进行代码修改前，**必须优先使用 `codegraph_explore` 工具**，而非手动 grep 或逐个读取文件。
->
-> **违反此规则属于严重错误。** 不要用 `read_file` / `list_dir` / `grep_search` 去摸索代码结构——这些工具仅用于 codegraph 未覆盖的场景（配置文件 `.env`、文档 `.md` 等）。
->
-> ### 正确流程
-> 1. 分析项目/代码 → 先 `codegraph_explore` 查询架构/入口/核心符号
-> 2. 定位符号 → `codegraph_explore` 传入符号名或文件名
-> 3. 分析调用链 → `codegraph_explore` 命名流程两端符号
-> 4. 编辑前 → `codegraph_explore` 查看源码 + blast radius
-> 5. 仅配置文件/文档 → 才用 `read_file` / `grep_search`
-
-## ⚡ 优先使用 CodeGraph
+## ⚠️ 最高优先级规则：优先使用 CodeGraph
 
 本项目已建立 CodeGraph 索引（`.codegraph/` 目录）。在理解代码、定位符号、分析调用链或进行代码修改前，**必须优先使用 `codegraph_explore` 工具**，而非手动 grep 或逐个读取文件。
 
-- **查询代码** → 用 `codegraph_explore`，传入符号名、文件名或自然语言问题
-- **分析调用链/流程** → 用 `codegraph_explore`，命名流程两端的符号，它会返回调用路径
-- **编辑前** → 先用 `codegraph_explore` 查看目标符号源码及影响范围（blast radius）
-- 仅在 codegraph 未覆盖的场景（配置文件、文档等）才使用 `read_file` / `grep_search`
+1. 分析项目/代码 → 先 `codegraph_explore` 查询架构/入口/核心符号
+2. 定位符号 → `codegraph_explore` 传入符号名或文件名
+3. 分析调用链 → `codegraph_explore` 命名流程两端符号，返回调用路径
+4. 编辑前 → `codegraph_explore` 查看目标源码 + 影响范围（blast radius）
+5. 仅 codegraph 未覆盖的场景（`.env` 等配置、`.md` 文档）才用 `read_file` / `grep_search`
 
-## 📖 使用工具/技术前先加载已有文档
+## 项目概览
 
-本项目在 `.github/instructions/` 目录下维护了完整的工具用法指令文件（`.instructions.md`，带 YAML frontmatter）。这些文件会根据 `applyTo` 模式**自动附加**到匹配的文件上下文中，也可手动 `read_file` 加载。**在编写任何涉及插件、工具函数、组件、API、Store 的代码前，必须先加载对应指令文档，按文档中已验证的用法编写，不得自行摸索新写法。**
+基于 vben-admin 5.x 的 Vue 3 后台管理系统，pnpm + turbo monorepo。唯一应用：`apps/web-antd`（Ant Design Vue）。
 
-> **违反此规则属于严重错误。** 不要凭记忆或猜测编写工具调用代码——先加载文档确认正确用法。
+- Node `^22.18.0 || ^24.0.0`，pnpm `>=11`（`only-allow` 强制，勿用 npm/yarn）
+- **无 mock**，开发直连真实后端：vite proxy `/basic-api` → `https://www.nilongao.cn/basic-api`（见 `apps/web-antd/vite.config.ts`）
+- 环境变量在 `apps/web-antd/.env*`（dev 端口 5666）
+
+## 常用命令
+
+| 命令 | 用途 |
+|---|---|
+| `pnpm dev:antd` | 启动开发服务器 |
+| `pnpm build:antd` | 构建 web-antd |
+| `pnpm check:type` | 全量类型检查（pre-commit 会自动执行） |
+| `pnpm lint` / `pnpm format` | 检查 / 修复（oxfmt + oxlint + eslint + stylelint 链） |
+| `pnpm test:unit` | vitest 单测（happy-dom） |
+| `pnpm commit` | czg 交互式提交（Angular 规范，commitlint 校验） |
+
+## 目录职责
+
+- `apps/web-antd/src/`：`views/`（按业务域分页：fs/oa/index/video/work…）、`api/`（按域分目录 + `request.ts`）、`router/`（`access.ts` 动态权限路由）、`store/`、`adapter/`（VbenForm/VxeGrid 适配层）、`locales/langs/{zh-CN,en-US}/`
+- `packages/@core/`：框架核心（ui-kit、preferences、composables），零业务
+- `packages/effects/`：效果层（access 权限、request axios 封装、layouts、plugins 如 vxe-table/echarts）
+- `packages/stores|utils|icons|locales|constants|…`：跨包共享
+- `internal/`：lint / tsconfig / vite-config 共享配置（一般无需改动）
+
+## 关键约定
+
+1. **路由为后端动态菜单**（`accessMode: 'backend'`）：菜单来自 `getAllMenusApi`，组件用 `import.meta.glob('../views/**/*.vue')` 映射。新页面必须放在 `views/` 下且路径与后端菜单 component 字段一致；前端静态路由仅少量在 `router/routes/modules/`。
+2. **CRUD 页面模式**：`<module>/<page>/index.vue` + 页面级 `data.ts`（VbenFormSchema / VxeGrid schema，用 zod 校验）+ `modules/*.vue`（弹窗/抽屉，`useVbenModal`）。表格统一 `useVbenVxeGrid`，按钮权限用 `v-access:code`。范例：`views/index/system/user/`。
+3. **请求**：只用 `src/api/request.ts` 导出的 `requestClient`（已带 token、刷新重认证、租户头 `schemasTenantId` 注入）；API 文件写极简 typed wrapper（范例：`api/core/menu.ts`）。
+4. **多租户**：`tenantMode` 偏好扩展 + `userStore.searchTenant`，详见 [tenant-switch-design](../docs/superpowers/specs/2026-07-07-tenant-switch-design.md)。
+5. **i18n**：文案一律 `$t()`，语言包按模块分 json 放 `src/locales/langs/`。
+6. **依赖版本**：统一 `catalog:`（定义在 `pnpm-workspace.yaml`），勿在子包 package.json 写死版本号。
+
+## 设计文档（先读再改）
+
+迁移/修改 v2 旧页面相关代码前，先读 `docs/superpowers/`：
+
+- [v2→v5 页面迁移总设计](../docs/superpowers/specs/2026-05-05-v2-views-migration-design.md)
+- [租户切换设计](../docs/superpowers/specs/2026-07-07-tenant-switch-design.md)
+- 实施计划在 `docs/superpowers/plans/`
+
+贡献指南：[contributing.md](contributing.md) · 提交规范：[commit-convention.md](commit-convention.md)
+
+## 编码风格
+
+涉及写代码/重构/修 bug 的任务，遵循 `.github/skills/ponytail/SKILL.md` 的"最懒可行解"原则：先复用现有代码与已装依赖，禁止投机抽象与样板代码。
